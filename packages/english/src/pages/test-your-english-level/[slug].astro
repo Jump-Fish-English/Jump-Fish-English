@@ -1,0 +1,183 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/base.astro";
+
+export async function getStaticPaths() {
+  const quizzes = await getCollection("quiz");
+  return quizzes.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+
+const { Content } = await entry.render();
+const storyTitle = entry.data.title;
+---
+
+<script>
+  interface Question {
+    text: string;
+    answer: "A" | "B" | "C" | "D";
+  }
+
+  let allQuestions: Question[] | undefined = undefined;
+
+  document.getElementById("quiz-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (allQuestions === undefined) {
+      allQuestions = [...document.querySelectorAll(".question")].map((el) => {
+        return {
+          text: el.getAttribute("data-question"),
+          answer: el.getAttribute("data-answer"),
+        } as Question;
+      });
+    }
+
+    const answers = [...document.querySelectorAll("input:checked")].reduce(
+      (acc, input) => {
+        const questionText = input.getAttribute("name");
+        if (questionText === null) {
+          return acc;
+        }
+        const value = input.getAttribute("value");
+        acc[questionText] = value;
+        return acc;
+      },
+      {} as Record<string, string | null>,
+    );
+
+    const results: Array<{
+      text: string;
+      correct: boolean;
+    }> = [];
+    allQuestions.forEach(
+      ({ text: questionText, answer: questionAnswer }, index) => {
+        const answer = answers[questionText];
+        if (answer === undefined) {
+          results.push({
+            text: `Question ${index + 1}: No Answer`,
+            correct: false,
+          });
+          return;
+        }
+
+        results.push({
+          text: `You answered ${answer}. Correct answer: ${questionAnswer}`,
+          correct: answer === questionAnswer,
+        });
+      },
+    );
+
+    const resultsEl = document.getElementById("results");
+    
+    if (resultsEl === null) {
+      return;
+    }
+    
+    resultsEl.innerHTML = `
+      <ul>
+        ${results
+          .map((result) => {
+            const color = result.correct === true ? "green" : "red";
+            return `<li style="color:${color}">${result.text}</li>`;
+          })
+          .join("")}
+      </ul>
+
+      Correct Answers: ${results.reduce((acc, result) => {
+        if (result.correct) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0)} / ${allQuestions.length}
+    `;
+  });
+</script>
+<style>
+  ul,
+  li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .answer:hover,
+  .answer:has(input:checked) {
+    background: #b8b8b8;
+  }
+
+  .answer label {
+    cursor: pointer;
+    display: block;
+    padding: 0.3rem;
+  }
+
+  input[type="radio"] {
+    display: none;
+  }
+
+  .submit {
+    padding: 1.5rem;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+
+  .callout {
+    background: #f2f2f2;
+    padding: 0.8rem;
+  }
+</style>
+<BaseLayout title={storyTitle}>
+  <p class="callout">
+    Improve your English reading comprehension by reading the short story and
+    answering questions
+  </p>
+  <h1>{storyTitle}</h1>
+  <Content />
+  <hr />
+  <h2>Question and Answers</h2>
+  <p>
+    Answer questions from the text above. Check your answers by clicking on
+    "Check answers"
+  </p>
+  <form id="quiz-form">
+    {
+      entry.data.questions.map(
+        ({ text: questionText, answers, answer }, questionIndex) => {
+          return (
+            <div
+              class="question"
+              data-question={questionText}
+              data-answer={answer}
+            >
+              <h3>
+                {questionIndex + 1}) {questionText}
+              </h3>
+              <ul>
+                {answers.map(({ value, text }) => {
+                  const labelText = `${value}) ${text}`;
+                  return (
+                    <li class="answer">
+                      <label>
+                        <input value={value} type="radio" name={questionText} />
+                        {labelText}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        },
+      )
+    }
+    <input class="submit" type="submit" value="Check answers" />
+    <div id="results"></div>
+  </form>
+</BaseLayout>

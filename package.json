@@ -1,0 +1,19 @@
+{
+  "name": "jumpfish",
+  "volta": {
+    "node": "20.9.0"
+  },
+  "devDependencies": {
+    "create-astro": "4.5.0",
+    "astro": "3.4.3",
+    "typescript": "5.2.2",
+    "prettier": "3.0.3",
+    "prettier-plugin-astro": "0.12.1"
+  },
+  "scripts": {
+    "prettier": "prettier . **/*.astro --write"
+  },
+  "workspaces": [
+    "packages/**"
+  ]
+}

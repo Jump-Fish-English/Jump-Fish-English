@@ -1,0 +1,28 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+
+const { title } = Astro.props;
+
+interface Props {
+  title: string;
+}
+---
+
+<html>
+  <head>
+    <title>{title} - Jump Fish English</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+      }
+    </style>
+  </head>
+  <body>
+    <SiteHeader />
+    <slot />
+  </body>
+</html>
