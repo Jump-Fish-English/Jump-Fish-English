@@ -1,3 +1,7 @@
+---
+import logo from './jumpfish-english-logo-header.png';
+---
+
 <style>
   .site-header {
     border-bottom: 1px solid #c1c1c1;
@@ -11,7 +15,13 @@
     text-decoration: none;
     color: inherit;
   }
+
+  .logo {
+    vertical-align: middle;
+    height: 50px;
+    width: auto;
+  }
 </style>
 <header class="site-header">
-  <h3 class="site-title"><a href="/">Jump Fish English</a></h3>
+  <h3 class="site-title"><a href="/"><img class="logo" height={logo.height} width={logo.width} alt="JumpFish English" src={logo.src} /></a></h3>
 </header>
