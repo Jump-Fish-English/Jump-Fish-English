@@ -1,16 +1,18 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 
 interface Props {
   title: string;
+  description?: string;
 }
 ---
 
 <html>
   <head>
     <title>{title} - Jump Fish English</title>
+    {description !== undefined && <meta name="description" content={description} />}
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <style>
