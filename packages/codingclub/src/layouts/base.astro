@@ -1,5 +1,6 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
+import Footer from '../components/Footer.astro';
 
 const { title, description } = Astro.props;
 
@@ -22,6 +23,12 @@ interface Props {
           Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
           "Segoe UI Symbol";
 
+        --sky-blue: #4AB5F0;
+        --teal-green: #5FBB97;
+        --sunny-yellow: #F4C542;
+        --soft-orange: #F5A623;
+        --calm-blue: #8CC7E1;
+        --grass-green: #9BCB3C;
         
         line-height: 1.5;
         font-size: 16px;
@@ -29,8 +36,13 @@ interface Props {
 
     </style>
     <style is:inline>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+        
       a:visited {
-        color: blue;
+        color: var(--sky-blue);
       }
 
       a {
@@ -39,7 +51,10 @@ interface Props {
     </style>
   </head>
   <body>
-    <SiteHeader />
+    <slot name="header">
+      <SiteHeader />
+    </slot>
     <slot />
+    <Footer />
   </body>
 </html>

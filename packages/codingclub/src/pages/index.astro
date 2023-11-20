@@ -6,20 +6,70 @@ import { getCollection } from "astro:content";
 const blogs = (await getCollection("blog")).splice(0, 3);
 
 ---
+<style>
+  .site-header {
+      background: rgb(182, 211, 183);
+      border-bottom: 2px solid rgb(250, 249, 222);
+      text-align: center;
+      display: flex;
+      padding-top: 200px;
+      padding-bottom: 100px;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+        font-size: 1rem;
+        text-transform: uppercase;
+        color: rgb(250, 249, 222);
+        margin: 0;
+        font-size: 2rem;
+        position: relative;
+      }
+
+      h1:before {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 100%;
+        margin-bottom: 30px;
+        content: "";
+        display: block;
+        height: 100px;
+        width: 100px;
+        background: linear-gradient(var(--calm-blue), rgb(34, 84, 132));
+        border-radius: 100px;
+      }
+
+      .intro {
+        color: rgb(250, 249, 222);
+        font-size: 1.5rem;
+      }
+</style>
+
 <BaseLayout title="Welcome to Home School Coding Club">
+  <header slot="header" class="site-header">
+    <h1><a href="/">Home School Coding Club</a></h1>
+    <p class="intro">Crafting Futures with Code</p>
+  </header>
   <main>
     <section>
       <Row>
-        <h2>Why learn to code?</h2>
+        <h2>The Language of Tomorrow's Innovators</h2>
         <p>
-          Teaching kids how to code is crucial in today's digital age as it prepares kids for a future where technology plays a central role.
+          Coding is the backbone of our increasingly digital existence, powering everything from the apps we use daily to the way we communicate and access information. Learning to code fosters problem-solving skills, logical thinking, and creativity, equipping individuals with the ability to not only understand but also shape the technology-driven future. It's a language of global dialogue, breaking down barriers and opening doors to countless opportunities across various industries. As technology continues to permeate every aspect of life, coding stands not just as a skill for employment, but as an essential tool for navigating, understanding, and contributing to the world of tomorrow.
         </p>
-        <p>
-          Coding is not just about understanding computers; it's a way to nurture problem-solving skills, logical thinking, and creativity. When children learn to code, they are also learning to break down complex problems into smaller, manageable parts. This analytical thinking is beneficial in various aspects of life and future professions.
-        </p> 
         <p>
           Additionally, coding fosters perseverance and resilience, as kids learn to troubleshoot and correct their errors. In an increasingly tech-driven world, coding literacy is as essential as traditional literacy. It opens doors to numerous career opportunities in various sectors, ensuring that children are equipped with the skills to succeed in a rapidly evolving job market. Moreover, early exposure to coding encourages inclusivity in the tech industry, breaking down barriers and stereotypes from a young age.
         </p>
+      </Row>
+      <Row>
+        <h2>Unleashing Imagination, One Line of Code at a Time</h2>
+        <p>
+          Coding is not just about technology. It is not just about understanding computers. 
+          Coding is about nurturing problem-solving skills, logical thinking, and creativity. 
+          When children learn to code, they are also learning to break down complex problems into smaller, manageable parts. This analytical thinking is beneficial in various aspects of life and future professions.
+        </p> 
       </Row>
     </section>
     <section>
