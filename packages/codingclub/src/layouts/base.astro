@@ -1,0 +1,45 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+
+const { title, description } = Astro.props;
+
+interface Props {
+  title: string;
+  description?: string;
+}
+---
+
+<html>
+  <head>
+    <title>{title} - Home School Coding Club</title>
+    {description !== undefined && <meta name="description" content={description} />}
+    <meta charset="utf-8" />
+    <meta name="title" content={title} />
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+
+        
+        line-height: 1.5;
+        font-size: 16px;
+      }
+
+    </style>
+    <style is:inline>
+      a:visited {
+        color: blue;
+      }
+
+      a {
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <SiteHeader />
+    <slot />
+  </body>
+</html>
