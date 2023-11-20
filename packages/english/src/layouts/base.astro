@@ -12,7 +12,11 @@ interface Props {
 <html>
   <head>
     <title>{title} - Jump Fish English</title>
-    {description !== undefined && <meta name="description" content={description} />}
+    {
+      description !== undefined && (
+        <meta name="description" content={description} />
+      )
+    }
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <style>

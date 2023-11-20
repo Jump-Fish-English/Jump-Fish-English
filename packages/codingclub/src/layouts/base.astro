@@ -1,6 +1,6 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
-import Footer from '../components/Footer.astro';
+import Footer from "../components/Footer.astro";
 
 const { title, description } = Astro.props;
 
@@ -13,7 +13,11 @@ interface Props {
 <html>
   <head>
     <title>{title} - Home School Coding Club</title>
-    {description !== undefined && <meta name="description" content={description} />}
+    {
+      description !== undefined && (
+        <meta name="description" content={description} />
+      )
+    }
     <meta charset="utf-8" />
     <meta name="title" content={title} />
     <meta name="viewport" content="width=device-width" />
@@ -23,24 +27,23 @@ interface Props {
           Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
           "Segoe UI Symbol";
 
-        --sky-blue: #4AB5F0;
-        --teal-green: #5FBB97;
-        --sunny-yellow: #F4C542;
-        --soft-orange: #F5A623;
-        --calm-blue: #8CC7E1;
-        --grass-green: #9BCB3C;
-        
+        --sky-blue: #4ab5f0;
+        --teal-green: #5fbb97;
+        --sunny-yellow: #f4c542;
+        --soft-orange: #f5a623;
+        --calm-blue: #8cc7e1;
+        --grass-green: #9bcb3c;
+
         line-height: 1.5;
         font-size: 16px;
       }
-
     </style>
     <style is:inline>
       body {
         padding: 0;
         margin: 0;
       }
-        
+
       a:visited {
         color: var(--sky-blue);
       }
