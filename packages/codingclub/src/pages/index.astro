@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/base.astro";
 import Row from "../components/Row.astro";
 import { getCollection } from "astro:content";
 
-const blogs = (await getCollection("blog")).splice(0, 3);
+const blogs = (await getCollection("blog"));
 ---
 
 <style>
@@ -91,6 +91,7 @@ const blogs = (await getCollection("blog")).splice(0, 3);
         </p>
       </Row>
     </section>
+    <hr />
     <section>
       <Row>
         <h2>Blog</h2>
