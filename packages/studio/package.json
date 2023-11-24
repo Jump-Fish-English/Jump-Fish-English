@@ -1,0 +1,16 @@
+{
+    "name": "@jumpfish/studio",
+    "type": "module",
+    "version": "0.0.1",
+    "dependencies": {
+      "html2canvas": "1.4.1"
+    },
+    "scripts": {
+      "dev": "astro dev",
+      "start": "astro dev",
+      "build": "astro check && astro build",
+      "preview": "astro preview",
+      "astro": "astro"
+    }
+  }
+  

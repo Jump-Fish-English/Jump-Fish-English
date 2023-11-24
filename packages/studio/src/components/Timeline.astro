@@ -1,0 +1,120 @@
+---
+export interface Props {
+  duration: number;
+  step: number;
+  id?: string;
+}
+
+const { duration, step, id } = Astro.props;
+---
+<script>
+  class Timeline extends HTMLElement {
+    static observedAttributes = [
+      'duration',
+      'step'
+    ]
+
+    props: {
+      currentTime: number;
+      window: number;
+    } & ({
+      duration: number;
+      step: number;
+    } | {
+      duration?: never;
+      step?: never;
+    }) = {
+      currentTime: 0,
+      window: 1600,
+    }
+
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' }).innerHTML = `
+        <style>
+          :host {
+            position: relative;
+            z-index: 1;
+            display: block;
+            height: 100px;
+            cursor: grab;
+          }
+          
+          .mark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 1px;
+            z-index: 1;
+            background: green;
+          }
+        </style>
+      `; 
+    }
+
+    connectedCallback() {
+      const durationAttr = this.getAttribute('duration');
+      const stepAttr = this.getAttribute('step');
+      if (durationAttr === null || stepAttr === null) {
+        return;
+      }
+      const props = this.props = {
+        duration: parseInt(durationAttr, 10),
+        step: parseInt(stepAttr, 10),
+        currentTime: this.props.currentTime,
+        window: this.props.window,
+      }
+
+      const { width } = this.getBoundingClientRect();
+      const { duration, step, currentTime, window } = props;
+      
+      for(let i = currentTime; i < currentTime + window; i += step) {
+        const mark = document.createElement('i');
+        mark.classList.add('mark');
+        const transform = (i / window) * width;
+        mark.style.transform = `translateX(${transform}px)`;
+        this.shadowRoot!.appendChild(mark);
+      }
+
+      function millisecondsToTranslateX(currentTime: number, window: number, containerWidth: number) {
+        return (currentTime / window) * containerWidth;
+      }
+
+      let mouseMark = document.createElement('i');
+      mouseMark.classList.add('mark');
+      this.addEventListener('mouseenter', () => {
+        this.shadowRoot?.appendChild(mouseMark);
+      });
+      this.addEventListener('mouseleave', () => {
+        this.shadowRoot?.removeChild(mouseMark);
+      })
+      this.addEventListener('mousemove', (e) => {
+        const { offsetX: mouseX } = e;
+        const percentage = mouseX / width;
+        const timeStampMs = currentTime + (percentage * window);
+        mouseMark.style.transform = `translateX(${millisecondsToTranslateX(timeStampMs, window, width)}px)`;
+      });
+
+      this.addEventListener('click', (e) => {
+        const { offsetX: mouseX } = e;
+        const percentage = mouseX / width;
+        const timeStampMs = currentTime + (percentage * window);
+        console.log(timeStampMs);
+        this.dispatchEvent(new CustomEvent('timeselect', {
+          detail: {
+            milliseconds: timeStampMs,
+          }
+        }))
+      });
+    }
+  }
+
+  customElements.define('studio-timeline', Timeline);
+</script>
+
+<studio-timeline 
+  id={id} 
+  duration={duration} 
+  step={step}
+/>
