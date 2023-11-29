@@ -1,4 +1,5 @@
 import { createPlayer, type Player } from '../lib/player';
+import html2Canvas from 'html2canvas';
 
 export class Canvas extends HTMLElement {
   shadowRoot: ShadowRoot;
@@ -63,5 +64,34 @@ export class Canvas extends HTMLElement {
 
   play() {
     return this.#player.play();
+  }
+
+  async rasterize(millisecond: number, options?: { height: number, width: number }) {
+    const raster = await html2Canvas(this, {
+      logging: false,
+      onclone: (doc) => {
+        const localAnimations = doc.getAnimations();
+        const player = createPlayer();
+        player.load(localAnimations);
+        player.seek(millisecond);
+      }
+    });
+
+    if (options === undefined) {
+      return raster.toDataURL();
+    }
+
+    const resizedCanvas = document.createElement('canvas');
+    const resizedContext = resizedCanvas.getContext('2d');
+
+    if (resizedContext === null) {
+      throw new Error('Canvas context is null');
+    }
+
+    resizedCanvas.height = options.height;
+    resizedCanvas.width = options.width;
+    resizedContext.drawImage(raster, 0, 0, options.width, options.height);
+
+    return resizedCanvas.toDataURL();
   }
 }

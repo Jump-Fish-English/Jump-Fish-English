@@ -4,11 +4,12 @@ import styles from './TimeMarker.module.css';
 interface Props {
   transformX: number;
   children?: ReactNode;
+  className?: string;
 }
 
-export function TimeMarker({ transformX, children }: Props) {
+export function TimeMarker({ className, transformX, children }: Props) {
   return (
-    <span
+    <div
       className={styles.mark} 
       style={{ 
         transform: `translateX(${transformX}px)`
@@ -19,6 +20,6 @@ export function TimeMarker({ transformX, children }: Props) {
           {children}
         </span>
       )}
-    </span>
+    </div>
   );
 }

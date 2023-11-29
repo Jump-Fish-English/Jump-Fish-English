@@ -1,4 +1,4 @@
-import { useRef, type ReactElement, useState, useLayoutEffect } from "react";
+import { useRef, type ReactElement, useState, useLayoutEffect, type ReactNode } from "react";
 
 import { TimeMarker } from './TimeMarker';
 
@@ -7,8 +7,10 @@ import styles from './Timeline.module.css';
 interface Props {
   durationMilliseconds: number;
   stepMilliseconds: number;
-  currentTime: number;
+  onTimeMouseOver(params: { milliseconds: number, translateX: number }): void;
+  onTimeMouseOut(): void;
   onTimeSelect: (milliseconds: number) => void;
+  children?: ReactNode;
 }
 
 function millisecondsToTranslateX(currentTimeMilliseconds: number, durationMilliseconds: number, containerWidth: number) {
@@ -20,7 +22,7 @@ function leftToMilliseconds(left: number, durationMilliseconds: number, containe
   return Math.round(left * millisecondsPerPixel);
 }
 
-export function Timeline({ durationMilliseconds, stepMilliseconds, onTimeSelect }: Props) {
+export function Timeline({ onTimeMouseOut, children, onTimeMouseOver, durationMilliseconds, stepMilliseconds, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
 
@@ -56,6 +58,22 @@ export function Timeline({ durationMilliseconds, stepMilliseconds, onTimeSelect 
   }
   return (
     <div 
+      onMouseLeave={() => {
+        onTimeMouseOut();
+      }}
+      onMouseMove={(e) => {
+        if (containerWidth === undefined) {
+          return;
+        }
+        const { left } = containerRef.current!.getBoundingClientRect();
+        const relativeLeft = e.pageX - left;
+        const milliseconds = leftToMilliseconds(
+          relativeLeft,
+          durationMilliseconds,
+          containerWidth
+        );
+        onTimeMouseOver({ milliseconds, translateX: relativeLeft });
+      }}
       onClick={(e) => {
         if (containerWidth === undefined) {
           return;
@@ -71,6 +89,7 @@ export function Timeline({ durationMilliseconds, stepMilliseconds, onTimeSelect 
       }}
       ref={containerRef} className={styles.container}>
       {marks}
+      {children}
     </div>
   )
 }

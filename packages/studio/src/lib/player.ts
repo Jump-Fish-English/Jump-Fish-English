@@ -27,6 +27,7 @@ function loadMedia(fsm: PlayerStateMachine, values: Animation[], onTimeUpdate: M
 
   const media: Media[] = [];
   values.forEach((animation) => {
+    animation.pause();
     animation.currentTime = 0;
     media.push(
       initMedia(animation)
@@ -39,9 +40,9 @@ function loadMedia(fsm: PlayerStateMachine, values: Animation[], onTimeUpdate: M
     }
     return acc;
   }, media[0]);
-  const { duration } = longestPlayable;
+  const { duration, delay } = longestPlayable;
 
-  fsm.transition(statePaused(fsm, { longestMedia: longestPlayable, media, duration, onTimeUpdate }))
+  fsm.transition(statePaused(fsm, { longestMedia: longestPlayable, media, duration: duration + delay, onTimeUpdate }))
 }
 
 function seekMedia(milliseconds: number, values: Media[]) {
@@ -123,23 +124,23 @@ function statePaused(fsm: PlayerStateMachine, { media, duration, onTimeUpdate, l
 export type Player = PlayerState;
 
 interface Params {
-  onPlayStateChange(state: PlayerStates): void;
-  onTimeUpdate(milliseconds: number): void;
+  onPlayStateChange?(state: PlayerStates): void;
+  onTimeUpdate?(milliseconds: number): void;
 }
 
-export function createPlayer({ onPlayStateChange, onTimeUpdate }: Params): Player {
+export function createPlayer({ onPlayStateChange, onTimeUpdate }: Params = {}): Player {
   const fsm = createFsm<PlayerState>({
     playState: 'idle',
     seek() {},
     play() {},
     pause() {},
     load(values) {
-      loadMedia(fsm, values, onTimeUpdate);
+      loadMedia(fsm, values, onTimeUpdate === undefined ? () => void 0 : onTimeUpdate);
     },
     duration: null,
   }, {
     onTransition() {
-      onPlayStateChange(fsm.state.playState);
+      onPlayStateChange?.(fsm.state.playState);
     }
   });
 

@@ -9,6 +9,7 @@ interface Props {
   children: (api: {
     play(): void;
     pause(): void;
+    rasterize(millisecond: number, options?: { width: number, height: number }): Promise<string>;
     player: ReactNode;
     durationMilliseconds: number;
     playState: PlayerStates;
@@ -97,6 +98,13 @@ export function Canvas({ children, video }: Props) {
         return;
       }
       canvas.play();
+    },
+    rasterize(millisecond: number, options?: { width: number; height: number }) {
+      if (canvas === undefined) {
+        throw new Error('Canvas not defined');
+      }
+
+      return canvas.rasterize(millisecond, options);
     },
     player: (
       <div ref={containerRef} className={styles.canvas}>
