@@ -1,0 +1,20 @@
+
+.mark {
+  width: 1px;
+  background: black;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  bottom: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+.children {
+  position: absolute;
+  top: 100%;
+  margin-top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+}

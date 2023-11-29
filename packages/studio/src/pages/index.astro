@@ -1,95 +1,22 @@
 ---
-import BallVideo from '../video/first.astro';
-import Timeline from '../components/Timeline.astro';
+import { Main } from '../components/Main';
 ---
 
 <!DOCTYPE html>
 <html>
   <head>
     <title>Jump Fish Studio</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
     <style>
-      .canvas {
-        height: 50px;
-        width: 800px;
-        outline: 1px solid #000;
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
       }
     </style>
   </head>
   <body>
-    <div class="canvas" id="canvas">
-      <BallVideo />
-    </div>
-    <script>
-      import { init as initPlayer } from '../lib/playable.ts';
-      import { rasterize } from '../lib/rasterize.ts';
-      const canvas = document.getElementById('canvas')!;
-      const animations = document.getAnimations();
-      const playPauseButton = document.getElementById('play-pause');
-      const canvasAnimations = animations.filter((animation) => {
-        const effect = animation.effect as KeyframeEffect;
-        const { target } = effect;
-        return canvas.contains(target);
-      });
-
-      const player = initPlayer(canvasAnimations, {
-        onPlayStateChange() {
-          switch(player.playState) {
-            case 'paused': {
-              playPauseButton!.innerHTML = 'Play';
-              return;
-            }
-            case 'finished': {
-              playPauseButton!.innerHTML = 'Restart';
-              return;
-            }
-          }
-
-          playPauseButton!.innerHTML = 'Pause';
-        },
-        onTimeChange(milliseconds) {
-          console.log(milliseconds)
-        }
-      });
-      
-      document.getElementById('timeline')?.addEventListener('timeselect', (e) => {
-        const { milliseconds } = e.detail;
-        player.currentTime = milliseconds;
-      });
-
-      playPauseButton?.addEventListener('click', () => {
-        switch(player.playState) {
-          case 'running': {
-            player.pause();
-          }
-          case 'finished': {
-            player.restart();
-          }
-          default:
-            player.pause();
-        }
-        if (player.playState !== 'running') {
-          player.play();
-          return;
-        }
-
-        player.pause();
-      });
-
-      setTimeout(() => {
-        rasterize(player, {
-          canvasElement: document.getElementById('canvas')!,
-          framesPerSecond: 30,
-        });
-      }, 1000);
-    </script>
-    <Timeline
-      id="timeline"
-      duration={1600}
-      step={100} 
-    />
-    <button id="play-pause">
-      Play
-    </button>
-    <div id="frames"></div>
+    <Main client:only />
   </body>
 </html>

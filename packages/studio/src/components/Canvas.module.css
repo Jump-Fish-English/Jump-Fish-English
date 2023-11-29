@@ -1,0 +1,17 @@
+.canvas {
+  width: 800px;
+  height: 400px;
+  outline: 1px solid black;
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
