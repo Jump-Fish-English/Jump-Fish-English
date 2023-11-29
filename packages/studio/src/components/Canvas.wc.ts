@@ -6,7 +6,6 @@ export interface RasterizeOptions {
     height: number;
     width: number;
   },
-  includeVideo?: boolean;
 }
 
 export class Canvas extends HTMLElement {
@@ -41,14 +40,14 @@ export class Canvas extends HTMLElement {
   async load(media: string) {
     this.shadowRoot.innerHTML = media;
     await new Promise<void>((res) => {
-      requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
         if (this.parentNode === null) {
           // detatched from DOM, forget about it
           return;
         }
         const animations = this.shadowRoot.getAnimations();
         const videos = this.shadowRoot.querySelectorAll('video');
-        this.#player.load([...animations, ...videos]);
+        await this.#player.load([...animations, ...videos]);
         res();
       });
     });
@@ -77,13 +76,19 @@ export class Canvas extends HTMLElement {
   async rasterize(millisecond: number, options?: RasterizeOptions) {
     const raster = await html2Canvas(this, {
       logging: false,
-      onclone: (doc) => {
+      backgroundColor: null,
+      ignoreElements: (el) => {
+        // don't try to clone videos
+        return el.tagName.toLowerCase() === 'video';
+      },
+      onclone: async (doc, el) => {
         const localAnimations = doc.getAnimations();
         const player = createPlayer();
-        player.load(localAnimations);
+        await player.load(localAnimations);
         player.seek(millisecond);
       }
     });
+    
 
     if (options?.dimensions === undefined) {
       return raster.toDataURL();
@@ -99,8 +104,9 @@ export class Canvas extends HTMLElement {
 
     resizedCanvas.height = height;
     resizedCanvas.width = width;
+    
     resizedContext.drawImage(raster, 0, 0, width, height);
-
+    
     return resizedCanvas.toDataURL();
   }
 }

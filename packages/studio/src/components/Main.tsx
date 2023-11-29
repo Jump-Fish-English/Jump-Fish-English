@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { Playhead } from './Playhead';
 import { Timeline } from './Timeline';
 import { Canvas } from './Canvas';
 import { TimeMarker } from './TimeMarker';
-import { TimeMarkerThumbnail } from './TimeMarkerThumbnail';
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
 
@@ -29,6 +28,7 @@ const video = `
       justify-content: center;
       align-items: center;
       animation: show-subscribe 350ms both;
+      animation-delay: 2000ms;
       bottom: 2rem;
       right: 2rem;
     }
@@ -51,7 +51,7 @@ const video = `
       justify-content: center;
       display: flex;
       animation: show-text 500ms both;
-      animation-delay: 300ms;
+      animation-delay: 2300ms;
       margin-right: 18px;
     }
 
@@ -87,12 +87,12 @@ const video = `
 `;
 
 export function Main() {
-  const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, rasterImageUrl: string } | null>(null);
+  const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, milliseconds: number } | null>(null);
   return (
     <Canvas 
       video={video}
     >
-      {({ player, play, pause, rasterize, durationMilliseconds, playState, seek, currentTimeMilliseconds }) => {        
+      {({ player, play, pause, durationMilliseconds, playState, seek, currentTimeMilliseconds }) => {        
         return (
           <div className={styles.container}>
             <Playhead 
@@ -116,13 +116,8 @@ export function Main() {
               }}
               onTimeMouseOver={async ({ translateX, milliseconds }) => {
                 setMouseOverMarkerTransform({ 
-                  translateX, 
-                  rasterImageUrl: await rasterize(milliseconds, {
-                    dimensions: {
-                      width: 300,
-                      height: 300 * (9 / 16),
-                    }
-                  }), 
+                  translateX,
+                  milliseconds,
                 });
               }}
             >
@@ -130,9 +125,19 @@ export function Main() {
                 mouseOverMarkerTransform !== null && (
                   <TimeMarker 
                     childrenTop={(
-                      <TimeMarkerThumbnail
-                        previewImageUrl={mouseOverMarkerTransform.rasterImageUrl}
-                      />
+                      <Canvas 
+                        className={styles.preview}
+                        video={video}
+                      >
+                        {
+                          ({ seek, player }) => {
+                            useLayoutEffect(() => {
+                              seek(mouseOverMarkerTransform.milliseconds);
+                            }, [mouseOverMarkerTransform.milliseconds]);
+                            return player;
+                          }
+                        }
+                      </Canvas>
                     )}
                     transformX={mouseOverMarkerTransform.translateX}
                   />

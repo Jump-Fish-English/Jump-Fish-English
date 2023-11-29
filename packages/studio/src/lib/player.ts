@@ -9,7 +9,7 @@ type PlayerMedia = Animation | HTMLVideoElement;
 interface PlayerState extends FsmState {
   playState: PlayerStates;
   seek(milliseconds: number): void;
-  load(values: PlayerMedia[]): void;
+  load(values: PlayerMedia[]): Promise<void>;
   play(): void;
   pause(): void;
   duration: number | null;
@@ -22,7 +22,7 @@ interface MediaState {
   onTimeUpdate: (milliseconds: number) => void;
 }
 
-function loadMedia(fsm: PlayerStateMachine, values: PlayerMedia[], onTimeUpdate: MediaState['onTimeUpdate']) {
+async function loadMedia(fsm: PlayerStateMachine, values: PlayerMedia[], onTimeUpdate: MediaState['onTimeUpdate']) {
   if (values.length === 0) {
     return;
   }
@@ -35,6 +35,12 @@ function loadMedia(fsm: PlayerStateMachine, values: PlayerMedia[], onTimeUpdate:
       initMedia(animation)
     );
   });
+
+  const promises = media.map((media) => {
+    return media.load();
+  });
+
+  await Promise.all(promises);
 
   const longestPlayable = media.reduce((acc, playable) => {
     if (playable.delay + playable.duration > acc.duration + acc.delay) {
@@ -95,7 +101,7 @@ function statePlay(fsm: PlayerStateMachine, { media, duration , onTimeUpdate, lo
     seek(milliseconds) {
       seekMedia(milliseconds, media);
     },
-    load() {},
+    async load() {},
     duration,
   }
 }
@@ -118,7 +124,7 @@ function statePaused(fsm: PlayerStateMachine, { media, duration, onTimeUpdate, l
       seekMedia(milliseconds, media);
       onTimeUpdate(milliseconds);
     },
-    load() {},
+    async load() {},
     duration,
   }
 }
@@ -136,8 +142,8 @@ export function createPlayer({ onPlayStateChange, onTimeUpdate }: Params = {}): 
     seek() {},
     play() {},
     pause() {},
-    load(values) {
-      loadMedia(fsm, values, onTimeUpdate === undefined ? () => void 0 : onTimeUpdate);
+    async load(values) {
+      await loadMedia(fsm, values, onTimeUpdate === undefined ? () => void 0 : onTimeUpdate);
     },
     duration: null,
   }, {

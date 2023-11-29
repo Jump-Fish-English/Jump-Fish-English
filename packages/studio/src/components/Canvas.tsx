@@ -6,6 +6,7 @@ import styles from './Canvas.module.css';
 
 interface Props {
   video: string;
+  className?: string;
   children: (api: {
     play(): void;
     pause(): void;
@@ -18,7 +19,7 @@ interface Props {
   }) => ReactNode;
 }
 
-export function Canvas({ children, video }: Props) {
+export function Canvas({ children, video, className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [playState, setPlayState] = useState<PlayerStates>('idle');
   const [durationMilliseconds, setDurationMilliseconds] = useState<number | null>(null);
@@ -26,6 +27,9 @@ export function Canvas({ children, video }: Props) {
   const [canvas, setCanvas] = useState<CanvasWebComponent | undefined>(undefined);
 
   useLayoutEffect(() => {
+    if (customElements.get('studio-canvas')) {
+      return;
+    }
     customElements.define('studio-canvas', CanvasWebComponent);
   }, []);
 
@@ -107,7 +111,7 @@ export function Canvas({ children, video }: Props) {
       return canvas.rasterize(millisecond, options);
     },
     player: (
-      <div ref={containerRef} className={styles.canvas}>
+      <div ref={containerRef} className={`${styles.canvas} ${className}`}>
 
       </div>
     ),

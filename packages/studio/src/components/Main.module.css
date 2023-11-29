@@ -13,3 +13,10 @@
   margin: 0 auto;
   flex: 1 0 auto;
 }
+
+.preview {
+  transform: scale(0.2);
+  transform-origin: bottom center;
+  width: 960px;
+  height: 540px;
+}

@@ -7,12 +7,16 @@ export interface Media {
   delay: number;
   currentTime: number;
   duration: number;
+  load(): Promise<void>;
   onFinished(cb: () => void): () => void;
   playState: AnimationPlayState;
 }
 
 function animationMedia(value: Animation): Media {
   return {
+    load() {
+      return Promise.resolve();
+    },
     onFinished(cb) {
       value.addEventListener('finish', cb);
 
@@ -67,6 +71,19 @@ function animationMedia(value: Animation): Media {
 
 function videoMedia(value: HTMLVideoElement): Media {
   return {
+    load() {
+      if (value.readyState === 4) {
+        return Promise.resolve();
+      }
+
+      return new Promise<void>((res) => {
+        value.addEventListener('canplaythrough', () => {
+          res();
+        }, {
+          once: true,
+        });
+      });
+    },
     onFinished(cb) {
       value.addEventListener('ended', cb);
 
@@ -100,7 +117,7 @@ function videoMedia(value: HTMLVideoElement): Media {
       return 'running';
     },
     seek(milliseconds: number) {
-      value.currentTime = milliseconds;
+      value.currentTime = milliseconds / 1000;
     },
     play() {
       value.play();
@@ -109,7 +126,7 @@ function videoMedia(value: HTMLVideoElement): Media {
       value.pause();
     },
     get duration() {
-      return value.duration;
+      return value.duration * 1000;
     }
   }
 }
