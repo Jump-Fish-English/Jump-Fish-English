@@ -96,7 +96,7 @@ function videoMedia(value: HTMLVideoElement): Media {
       if (currentTime === null) {
         return 0;
       }
-      return currentTime as number;
+      return (currentTime as number) * 1000;
     },
     get delay() {
       return 0;

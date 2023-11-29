@@ -15,6 +15,14 @@ const video = `
       margin: 0 auto;
     }
 
+    .parent {
+      animation: hide-subscribe 350ms both;
+      animation-delay: 6000ms;
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+    }
+
     .subscribe {
       font-family: -apple-system;
       letter-spacing: 0.1rem;
@@ -22,15 +30,14 @@ const video = `
       padding: 0.5rem 1rem;
       box-shadow: 0 0 10px #b1b1b1;
       color: #fff;
-      position: absolute;
+      
       border-radius: 20px;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       animation: show-subscribe 350ms both;
       animation-delay: 2000ms;
-      bottom: 2rem;
-      right: 2rem;
+      
     }
 
     @keyframes show-subscribe {
@@ -42,6 +49,18 @@ const video = `
       100% {
         opacity: 1;
         transform: scaleX(1);
+      }
+    }
+
+    @keyframes hide-subscribe {
+      0% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scaleX(0);
       }
     }
 
@@ -78,10 +97,12 @@ const video = `
       }
     }
   </style>
-  <div 
-    class="subscribe"
-  >
-    <div class="subscribe-text">Subscribe</div>
+  <div class="parent">
+    <div 
+      class="subscribe"
+    >
+      <div class="subscribe-text">Subscribe</div>
+    </div>
   </div>
   <video src=${src} autoplay />
 `;
@@ -139,7 +160,7 @@ export function Main() {
                         }
                       </Canvas>
                     )}
-                    transformX={mouseOverMarkerTransform.translateX}
+                    millisecond={mouseOverMarkerTransform.milliseconds}
                   />
                 )
               }

@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react';
+import { useTimeline } from './Timeline';
 import styles from './TimeMarker.module.css';
 
 interface Props {
-  transformX: number;
+  millisecond: number;
   children?: ReactNode;
   childrenTop?: ReactNode;
   className?: string;
 }
 
-export function TimeMarker({ transformX, childrenTop, children }: Props) {
+export function TimeMarker({ millisecond, childrenTop, children }: Props) {
+  const { getTranslateX } = useTimeline()
+  const transformX = getTranslateX(millisecond);
   return (
     <div
       className={styles.mark} 

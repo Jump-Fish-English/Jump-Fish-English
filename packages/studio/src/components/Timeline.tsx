@@ -1,5 +1,5 @@
-import { useRef, type ReactElement, useState, useLayoutEffect, type ReactNode } from "react";
-
+import { useRef, type ReactElement, useState, useLayoutEffect, type ReactNode, useContext, createContext } from "react";
+import { useDrag } from '@use-gesture/react';
 import { TimeMarker } from './TimeMarker';
 
 import styles from './Timeline.module.css';
@@ -13,17 +13,75 @@ interface Props {
   children?: ReactNode;
 }
 
-function millisecondsToTranslateX(currentTimeMilliseconds: number, durationMilliseconds: number, containerWidth: number) {
-  return (currentTimeMilliseconds / durationMilliseconds) * containerWidth;
+function millisecondsToTranslateX(millisecond: number, displayWindow: DisplayWindow, containerWidth: number) {
+  const { startMillisecond, durationMillisecond } = displayWindow;
+  const pixelsPerMillisecond = containerWidth / durationMillisecond;
+  return (millisecond - startMillisecond) * pixelsPerMillisecond;
 }
 
-function leftToMilliseconds(left: number, durationMilliseconds: number, containerWidth: number): number {
-  const millisecondsPerPixel = durationMilliseconds/ containerWidth;
-  return Math.round(left * millisecondsPerPixel);
+function leftToMilliseconds(left: number, displayWindow: {
+  startMillisecond: number;
+  durationMillisecond: number;
+}, containerWidth: number): number {
+  const { startMillisecond, durationMillisecond } = displayWindow;
+  const millisecondsPerPixel = durationMillisecond / containerWidth;
+  return Math.round(left * millisecondsPerPixel) + startMillisecond;
 }
 
-export function Timeline({ onTimeMouseOut, children, onTimeMouseOver, durationMilliseconds, stepMilliseconds, onTimeSelect }: Props) {
+function findRange(start: number, end: number, interval: number): number[] {
+  const numbers: number[] = [];
+  let i = Math.ceil(start/interval)*interval;
+  numbers.push(i);
+  while(i < end) {
+    i += interval;
+    numbers.push(i);
+  }
+  return numbers;
+}
+
+const TimelineContext = createContext<{
+  displayWindow: DisplayWindow;
+  containerWidth: number;
+} | null>(null);
+
+interface DisplayWindow {
+  startMillisecond: number;
+  durationMillisecond: number;
+}
+
+
+export function useTimeline() {
+  const context = useContext(TimelineContext);
+  if (context === null) {
+    throw new Error('Null timeline context');
+  }
+  const { displayWindow, containerWidth } = context;
+  return {
+    getTranslateX: (millisecond: number) => {
+      return millisecondsToTranslateX(millisecond, displayWindow, containerWidth)
+    }
+  }
+}
+
+export function Timeline({ onTimeMouseOut, children, onTimeMouseOver, stepMilliseconds, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [displayWindow, setDisplayWindow] = useState<{
+    startMillisecond: number;
+    durationMillisecond: number;
+  }>({
+    startMillisecond: 0,
+    durationMillisecond: 1000
+  });
+  const bind = useDrag(({ delta }) => {
+    let nextStart = displayWindow.startMillisecond - delta[0];
+    if (nextStart < 0) {
+      nextStart = 0;
+    }
+    setDisplayWindow({
+      startMillisecond: nextStart,
+      durationMillisecond: displayWindow.durationMillisecond,
+    });
+  });
   const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
 
   useLayoutEffect(() => {
@@ -37,59 +95,63 @@ export function Timeline({ onTimeMouseOut, children, onTimeMouseOver, durationMi
 
 
   const marks: ReactElement[] = [];
-  if (containerWidth !== undefined) {
-    for(let currentTimeMilliseconds = stepMilliseconds; currentTimeMilliseconds < durationMilliseconds; currentTimeMilliseconds += stepMilliseconds) {
-      
-      const transform = millisecondsToTranslateX(
-        currentTimeMilliseconds,
-        durationMilliseconds,
-        containerWidth,
-      );
 
+  if (containerWidth !== undefined) {
+    const start = displayWindow.startMillisecond;
+    const end = displayWindow.startMillisecond + displayWindow.durationMillisecond;
+    const range = findRange(start, end, stepMilliseconds);
+
+    for(let i = 0; i < range.length; i += 1) {
       marks.push((
         <TimeMarker
-          key={currentTimeMilliseconds}
-          transformX={transform}
+          key={range[i]}
+          millisecond={range[i]}
         >
-          {currentTimeMilliseconds}
+          {range[i]}
         </TimeMarker>
       ))
     }
   }
   return (
-    <div 
-      onMouseLeave={() => {
-        onTimeMouseOut();
-      }}
-      onMouseMove={(e) => {
-        if (containerWidth === undefined) {
-          return;
-        }
-        const { left } = containerRef.current!.getBoundingClientRect();
-        const relativeLeft = e.pageX - left;
-        const milliseconds = leftToMilliseconds(
-          relativeLeft,
-          durationMilliseconds,
-          containerWidth
-        );
-        onTimeMouseOver({ milliseconds, translateX: relativeLeft });
-      }}
-      onClick={(e) => {
-        if (containerWidth === undefined) {
-          return;
-        }
-        const { left } = containerRef.current!.getBoundingClientRect();
-        const relativeLeft = e.pageX - left;
-        const milliseconds = leftToMilliseconds(
-          relativeLeft,
-          durationMilliseconds,
-          containerWidth
-        );
-        onTimeSelect(milliseconds);
-      }}
-      ref={containerRef} className={styles.container}>
-      {marks}
-      {children}
-    </div>
+    <TimelineContext.Provider value={{
+      containerWidth: containerWidth === undefined ? 0 : containerWidth,
+      displayWindow,
+    }}>
+      <div 
+        {...bind()}
+        onMouseLeave={() => {
+          onTimeMouseOut();
+        }}
+        onMouseMove={(e) => {
+          if (containerWidth === undefined) {
+            return;
+          }
+          const { left } = containerRef.current!.getBoundingClientRect();
+          const relativeLeft = e.pageX - left;
+          const milliseconds = leftToMilliseconds(
+            relativeLeft,
+            displayWindow,
+            containerWidth
+          );
+          onTimeMouseOver({ milliseconds, translateX: relativeLeft });
+        }}
+        onClick={(e) => {
+          if (containerWidth === undefined) {
+            return;
+          }
+          const { left } = containerRef.current!.getBoundingClientRect();
+          const relativeLeft = e.pageX - left;
+          const milliseconds = leftToMilliseconds(
+            relativeLeft,
+            displayWindow,
+            containerWidth
+          );
+          onTimeSelect(milliseconds);
+        }}
+        ref={containerRef} className={styles.container}>
+        {marks}
+        {children}
+      </div>
+    </TimelineContext.Provider>
   )
 }

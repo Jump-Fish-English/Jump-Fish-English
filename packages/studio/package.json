@@ -3,7 +3,8 @@
     "type": "module",
     "version": "0.0.1",
     "dependencies": {
-      "html2canvas": "1.4.1"
+      "html2canvas": "1.4.1",
+      "@use-gesture/react": "10.3.0"
     },
     "scripts": {
       "dev": "astro dev",
