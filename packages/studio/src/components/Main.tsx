@@ -4,9 +4,17 @@ import { Timeline } from './Timeline';
 import { Canvas } from './Canvas';
 import { TimeMarker } from './TimeMarker';
 import { TimeMarkerThumbnail } from './TimeMarkerThumbnail';
+import src from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
 
 const video = `
   <style>
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+
     .subscribe {
       font-family: -apple-system;
       letter-spacing: 0.1rem;
@@ -74,6 +82,7 @@ const video = `
   >
     <div class="subscribe-text">Subscribe</div>
   </div>
+  <video src=${src} autoplay />
 `;
 
 export function Main() {

@@ -39,7 +39,6 @@ export class Canvas extends HTMLElement {
           return;
         }
         const animations = this.shadowRoot.getAnimations();
-        
         this.#player.load(animations);
         res();
       });
