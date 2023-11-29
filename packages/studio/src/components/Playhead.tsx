@@ -1,4 +1,5 @@
 import type { PlayerStates } from '../lib/player';
+import { TimeLabel } from './TimeLabel';
 import styles from './Playhead.module.css';
 
 interface Props {
@@ -23,7 +24,7 @@ export function Playhead({ onPauseClick, onPlayClick, playState, currentTimeMill
   return (
     <div className={styles.container}>
       {button}
-      {currentTimeMilliseconds} / {durationMilliseconds}
+      <TimeLabel milliseconds={currentTimeMilliseconds} /> / <TimeLabel milliseconds={durationMilliseconds} />
     </div>
   )
 }

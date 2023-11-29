@@ -3,6 +3,7 @@ import { Playhead } from './Playhead';
 import { Timeline } from './Timeline';
 import { Canvas } from './Canvas';
 import { TimeMarker } from './TimeMarker';
+import { TimelineGrid } from './TimelineGrid';
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
 
@@ -127,11 +128,11 @@ export function Main() {
               {player}
             </div>
             <Timeline 
+              windowDurationMilliseconds={60000}
               onTimeSelect={(time) => {
                 seek(time);
               }}
               durationMilliseconds={durationMilliseconds}
-              stepMilliseconds={100}
               onTimeMouseOut={() => {
                 setMouseOverMarkerTransform(null);
               }}
@@ -142,6 +143,10 @@ export function Main() {
                 });
               }}
             >
+              <TimelineGrid 
+                labelStepMilliseconds={10000}
+                stepMilliseconds={5000}
+              />
               {
                 mouseOverMarkerTransform !== null && (
                   <TimeMarker 
