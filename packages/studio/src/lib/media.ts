@@ -1,3 +1,5 @@
+export type MediaTypes = Animation | HTMLVideoElement;
+
 export interface Media {
   seek(milliseconds: number): void;
   pause(): void;
@@ -63,6 +65,59 @@ function animationMedia(value: Animation): Media {
   }
 }
 
-export function initMedia(value: Animation): Media {
+function videoMedia(value: HTMLVideoElement): Media {
+  return {
+    onFinished(cb) {
+      value.addEventListener('ended', cb);
+
+      return () => {
+        value.removeEventListener('ended', cb);
+      }
+    },
+    get currentTime() {
+      const { currentTime } = value;
+      if (currentTime === null) {
+        return 0;
+      }
+      return currentTime as number;
+    },
+    get delay() {
+      return 0;
+    },
+    get playState() {
+      switch(true) {
+        case value.paused: {
+          return 'paused';
+        }
+        case value.ended: {
+          return 'finished';
+        }
+        case value.readyState === 0: {
+          return 'idle';
+        }
+      }
+
+      return 'running';
+    },
+    seek(milliseconds: number) {
+      value.currentTime = milliseconds;
+    },
+    play() {
+      value.play();
+    },
+    pause() {
+      value.pause();
+    },
+    get duration() {
+      return value.duration;
+    }
+  }
+}
+
+
+export function initMedia(value: MediaTypes): Media {
+  if ('tagName' in value) {
+    return videoMedia(value);
+  }
   return animationMedia(value);
 }

@@ -1,0 +1,15 @@
+.container {
+  background: linear-gradient(rgb(78 96 104), rgb(37 48 56));
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.player {
+  background: rgba(255, 255, 255, 0.3);
+  width: 960px;
+  height: 540px;
+  margin: 0 auto;
+  flex: 1 0 auto;
+}

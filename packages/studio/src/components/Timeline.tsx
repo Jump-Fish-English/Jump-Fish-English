@@ -51,7 +51,7 @@ export function Timeline({ onTimeMouseOut, children, onTimeMouseOver, durationMi
           key={currentTimeMilliseconds}
           transformX={transform}
         >
-          {currentTimeMilliseconds / 1000}
+          {currentTimeMilliseconds}
         </TimeMarker>
       ))
     }

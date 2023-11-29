@@ -1,5 +1,9 @@
 .container {
   position: relative;
+  background: rgb(40, 50, 59);
   z-index: 1;
   height: 50px;
+  padding: 1rem 0;
+  margin-bottom: 50px;
+  color: #fff;
 }

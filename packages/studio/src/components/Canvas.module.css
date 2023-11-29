@@ -1,6 +1,6 @@
 .canvas {
-  width: 480px;
-  height: 270px;
+  width: 100%;
+  height: 100%;
   outline: 1px solid black;
   margin: 0 auto 20px;
   position: relative;
@@ -14,4 +14,5 @@
   right: 0;
   bottom: 0;
   z-index: 1;
+  background: rgb(116, 124, 129);
 }

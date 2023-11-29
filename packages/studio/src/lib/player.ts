@@ -4,10 +4,12 @@ import { createFsm, type State as FsmState, type FiniteStateMachine } from './fs
 type PlayerStateMachine = FiniteStateMachine<PlayerState>;
 export type PlayerStates = AnimationPlayState | 'seeking';
 
+type PlayerMedia = Animation | HTMLVideoElement;
+
 interface PlayerState extends FsmState {
   playState: PlayerStates;
   seek(milliseconds: number): void;
-  load(values: Animation[]): void;
+  load(values: PlayerMedia[]): void;
   play(): void;
   pause(): void;
   duration: number | null;
@@ -20,7 +22,7 @@ interface MediaState {
   onTimeUpdate: (milliseconds: number) => void;
 }
 
-function loadMedia(fsm: PlayerStateMachine, values: Animation[], onTimeUpdate: MediaState['onTimeUpdate']) {
+function loadMedia(fsm: PlayerStateMachine, values: PlayerMedia[], onTimeUpdate: MediaState['onTimeUpdate']) {
   if (values.length === 0) {
     return;
   }

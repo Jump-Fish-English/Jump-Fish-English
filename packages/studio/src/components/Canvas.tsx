@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { Canvas as CanvasWebComponent } from './Canvas.wc.ts';
+import { Canvas as CanvasWebComponent, type RasterizeOptions } from './Canvas.wc.ts';
 import type { PlayerStates } from '../lib/player.ts';
 
 import styles from './Canvas.module.css';
@@ -9,7 +9,7 @@ interface Props {
   children: (api: {
     play(): void;
     pause(): void;
-    rasterize(millisecond: number, options?: { width: number, height: number }): Promise<string>;
+    rasterize(millisecond: number, options?: RasterizeOptions): Promise<string>;
     player: ReactNode;
     durationMilliseconds: number;
     playState: PlayerStates;
@@ -99,7 +99,7 @@ export function Canvas({ children, video }: Props) {
       }
       canvas.play();
     },
-    rasterize(millisecond: number, options?: { width: number; height: number }) {
+    rasterize(millisecond: number, options?: RasterizeOptions) {
       if (canvas === undefined) {
         throw new Error('Canvas not defined');
       }

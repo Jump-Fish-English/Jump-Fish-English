@@ -1,6 +1,14 @@
 import { createPlayer, type Player } from '../lib/player';
 import html2Canvas from 'html2canvas';
 
+export interface RasterizeOptions {
+  dimensions?: {
+    height: number;
+    width: number;
+  },
+  includeVideo?: boolean;
+}
+
 export class Canvas extends HTMLElement {
   shadowRoot: ShadowRoot;
   #player: Player;
@@ -39,7 +47,8 @@ export class Canvas extends HTMLElement {
           return;
         }
         const animations = this.shadowRoot.getAnimations();
-        this.#player.load(animations);
+        const videos = this.shadowRoot.querySelectorAll('video');
+        this.#player.load([...animations, ...videos]);
         res();
       });
     });
@@ -65,7 +74,7 @@ export class Canvas extends HTMLElement {
     return this.#player.play();
   }
 
-  async rasterize(millisecond: number, options?: { height: number, width: number }) {
+  async rasterize(millisecond: number, options?: RasterizeOptions) {
     const raster = await html2Canvas(this, {
       logging: false,
       onclone: (doc) => {
@@ -76,9 +85,10 @@ export class Canvas extends HTMLElement {
       }
     });
 
-    if (options === undefined) {
+    if (options?.dimensions === undefined) {
       return raster.toDataURL();
     }
+    const { height, width } = options.dimensions;
 
     const resizedCanvas = document.createElement('canvas');
     const resizedContext = resizedCanvas.getContext('2d');
@@ -87,9 +97,9 @@ export class Canvas extends HTMLElement {
       throw new Error('Canvas context is null');
     }
 
-    resizedCanvas.height = options.height;
-    resizedCanvas.width = options.width;
-    resizedContext.drawImage(raster, 0, 0, options.width, options.height);
+    resizedCanvas.height = height;
+    resizedCanvas.width = width;
+    resizedContext.drawImage(raster, 0, 0, width, height);
 
     return resizedCanvas.toDataURL();
   }

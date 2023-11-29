@@ -4,7 +4,8 @@ import { Timeline } from './Timeline';
 import { Canvas } from './Canvas';
 import { TimeMarker } from './TimeMarker';
 import { TimeMarkerThumbnail } from './TimeMarkerThumbnail';
-import src from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
+import styles from './Main.module.css';
+import src from '../../../../videos/output.mp4';
 
 const video = `
   <style>
@@ -93,7 +94,7 @@ export function Main() {
     >
       {({ player, play, pause, rasterize, durationMilliseconds, playState, seek, currentTimeMilliseconds }) => {        
         return (
-          <>
+          <div className={styles.container}>
             <Playhead 
               playState={playState}
               onPauseClick={pause}
@@ -101,7 +102,9 @@ export function Main() {
               currentTimeMilliseconds={currentTimeMilliseconds} 
               durationMilliseconds={durationMilliseconds}
             />
-            {player}
+            <div className={styles.player}>
+              {player}
+            </div>
             <Timeline 
               onTimeSelect={(time) => {
                 seek(time);
@@ -115,23 +118,28 @@ export function Main() {
                 setMouseOverMarkerTransform({ 
                   translateX, 
                   rasterImageUrl: await rasterize(milliseconds, {
-                    width: 300,
-                    height: 300 * (9 / 16),
+                    dimensions: {
+                      width: 300,
+                      height: 300 * (9 / 16),
+                    }
                   }), 
                 });
               }}
             >
               {
                 mouseOverMarkerTransform !== null && (
-                  <TimeMarker transformX={mouseOverMarkerTransform.translateX}>
-                    <TimeMarkerThumbnail
-                      previewImageUrl={mouseOverMarkerTransform.rasterImageUrl}
-                    />
-                  </TimeMarker>
+                  <TimeMarker 
+                    childrenTop={(
+                      <TimeMarkerThumbnail
+                        previewImageUrl={mouseOverMarkerTransform.rasterImageUrl}
+                      />
+                    )}
+                    transformX={mouseOverMarkerTransform.translateX}
+                  />
                 )
               }
             </Timeline>
-          </>
+          </div>
         )
       }}
     </Canvas>
