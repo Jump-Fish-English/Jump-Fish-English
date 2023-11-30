@@ -1,11 +1,12 @@
 import type { ReactElement } from "react";
 import { TimeMarker } from "./TimeMarker";
 import { TimeLabel } from "./TimeLabel";
-import { useTimeline } from "./Timeline";
+import type { TimeRange } from "./Timeline";
 
 interface Props {
   stepMilliseconds: number;
   labelStepMilliseconds: number;
+  timeRange: TimeRange;
 }
 
 function findRange(start: number, end: number, interval: number): number[] {
@@ -19,10 +20,9 @@ function findRange(start: number, end: number, interval: number): number[] {
   return numbers;
 }
 
-export function TimelineGrid({ labelStepMilliseconds, stepMilliseconds }: Props) {
-  const { displayWindow } = useTimeline();
-  const start = displayWindow.startMillisecond;
-  const end = displayWindow.startMillisecond + displayWindow.durationMillisecond;
+export function TimelineGrid({ timeRange, labelStepMilliseconds, stepMilliseconds }: Props) {
+  const start = timeRange.startMilliseconds;
+  const end = timeRange.startMilliseconds + timeRange.durationMilliseconds;
   const range = findRange(start, end, stepMilliseconds);
 
   const marks: ReactElement[] = [];
@@ -37,8 +37,6 @@ export function TimelineGrid({ labelStepMilliseconds, stepMilliseconds }: Props)
       </TimeMarker>
     ))
   }
-
-  console.log('rendered')
 
   return (
     <>

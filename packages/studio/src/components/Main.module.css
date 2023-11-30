@@ -20,3 +20,8 @@
   width: 960px;
   height: 540px;
 }
+
+.timelines {
+  display: flex;
+  flex-direction: column;
+}

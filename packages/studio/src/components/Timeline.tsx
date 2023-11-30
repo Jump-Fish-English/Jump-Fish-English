@@ -1,42 +1,38 @@
-import { useRef,useState, useLayoutEffect, type ReactNode, useContext, createContext, useCallback } from "react";
-import { useDrag, type Vector2 } from '@use-gesture/react';
+import { useRef,useState, useLayoutEffect, type ReactNode, useContext, createContext } from "react";
 import rafThrottle from 'raf-throttle';
 
 import styles from './Timeline.module.css';
 
+export interface TimeRange {
+  startMilliseconds: number;
+  durationMilliseconds: number;
+}
+
 interface Props {
   durationMilliseconds: number;
-  onTimeMouseOver(params: { milliseconds: number, translateX: number }): void;
-  onTimeMouseOut(): void;
-  onTimeSelect: (milliseconds: number) => void;
+  onTimeMouseOver?(params: { milliseconds: number, translateX: number }): void;
+  onTimeMouseOut?(): void;
+  onTimeSelect?: (milliseconds: number) => void;
   children?: ReactNode;
-  windowDurationMilliseconds: number;
+  timeRange: TimeRange;
 }
 
-function millisecondsToTranslateX(millisecond: number, displayWindow: DisplayWindow, containerWidth: number) {
-  const { startMillisecond, durationMillisecond } = displayWindow;
-  const pixelsPerMillisecond = containerWidth / durationMillisecond;
-  return (millisecond - startMillisecond) * pixelsPerMillisecond;
+function millisecondsToTranslateX(millisecond: number, displayWindow: TimeRange, containerWidth: number) {
+  const { startMilliseconds, durationMilliseconds } = displayWindow;
+  const pixelsPerMillisecond = containerWidth / durationMilliseconds;
+  return (millisecond - startMilliseconds) * pixelsPerMillisecond;
 }
 
-function leftToMilliseconds(left: number, displayWindow: {
-  startMillisecond: number;
-  durationMillisecond: number;
-}, containerWidth: number): number {
-  const { startMillisecond, durationMillisecond } = displayWindow;
-  const millisecondsPerPixel = durationMillisecond / containerWidth;
-  return Math.round(left * millisecondsPerPixel) + startMillisecond;
+function leftToMilliseconds(left: number, timeRange: TimeRange, containerWidth: number): number {
+  const { startMilliseconds, durationMilliseconds } = timeRange;
+  const millisecondsPerPixel = durationMilliseconds / containerWidth;
+  return Math.round(left * millisecondsPerPixel) + startMilliseconds;
 }
 
 const TimelineContext = createContext<{
-  displayWindow: DisplayWindow;
+  timeRange: TimeRange;
   containerWidth: number;
 } | null>(null);
-
-interface DisplayWindow {
-  startMillisecond: number;
-  durationMillisecond: number;
-}
 
 
 export function useTimeline() {
@@ -44,29 +40,18 @@ export function useTimeline() {
   if (context === null) {
     throw new Error('Null timeline context');
   }
-  const { displayWindow, containerWidth } = context;
+  const { timeRange, containerWidth } = context;
   return {
-    displayWindow,
     getTranslateX: (millisecond: number) => {
-      return millisecondsToTranslateX(millisecond, displayWindow, containerWidth)
+      return millisecondsToTranslateX(millisecond, timeRange, containerWidth)
+    },
+    pixelToDurationMilliseconds(pixel: number) {
+      return leftToMilliseconds(pixel, timeRange, containerWidth);
     }
   }
 }
 
-function curryPreviousArguments<T>(cb: (data: T[]) => void) {
-  let lastArguments: T[] = [];
-  const throttled = rafThrottle(() => {
-    cb(lastArguments);
-    lastArguments = [];
-  });
-
-  return (arg: T) => {
-    lastArguments.push(arg);
-    throttled();
-  }
-}
-
-export function Timeline({ onTimeMouseOut, windowDurationMilliseconds, children, onTimeMouseOver, onTimeSelect }: Props) {
+export function Timeline({ onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
   const [{ startMillisecond }, setStartMillisecond] = useState<{
@@ -74,31 +59,6 @@ export function Timeline({ onTimeMouseOut, windowDurationMilliseconds, children,
   }>({
     startMillisecond: 0,
   });
-  const displayWindow: DisplayWindow = {
-    startMillisecond,
-    durationMillisecond: windowDurationMilliseconds,
-  }
-
-  const bind = useDrag(
-    curryPreviousArguments<{ delta: Vector2 }>((data) => {
-      const distanceX = data.reduce((seed, { delta }) => {
-        return seed + delta[0];
-      }, 0);
-
-      const millisecondsPerPixel = windowDurationMilliseconds / (containerWidth as number);
-      let nextStart = displayWindow.startMillisecond - (distanceX * millisecondsPerPixel);
-      if (nextStart < 0) {
-        nextStart = 0;
-      }
-
-      if (startMillisecond === nextStart) {
-        return;
-      }
-      setStartMillisecond({
-        startMillisecond: nextStart,
-      });
-    })
-  )
 
   useLayoutEffect(() => {
     const { current } = containerRef;
@@ -112,12 +72,11 @@ export function Timeline({ onTimeMouseOut, windowDurationMilliseconds, children,
   return (
     <TimelineContext.Provider value={{
       containerWidth: containerWidth === undefined ? 0 : containerWidth,
-      displayWindow,
+      timeRange,
     }}>
-      <div 
-        {...bind()}
+      <div
         onMouseLeave={() => {
-          onTimeMouseOut();
+          onTimeMouseOut?.();
         }}
         onMouseMove={(e) => {
           if (containerWidth === undefined) {
@@ -127,10 +86,10 @@ export function Timeline({ onTimeMouseOut, windowDurationMilliseconds, children,
           const relativeLeft = e.pageX - left;
           const milliseconds = leftToMilliseconds(
             relativeLeft,
-            displayWindow,
+            timeRange,
             containerWidth
           );
-          onTimeMouseOver({ milliseconds, translateX: relativeLeft });
+          onTimeMouseOver?.({ milliseconds, translateX: relativeLeft });
         }}
         onClick={(e) => {
           if (containerWidth === undefined) {
@@ -140,10 +99,10 @@ export function Timeline({ onTimeMouseOut, windowDurationMilliseconds, children,
           const relativeLeft = e.pageX - left;
           const milliseconds = leftToMilliseconds(
             relativeLeft,
-            displayWindow,
+            timeRange,
             containerWidth
           );
-          onTimeSelect(milliseconds);
+          onTimeSelect?.(milliseconds);
         }}
         ref={containerRef} className={styles.container}>
         {children}

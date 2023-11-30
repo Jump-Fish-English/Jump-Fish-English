@@ -4,6 +4,7 @@ import { Timeline } from './Timeline';
 import { Canvas } from './Canvas';
 import { TimeMarker } from './TimeMarker';
 import { TimelineGrid } from './TimelineGrid';
+import { TimelineWindow } from './TimelineWindow';
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
 
@@ -18,7 +19,7 @@ const video = `
 
     .parent {
       animation: hide-subscribe 350ms both;
-      animation-delay: 6000ms;
+      animation-delay: 346s;
       position: absolute;
       bottom: 2rem;
       right: 2rem;
@@ -37,7 +38,7 @@ const video = `
       justify-content: center;
       align-items: center;
       animation: show-subscribe 350ms both;
-      animation-delay: 2000ms;
+      animation-delay: 342s;
       
     }
 
@@ -71,7 +72,7 @@ const video = `
       justify-content: center;
       display: flex;
       animation: show-text 500ms both;
-      animation-delay: 2300ms;
+      animation-delay: 342300ms;
       margin-right: 18px;
     }
 
@@ -110,6 +111,14 @@ const video = `
 
 export function Main() {
   const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, milliseconds: number } | null>(null);
+  const [timelineRange, setTimelineRange] = useState<{
+    startMilliseconds: number;
+    durationMilliseconds: number
+  }>({
+    startMilliseconds: 0,
+    durationMilliseconds: 300000,
+  })
+  
   return (
     <Canvas 
       video={video}
@@ -127,49 +136,67 @@ export function Main() {
             <div className={styles.player}>
               {player}
             </div>
-            <Timeline 
-              windowDurationMilliseconds={60000}
-              onTimeSelect={(time) => {
-                seek(time);
-              }}
-              durationMilliseconds={durationMilliseconds}
-              onTimeMouseOut={() => {
-                setMouseOverMarkerTransform(null);
-              }}
-              onTimeMouseOver={async ({ translateX, milliseconds }) => {
-                setMouseOverMarkerTransform({ 
-                  translateX,
-                  milliseconds,
-                });
-              }}
-            >
-              <TimelineGrid 
-                labelStepMilliseconds={10000}
-                stepMilliseconds={5000}
-              />
-              {
-                mouseOverMarkerTransform !== null && (
-                  <TimeMarker 
-                    childrenTop={(
-                      <Canvas 
-                        className={styles.preview}
-                        video={video}
-                      >
-                        {
-                          ({ seek, player }) => {
-                            useLayoutEffect(() => {
-                              seek(mouseOverMarkerTransform.milliseconds);
-                            }, [mouseOverMarkerTransform.milliseconds]);
-                            return player;
+            <div className={styles.timelines}>
+              <Timeline 
+                timeRange={timelineRange}
+                onTimeSelect={(time) => {
+                  seek(time);
+                }}
+                durationMilliseconds={durationMilliseconds}
+                onTimeMouseOut={() => {
+                  setMouseOverMarkerTransform(null);
+                }}
+                onTimeMouseOver={async ({ translateX, milliseconds }) => {
+                  setMouseOverMarkerTransform({ 
+                    translateX,
+                    milliseconds,
+                  });
+                }}
+              >
+                <TimelineGrid 
+                  timeRange={timelineRange}
+                  labelStepMilliseconds={30000}
+                  stepMilliseconds={5000}
+                />
+                {
+                  mouseOverMarkerTransform !== null && (
+                    <TimeMarker 
+                      childrenTop={(
+                        <Canvas 
+                          className={styles.preview}
+                          video={video}
+                        >
+                          {
+                            ({ seek, player }) => {
+                              useLayoutEffect(() => {
+                                seek(mouseOverMarkerTransform.milliseconds);
+                              }, [mouseOverMarkerTransform.milliseconds]);
+                              return player;
+                            }
                           }
-                        }
-                      </Canvas>
-                    )}
-                    millisecond={mouseOverMarkerTransform.milliseconds}
-                  />
-                )
-              }
-            </Timeline>
+                        </Canvas>
+                      )}
+                      millisecond={mouseOverMarkerTransform.milliseconds}
+                    />
+                  )
+                }
+              </Timeline>
+              <Timeline
+                timeRange={{
+                  startMilliseconds: 0,
+                  durationMilliseconds: durationMilliseconds,
+                }}
+                durationMilliseconds={durationMilliseconds} 
+              >
+                <TimelineWindow
+                  videoDurationMilliseconds={durationMilliseconds}
+                  onRangeChange={(range) => {
+                    setTimelineRange(range);
+                  }}
+                  timeRange={timelineRange}
+                />
+              </Timeline>
+            </div>
           </div>
         )
       }}

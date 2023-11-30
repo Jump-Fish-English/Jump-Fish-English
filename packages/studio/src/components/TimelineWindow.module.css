@@ -1,0 +1,37 @@
+.container {
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  touch-action: none;
+}
+
+.draggable {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.handle {
+  display: block;
+  width: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle-start {
+  composes: handle;
+  left: 0;
+}
+
+.handle-end {
+  composes: handle;
+  right: 0;
+}
