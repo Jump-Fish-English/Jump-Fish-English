@@ -1,53 +1,64 @@
 import { instance } from './instance';
+import { millisecondsToFFMpegFormat } from './time';
+import { v4 as uuidv4 } from 'uuid';
 
 type EncodingPresets = 'ultrafast' | 'superfast' | 'veryfast' | 'faster' | 'fast' | 'medium' | 'slow' | 'slower' | 'veryslow';
 
-interface VideoMedia {
-  type: 'video',
-  name: string;
-  buffer: Uint8Array;
+export interface MillisecondRange {
+  startMilliseconds: number;
+  durationMilliseconds: number;
 }
 
-interface VideoTimeline {
-  media: VideoMedia[];
+interface OutputOptions {
+  encodingPreset: EncodingPresets;
 }
 
-interface Params {
-  output: {
-    encodingPreset: EncodingPresets;
-  },
-  timeline: VideoTimeline;
+export interface VideoFile {
+  fileName: string;
+  data: Uint8Array;
 }
 
-export async function generate({ output: { encodingPreset }, timeline }: Params) {
-  const ffmpeg = await instance()
-  const { media } = timeline;
+interface ClipParams { 
+  output: OutputOptions,
+  source: VideoFile;
+  range: MillisecondRange,
+  progress?: () => void;
+}
 
-  const commands: string[][] = [];
-  for(const item of media) {
-    switch (item.type) {
-      case 'video': {
-        const { buffer, name: fileName } = item;
-        await ffmpeg.writeFile(fileName, buffer);
-        commands.push([
-          '-i',
-          fileName,
-        ])
-      }
-    }
-  }
-
-  const command = commands.reduce((acc, current) => {
-    return [
-      ...acc,
-      ...current,
-    ];
-  }, [] as string[]);
-
-  await ffmpeg.exec([...command, '-preset', encodingPreset, 'output.mp4']);
-  const data = await ffmpeg.readFile('output.mp4');
+export async function trim({ output: { encodingPreset }, source: { fileName }, range: { startMilliseconds, durationMilliseconds } }: ClipParams): Promise<VideoFile> {
+  const ffmpeg = await instance();
+  const outputFileName = `${uuidv4()}.mp4`;
+  const command = ['-i', fileName, '-ss', millisecondsToFFMpegFormat(startMilliseconds), '-t', millisecondsToFFMpegFormat(durationMilliseconds)];
+  await ffmpeg.exec([...command, '-preset', encodingPreset, outputFileName]);
+  const data = await ffmpeg.readFile(outputFileName);
   if (typeof data === 'string') {
     throw new Error('String returned from readFile');
   }
-  return URL.createObjectURL(new Blob([data.buffer], {type: 'video/mp4'}));
+
+  return {
+    fileName: outputFileName,
+    data,
+  };
+}
+
+export async function writeFile({ fileName, buffer }: { fileName: string, buffer: Uint8Array }): Promise<VideoFile> {
+  const ffmpeg = await instance();
+  await ffmpeg.writeFile(fileName, buffer);
+  return {
+    fileName,
+    data: buffer,
+  };
+}
+
+export async function exportFrame({ millisecond, source: { fileName } }: { source: Pick<VideoFile, 'fileName'>, millisecond: number }) {
+  const ffmpeg = await instance();
+  const outputFileName = `${uuidv4()}.png`;
+  const command = ['-i', fileName, '-ss', millisecondsToFFMpegFormat(millisecond), '-vframes', '1'];
+  await ffmpeg.exec([...command, outputFileName]);
+  const data = await ffmpeg.readFile(outputFileName);
+  if (typeof data === 'string') {
+    throw new Error('String returned from readFile');
+  }
+
+  return URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
 }

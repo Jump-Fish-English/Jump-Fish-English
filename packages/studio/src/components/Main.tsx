@@ -1,10 +1,13 @@
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Playhead } from './Playhead';
 import { Timeline } from './Timeline';
-import { Canvas } from './Canvas';
+import { Preview } from './Preview';
 import { TimeMarker } from './TimeMarker';
 import { TimelineGrid } from './TimelineGrid';
 import { TimelineWindow } from './TimelineWindow';
+import { produce } from 'immer';
+import { v4 as uuidV4 } from 'uuid';
+import { trim as trimVideo, exportFrame, type VideoFile, type MillisecondRange, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
 
@@ -106,100 +109,106 @@ const video = `
       <div class="subscribe-text">Subscribe</div>
     </div>
   </div>
-  <video src=${src} autoplay />
 `;
 
+interface VideoSource {
+  type: 'video',
+  id: string;
+  durationMilliseconds: number;
+  thumbnailUrl: string;
+  videoFile: VideoFile;
+}
+
+
+interface VideoClip {
+  type: 'video',
+  trim?: MillisecondRange;
+  source: string;
+  filename: string;
+  durationMilliseconds: number;
+  url: string;
+}
+
+
+interface VideoDocument {
+  sources: Record<string, VideoSource>;
+  timeline: VideoClip[];
+}
+
+
+async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
+  const videoFile = await writeVideoFile({
+    fileName: `${uuidV4()}.mp4`,
+    buffer: new Uint8Array(arrayBuffer),
+  });
+
+  const durationMilliseconds = await new Promise<number>((res) => {
+    const videoElm = document.createElement('video');
+    videoElm.preload = 'metadata';
+    videoElm.src = src;
+    videoElm.addEventListener('durationchange', () => {
+      res(videoElm.duration);
+    }, {
+      once: true,
+    });
+  });
+
+  const thumbnailUrl = await exportFrame({
+    millisecond: 0,
+    source: videoFile,
+  });
+
+  return {
+    type: 'video',
+    id: 'ididid',
+    durationMilliseconds,
+    thumbnailUrl,
+    videoFile,
+  };
+}
+
 export function Main() {
-  const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, milliseconds: number } | null>(null);
-  const [timelineRange, setTimelineRange] = useState<{
-    startMilliseconds: number;
-    durationMilliseconds: number
-  }>({
-    startMilliseconds: 0,
-    durationMilliseconds: 300000,
-  })
-  
-  return (
-    <Canvas 
-      video={video}
-    >
-      {({ player, play, pause, durationMilliseconds, playState, seek, currentTimeMilliseconds }) => {        
-        return (
-          <div className={styles.container}>
-            <Playhead 
-              playState={playState}
-              onPauseClick={pause}
-              onPlayClick={play}
-              currentTimeMilliseconds={currentTimeMilliseconds} 
-              durationMilliseconds={durationMilliseconds}
-            />
-            <div className={styles.player}>
-              {player}
-            </div>
-            <div className={styles.timelines}>
-              <Timeline 
-                timeRange={timelineRange}
-                onTimeSelect={(time) => {
-                  seek(time);
-                }}
-                durationMilliseconds={durationMilliseconds}
-                onTimeMouseOut={() => {
-                  setMouseOverMarkerTransform(null);
-                }}
-                onTimeMouseOver={async ({ translateX, milliseconds }) => {
-                  setMouseOverMarkerTransform({ 
-                    translateX,
-                    milliseconds,
-                  });
-                }}
-              >
-                <TimelineGrid 
-                  timeRange={timelineRange}
-                  labelStepMilliseconds={30000}
-                  stepMilliseconds={5000}
-                />
-                {
-                  mouseOverMarkerTransform !== null && (
-                    <TimeMarker 
-                      childrenTop={(
-                        <Canvas 
-                          className={styles.preview}
-                          video={video}
-                        >
-                          {
-                            ({ seek, player }) => {
-                              useLayoutEffect(() => {
-                                seek(mouseOverMarkerTransform.milliseconds);
-                              }, [mouseOverMarkerTransform.milliseconds]);
-                              return player;
-                            }
-                          }
-                        </Canvas>
-                      )}
-                      millisecond={mouseOverMarkerTransform.milliseconds}
-                    />
-                  )
-                }
-              </Timeline>
-              <Timeline
-                timeRange={{
-                  startMilliseconds: 0,
-                  durationMilliseconds: durationMilliseconds,
-                }}
-                durationMilliseconds={durationMilliseconds} 
-              >
-                <TimelineWindow
-                  videoDurationMilliseconds={durationMilliseconds}
-                  onRangeChange={(range) => {
-                    setTimelineRange(range);
-                  }}
-                  timeRange={timelineRange}
-                />
-              </Timeline>
-            </div>
-          </div>
+  const [doc, setDoc] = useState<VideoDocument>({
+    sources: {},
+    timeline: [],
+  });
+
+  useEffect(() => {
+    fetch(src)
+      .then((resp) => resp.arrayBuffer())
+      .then((buffer) => {
+        return loadSource(buffer);
+      })
+      .then((source) => {
+        setDoc(
+          produce((draft) => {
+            draft.sources[source.id] = source;
+          })
         )
-      }}
-    </Canvas>
+      })
+    
+  }, []);
+
+  if (doc === undefined) {
+    return null;
+  }
+
+  return (
+    <div className={styles.container}>
+      <section className={styles.sources}>
+        {
+          Object.values(doc.sources).map((source) => {
+            return (
+              <article className={styles.source} key={source.id}>
+                <h4 className={styles['source-title']}>
+                  {source.videoFile.fileName}
+                </h4>
+                <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
+              </article>
+            )
+          })
+        }
+      </section>
+    </div>
   )
 }

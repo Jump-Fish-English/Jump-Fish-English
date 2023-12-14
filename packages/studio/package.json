@@ -5,11 +5,14 @@
     "dependencies": {
       "html2canvas": "1.4.1",
       "@use-gesture/react": "10.3.0",
-      "raf-throttle": "2.0.6"
+      "raf-throttle": "2.0.6",
+      "immer": "10.0.3",
+      "uuid": "9.0.1"
     },
     "devDependencies": {
       "astro-rpc": "*",
-      "@jumpfish/video-processor": "*"
+      "@jumpfish/video-processor": "*",
+      "@types/uuid": "9.0.7"
     },
     "scripts": {
       "dev": "astro dev",
