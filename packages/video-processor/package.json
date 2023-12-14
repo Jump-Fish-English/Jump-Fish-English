@@ -1,0 +1,12 @@
+{
+  "name": "@jumpfish/video-processor",
+  "version": "0.1.0",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "0.12.7",
+    "@ffmpeg/util": "0.12.1"
+  }
+}

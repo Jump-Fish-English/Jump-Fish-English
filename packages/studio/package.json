@@ -8,7 +8,8 @@
       "raf-throttle": "2.0.6"
     },
     "devDependencies": {
-      "astro-rpc": "*"
+      "astro-rpc": "*",
+      "@jumpfish/video-processor": "*"
     },
     "scripts": {
       "dev": "astro dev",

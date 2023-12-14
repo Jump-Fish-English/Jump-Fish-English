@@ -9,4 +9,9 @@ export default defineConfig({
     react(),
     astroRpc()
   ],
+  vite: {
+    optimizeDeps: {
+      exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+    },
+  }
 });
