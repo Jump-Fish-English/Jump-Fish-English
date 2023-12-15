@@ -1,4 +1,4 @@
-import { type VideoFile, type MillisecondRange } from '@jumpfish/video-processor';
+import { type VideoFile, type MillisecondRange, concatVideoFiles } from '@jumpfish/video-processor';
 
 export interface VideoSource {
   type: 'video',
@@ -57,19 +57,34 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
 
   // Insert the clip at the end if not already inserted
   if (!clipInserted) {
-    newTimeline.push({ ...clip, trim: { startMilliseconds: clipStart, durationMilliseconds: clip.trim.durationMilliseconds } });
+    newTimeline.push({ ...clip });
   }
   
   return {
     ...doc,
     timeline: newTimeline,
     durationMilliseconds: newTimeline.reduce((max, clip) => {
-      let end = clip.trim.startMilliseconds + clip.trim.durationMilliseconds;
-      return end > max ? end : max;
+      return max + clip.trim.durationMilliseconds;
     }, 0),
   }
 }
 
 export async function renderVideoDocument({ doc }: { doc: VideoDocument }) {
-  return URL.createObjectURL(new Blob([doc.sources.ididid.videoFile.data], {type: 'video/mp4'}));
+  const { timeline, sources } = doc;
+
+  const file = await concatVideoFiles({
+    output: {
+      encodingPreset: 'ultrafast'
+    },
+    files: timeline.map(({ trim, source: sourceId }) => {
+      const source = sources[sourceId];
+      return {
+        file: source.videoFile,
+        inpointMilliseconds: trim.startMilliseconds,
+        outpointMilliseconds: trim.durationMilliseconds,
+      }
+    })
+  });
+
+  return URL.createObjectURL(file.data);
 }

@@ -118,6 +118,7 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
   const videoFile = await writeVideoFile({
     fileName: `${uuidV4()}.mp4`,
     buffer: new Uint8Array(arrayBuffer),
+    type: 'video/mp4',
   });
 
   const durationMilliseconds = await new Promise<number>((res) => {
@@ -260,7 +261,7 @@ export function Main() {
           }}
           durationMilliseconds={doc.durationMilliseconds}
         >
-          { doc.durationMilliseconds > 0 && (
+          { doc.durationMilliseconds > 0 && doc.videoUrl !== undefined && (
             <TimelineWindow 
               timeRange={range}
               onRangeChange={(nextRange) => {

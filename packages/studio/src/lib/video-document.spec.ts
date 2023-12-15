@@ -79,7 +79,49 @@ describe('insertClip', () => {
     expect(doc.durationMilliseconds).toBe(1000);
   });
 
-  it.only('should return correct value when inserting a clip over existing clip', () => {
+  it('should not modify existing startMilliseconds in trim', () => {
+    const doc = insertClip({
+      insertMillisecond: 1000,
+      doc: {
+        durationMilliseconds: 1000,
+        sources: {},
+        timeline: [{
+          source: 'asd',
+          type: 'video',
+          trim: {
+            startMilliseconds: 0,
+            durationMilliseconds: 1000,
+          }
+        }],
+      },
+      clip: {
+        source: 'asd',
+        type: 'video',
+        trim: {
+          startMilliseconds: 0,
+          durationMilliseconds: 500,
+        }
+      }
+    });
+
+    expect(doc.timeline).toEqual([{
+      source: 'asd',
+      type: 'video',
+      trim: {
+        startMilliseconds: 0,
+        durationMilliseconds: 1000,
+      }
+    }, {
+      source: 'asd',
+      type: 'video',
+      trim: {
+        startMilliseconds: 0,
+        durationMilliseconds: 500,
+      }
+    }])
+  });
+
+  it('should return correct value when inserting a clip over existing clip', () => {
     const doc = insertClip({
       insertMillisecond: 0,
       doc: {
@@ -303,7 +345,7 @@ describe('insertClip', () => {
       source: 'asd',
       type: 'video',
       trim: {
-        startMilliseconds: 100,
+        startMilliseconds: 200,
         durationMilliseconds: 200,
       }
     }]);

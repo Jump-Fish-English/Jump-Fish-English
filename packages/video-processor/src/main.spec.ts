@@ -37,6 +37,7 @@ describe('writeFile', () => {
     const result = await writeFile({
       fileName: 'foo.mp4',
       buffer,
+      type: 'video/mp4'
     });
 
     expect(ffmpeg.writeFile).toHaveBeenCalledWith('foo.mp4', buffer);

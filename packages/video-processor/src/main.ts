@@ -30,10 +30,10 @@ export async function trim({ output: { encodingPreset }, source: { fileName }, r
   const outputFileName = `${uuidv4()}.mp4`;
   const command = ['-i', fileName, '-ss', millisecondsToFFMpegFormat(startMilliseconds), '-t', millisecondsToFFMpegFormat(durationMilliseconds)];
   await ffmpeg.exec([...command, '-preset', encodingPreset, outputFileName]);
-  return await readFile({ fileName: outputFileName });
+  return await readFile({ fileName: outputFileName, type: 'video/mp4' });
 }
 
-async function readFile({ fileName }: { fileName: string }): Promise<VideoFile>  {
+async function readFile({ fileName, type }: { type: 'video/mp4' | 'image/png', fileName: string }): Promise<VideoFile>  {
   const ffmpeg = await instance();
   const contents = await ffmpeg.readFile(fileName);
   if (typeof contents === 'string') {
@@ -42,14 +42,14 @@ async function readFile({ fileName }: { fileName: string }): Promise<VideoFile> 
 
   return {
     fileName,
-    data: new Blob([contents.buffer], {type: 'image/png'}),
+    data: new Blob([contents.buffer], { type }),
   };
 }
 
-export async function writeFile({ fileName, buffer }: { fileName: string, buffer: Uint8Array }): Promise<VideoFile> {
+export async function writeFile({ fileName, buffer, type }: { type: 'video/mp4' | 'image/png', fileName: string, buffer: Uint8Array }): Promise<VideoFile> {
   const ffmpeg = await instance();
   await ffmpeg.writeFile(fileName, buffer);
-  return await readFile({ fileName });
+  return await readFile({ fileName, type });
 }
 
 export async function exportFrame({ millisecond, source: { fileName } }: { source: Pick<VideoFile, 'fileName'>, millisecond: number }) {
@@ -63,4 +63,53 @@ export async function exportFrame({ millisecond, source: { fileName } }: { sourc
   }
 
   return URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
+}
+
+interface ConcatParams {
+  output: OutputOptions,
+  files: Array<{
+    file: VideoFile;
+    inpointMilliseconds: number;
+    outpointMilliseconds: number;
+  }>
+}
+
+export async function concatVideoFiles({ output: { encodingPreset }, files }: ConcatParams): Promise<VideoFile> {
+  const ffmpeg = await instance();
+  const inFile: string[] = [];
+
+  files.forEach(({ file, outpointMilliseconds, inpointMilliseconds }) => {
+    inFile.push(`file '${file.fileName}'`);
+    const formattedInpoint = millisecondsToFFMpegFormat(inpointMilliseconds);
+    inFile.push(`inpoint ${formattedInpoint}`);
+    const formattedOutpoint = millisecondsToFFMpegFormat(outpointMilliseconds);
+    inFile.push(`outpoint ${formattedOutpoint}`);
+  });
+
+  const contents = inFile.join('\n');
+  const contentsFileName = `${uuidv4()}.txt`;
+  const outputFileName = `${uuidv4()}.mp4`;
+  const encoder = new TextEncoder();
+  await writeFile({
+    fileName: contentsFileName,
+    buffer: encoder.encode(contents),
+    type: 'video/mp4'
+  });
+  await ffmpeg.exec([
+    '-f',
+    'concat',
+    '-i',
+    contentsFileName,
+    '-async',
+    '1',
+    '-c',
+    'copy',
+    '-fflags',
+    '+genpts',
+    '-preset', 
+    encodingPreset,
+    outputFileName
+  ]);
+
+  return await readFile({ fileName: outputFileName, type: 'video/mp4' });
 }
