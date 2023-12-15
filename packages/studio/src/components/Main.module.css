@@ -1,5 +1,5 @@
 .container {
-  background: linear-gradient(rgb(78 96 104), rgb(37 48 56));
+  background: rgb(31, 31, 31);
   height: 100vh;
   display: flex;
 }
@@ -12,13 +12,6 @@
   composes: cell;
   flex: 1 0 400px;
   min-width: 0;
-}
-
-.sources {
-  composes: cell;
-  flex: 0 0 200px;
-  border-right: 1px solid black;
-  
 }
 
 .source {
@@ -69,4 +62,48 @@
 
 .clip-summary:first-child {
   margin-left: 0;
+}
+
+.tabs {
+  background: rgb(24, 24, 24);
+  flex: 0 0 300px;
+  border-right: 1px solid black;
+  display: flex;
+}
+
+.tab {
+  composes: cell;
+  flex: 1 0 50px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgb(43, 43, 43);
+  border-left: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tab:focus, .tab:hover {
+  outline: none;
+  color: #fff;
+}
+
+.tab-active {
+  composes: tab;
+  color: #fff;
+  border-left: 3px solid rgb(51, 118, 205);
+}
+
+.tab-panel {
+  composes: cell;
+  flex: 1 0 200px;
+  position: relative;
+  border-left: 1px solid rgb(43, 43, 43);;
+}
+
+.tab-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }

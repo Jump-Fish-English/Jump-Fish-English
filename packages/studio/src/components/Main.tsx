@@ -4,13 +4,12 @@ import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import src from '../../../../videos/output.mp4';
 import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
-import { VideoPreview } from './VideoPreview';
 import styles from './Main.module.css';
 import { Timeline } from './Timeline';
 import { ClipPlayer } from './ClipPlayer';
 import { ClipPreview } from './ClipPreview';
-import { TimeLabel } from './TimeLabel';
 import { TimelineContextMenu } from './TimelineContextMenu';
+import { Tabs, Tab } from './Tabs';
 
 const video = `
   <style>
@@ -225,39 +224,52 @@ export function Main() {
 
   return (
     <div className={styles.container}>
-      <section className={styles.sources}>
-        {
-          Object.values(doc.sources).map((source) => {
-            return (
-              <article className={styles.source} key={source.id} onClick={async () => {
-                const clip: VideoClip = {
-                  type: 'video',
-                  source: source.id,
-                  trim: {
-                    startMilliseconds: 60000,
-                    durationMilliseconds: 10000
-                  },
-                  url: URL.createObjectURL(source.videoFile.data),
-                }
-                
-                const nextDoc = insertClip({
-                  doc, 
-                  insertMillisecond: doc.durationMilliseconds,
-                  clip,
-                });
+      <Tabs tabActiveClassName={styles['tab-active']} tabPanelClassName={styles['tab-panel']} tabClassName={styles.tab} className={styles.tabs}>
+        <Tab key="clips" textValue="Clips" title={(
+          <div className={styles['tab-icon']}>
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="11" strokeWidth="2"/>
+              <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+            </svg>
+            <h6>Clips</h6>
+          </div>
+        )}>
+          {
+            Object.values(doc.sources).map((source) => {
+              return (
+                <article className={styles.source} key={source.id} onClick={async () => {
+                  const clip: VideoClip = {
+                    type: 'video',
+                    source: source.id,
+                    trim: {
+                      startMilliseconds: 60000,
+                      durationMilliseconds: 10000
+                    },
+                    url: URL.createObjectURL(source.videoFile.data),
+                  }
+                  
+                  const nextDoc = insertClip({
+                    doc, 
+                    insertMillisecond: doc.durationMilliseconds,
+                    clip,
+                  });
 
-                setDoc(nextDoc);
+                  setDoc(nextDoc);
 
-              }}>
-                <h4 className={styles['source-title']}>
-                  {source.videoFile.fileName}
-                </h4>
-                <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
-              </article>
-            )
-          })
-        }
-      </section>
+                }}>
+                  <h4 className={styles['source-title']}>
+                    {source.videoFile.fileName}
+                  </h4>
+                  <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
+                </article>
+              )
+            })
+          }
+        </Tab>
+        <Tab key="ok" textValue="Clips" title="Hi">
+          Other
+        </Tab>
+      </Tabs>
       <main className={styles.main}>
         { doc.timeline.length > 0 && (
           <ClipPlayer
