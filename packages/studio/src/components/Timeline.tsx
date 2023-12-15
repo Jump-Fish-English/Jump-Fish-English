@@ -1,4 +1,6 @@
 import { useRef,useState, useLayoutEffect, type ReactNode, useContext, createContext } from "react";
+import { usePopover, Overlay} from 'react-aria';
+import { useOverlayTriggerState } from "react-stately";
 
 export interface TimeRange {
   startMilliseconds: number;
@@ -11,6 +13,7 @@ interface Props {
   onTimeMouseOver?(params: { milliseconds: number, translateX: number }): void;
   onTimeMouseOut?(): void;
   onTimeSelect?: (milliseconds: number) => void;
+  contextMenu?: (milliseconds: number) => ReactNode;
   children?: ReactNode;
   timeRange: TimeRange;
 }
@@ -49,8 +52,30 @@ export function useTimeline() {
   }
 }
 
-export function Timeline({ className, onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
+export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+  const [contextMenu, setContextMenuState] = useState<{
+    offset: number;
+    crossOffset: number,
+    content: ReactNode;
+  } | undefined>(undefined);
+  const overlayTriggerState = useOverlayTriggerState({
+    isOpen: contextMenu !== undefined,
+    onOpenChange(isOpen) {
+      if (isOpen === false) {
+        setContextMenuState(undefined);
+      }
+    }
+  });
+  const { popoverProps } = usePopover({
+    placement: 'top start',
+    triggerRef: containerRef,
+    popoverRef,
+    offset: contextMenu?.offset,
+    crossOffset: contextMenu?.crossOffset,
+    
+  }, overlayTriggerState);
   const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
 
   useLayoutEffect(() => {
@@ -68,6 +93,28 @@ export function Timeline({ className, onTimeMouseOut, timeRange, children, onTim
       timeRange,
     }}>
       <div
+        onContextMenu={(e) => {
+          if (onContextMenu === undefined) {
+            return;
+          }
+          e.preventDefault();
+          if (containerWidth === undefined) {
+            return;
+          }
+
+          const milliseconds = leftToMilliseconds(
+            e.pageX,
+            timeRange,
+            containerWidth
+          );
+
+          setContextMenuState({
+            content: onContextMenu(milliseconds),
+            crossOffset: e.pageX - 239,
+            offset: 472 - e.pageY,
+          })
+
+        }}
         onMouseLeave={() => {
           onTimeMouseOut?.();
         }}
@@ -85,7 +132,7 @@ export function Timeline({ className, onTimeMouseOut, timeRange, children, onTim
           onTimeMouseOver?.({ milliseconds, translateX: relativeLeft });
         }}
         onClick={(e) => {
-          if (containerWidth === undefined) {
+          if (containerWidth === undefined || e.ctrlKey === true) {
             return;
           }
           const { left } = containerRef.current!.getBoundingClientRect();
@@ -98,6 +145,13 @@ export function Timeline({ className, onTimeMouseOut, timeRange, children, onTim
           onTimeSelect?.(milliseconds);
         }}
         ref={containerRef} className={className}>
+          { contextMenu !== undefined && (
+            <Overlay>
+              <div {...popoverProps} ref={popoverRef}>
+                {contextMenu.content}
+              </div>
+            </Overlay>
+          )}
         {children}
       </div>
     </TimelineContext.Provider>

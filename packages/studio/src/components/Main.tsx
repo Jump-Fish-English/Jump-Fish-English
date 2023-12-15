@@ -9,6 +9,8 @@ import styles from './Main.module.css';
 import { Timeline } from './Timeline';
 import { ClipPlayer } from './ClipPlayer';
 import { ClipPreview } from './ClipPreview';
+import { TimeLabel } from './TimeLabel';
+import { TimelineContextMenu } from './TimelineContextMenu';
 
 const video = `
   <style>
@@ -153,8 +155,20 @@ function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined)
       <Timeline 
         key={index}
         className={styles['clip-summary']} 
+        contextMenu={(milliseconds) => {
+          return (
+            <TimelineContextMenu
+              onSeek={(milliseconds) => {
+                if (videoPlayer === undefined) {
+                  return;
+                }
+                videoPlayer.seek(milliseconds);
+              }} 
+              milliseconds={milliseconds}
+            />
+          )
+        }}
         onTimeSelect={(milliseconds) => {
-          console.log(milliseconds)
           if (videoPlayer !== undefined) {
             videoPlayer.seek(milliseconds);
             // videoPlayer.play();

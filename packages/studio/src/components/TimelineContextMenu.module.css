@@ -1,0 +1,38 @@
+.context-menu {
+  background-color: rgb(184, 189, 193);
+  border: 1px solid #aaa; /* Light grey border */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  line-height: 1;
+  font-size: 14px; /* Standard font size */
+  color: #000; /* Dark grey text */
+  padding: 5px; /* Padding on top and bottom */
+  margin: 0;
+  list-style: none;
+  min-width: 140px;
+}
+
+.context-menu li {
+  border-radius: 5px; /* Rounded corners */
+  padding: 4px; /* Padding inside each item */
+  cursor: pointer;
+}
+
+.context-menu li:focus {
+  outline: none;
+} 
+
+.context-menu li:hover {
+  color: #fff;
+  background-color: rgb(57, 118, 220);
+}
+
+.context-menu li.disabled {
+  color: #999; /* Light grey text for disabled items */
+  cursor: default;
+}
+
+.context-menu li.separator {
+  border-top: 1px solid #e0e0e0; /* Separator line */
+  margin: 5px 0;
+}
