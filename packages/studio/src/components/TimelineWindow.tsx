@@ -34,10 +34,9 @@ export function TimelineWindow({ videoDurationMilliseconds, onRangeChange, timeR
       durationMilliseconds,
     })
   });
-
+  
   return (
     <div 
-      
       className={styles.container}
       style={{ 
         transform: `translateX(${startTranslateX}px)`,

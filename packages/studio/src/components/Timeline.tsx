@@ -43,7 +43,7 @@ export function useTimeline() {
   const { timeRange, containerWidth } = context;
   return {
     getTranslateX: (millisecond: number) => {
-      return millisecondsToTranslateX(millisecond, timeRange, containerWidth)
+      return millisecondsToTranslateX(millisecond, timeRange, containerWidth);
     },
     pixelToDurationMilliseconds(pixel: number) {
       return leftToMilliseconds(pixel, timeRange, containerWidth);

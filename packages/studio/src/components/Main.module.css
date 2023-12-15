@@ -2,13 +2,23 @@
   background: linear-gradient(rgb(78 96 104), rgb(37 48 56));
   height: 100vh;
   display: flex;
-  gap: 2rem;
+}
+
+.cell {
+  padding: 0.8rem;
+}
+
+.main {
+  composes: cell;
+  flex: 1 0 400px;
+  min-width: 0;
 }
 
 .sources {
-  flex: 0 0 25%;
+  composes: cell;
+  flex: 0 0 200px;
   border-right: 1px solid black;
-  padding: 0.4rem;
+  
 }
 
 .source {
@@ -29,4 +39,12 @@
 .source-thumbnail {
   max-width: 100%;
   height: auto;
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
 }

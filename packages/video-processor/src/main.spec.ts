@@ -6,6 +6,7 @@ vi.stubGlobal('URL', {
   createObjectURL: vi.fn().mockReturnValue('mockedurl')
 });
 
+
 vi.mock('uuid', async () => {
   return {
     v4: vi.fn().mockReturnValue('mockuuid')
@@ -39,10 +40,9 @@ describe('writeFile', () => {
     });
 
     expect(ffmpeg.writeFile).toHaveBeenCalledWith('foo.mp4', buffer);
-
     expect(result).toEqual({
       fileName: 'foo.mp4',
-      data: buffer,
+      data: expect.any(Blob),
     });
   });
 });
@@ -59,7 +59,7 @@ describe('trim', () => {
         },
         source: {
           fileName: 'first.mp4',
-          data: new Uint8Array(),
+          data: new Blob(),
         },
         range: {
           startMilliseconds: 0,
@@ -71,7 +71,7 @@ describe('trim', () => {
       
       expect(result).toEqual({
         fileName: 'mockuuid.mp4',
-        data: readBuffer,
+        data: expect.any(Blob),
       });
     });
   });

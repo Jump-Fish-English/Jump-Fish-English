@@ -15,7 +15,7 @@ interface OutputOptions {
 
 export interface VideoFile {
   fileName: string;
-  data: Uint8Array;
+  data: Blob;
 }
 
 interface ClipParams { 
@@ -30,24 +30,26 @@ export async function trim({ output: { encodingPreset }, source: { fileName }, r
   const outputFileName = `${uuidv4()}.mp4`;
   const command = ['-i', fileName, '-ss', millisecondsToFFMpegFormat(startMilliseconds), '-t', millisecondsToFFMpegFormat(durationMilliseconds)];
   await ffmpeg.exec([...command, '-preset', encodingPreset, outputFileName]);
-  const data = await ffmpeg.readFile(outputFileName);
-  if (typeof data === 'string') {
+  return await readFile({ fileName: outputFileName });
+}
+
+async function readFile({ fileName }: { fileName: string }): Promise<VideoFile>  {
+  const ffmpeg = await instance();
+  const contents = await ffmpeg.readFile(fileName);
+  if (typeof contents === 'string') {
     throw new Error('String returned from readFile');
   }
 
   return {
-    fileName: outputFileName,
-    data,
+    fileName,
+    data: new Blob([contents.buffer], {type: 'image/png'}),
   };
 }
 
 export async function writeFile({ fileName, buffer }: { fileName: string, buffer: Uint8Array }): Promise<VideoFile> {
   const ffmpeg = await instance();
   await ffmpeg.writeFile(fileName, buffer);
-  return {
-    fileName,
-    data: buffer,
-  };
+  return await readFile({ fileName });
 }
 
 export async function exportFrame({ millisecond, source: { fileName } }: { source: Pick<VideoFile, 'fileName'>, millisecond: number }) {

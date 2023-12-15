@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
-import { Playhead } from './Playhead';
+import { useEffect, useState, useRef } from 'react';
 import { Timeline } from './Timeline';
 import { Preview } from './Preview';
 import { TimeMarker } from './TimeMarker';
@@ -7,9 +6,10 @@ import { TimelineGrid } from './TimelineGrid';
 import { TimelineWindow } from './TimelineWindow';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
-import { trim as trimVideo, exportFrame, type VideoFile, type MillisecondRange, writeFile as writeVideoFile } from '@jumpfish/video-processor';
+import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
+import { insertClip, renderVideoDocument, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
 
 const video = `
   <style>
@@ -111,29 +111,6 @@ const video = `
   </div>
 `;
 
-interface VideoSource {
-  type: 'video',
-  id: string;
-  durationMilliseconds: number;
-  thumbnailUrl: string;
-  videoFile: VideoFile;
-}
-
-
-interface VideoClip {
-  type: 'video',
-  trim?: MillisecondRange;
-  source: string;
-  filename: string;
-  durationMilliseconds: number;
-  url: string;
-}
-
-
-interface VideoDocument {
-  sources: Record<string, VideoSource>;
-  timeline: VideoClip[];
-}
 
 
 async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
@@ -147,7 +124,7 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
     videoElm.preload = 'metadata';
     videoElm.src = src;
     videoElm.addEventListener('durationchange', () => {
-      res(videoElm.duration);
+      res(videoElm.duration * 1000);
     }, {
       once: true,
     });
@@ -168,10 +145,16 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 }
 
 export function Main() {
+  const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const [doc, setDoc] = useState<VideoDocument>({
     sources: {},
     timeline: [],
+    durationMilliseconds: 0,
   });
+  const [range, setVisibleRange] = useState({
+    startMilliseconds: 0,
+    durationMilliseconds: 30000,
+  })
 
   useEffect(() => {
     fetch(src)
@@ -199,7 +182,30 @@ export function Main() {
         {
           Object.values(doc.sources).map((source) => {
             return (
-              <article className={styles.source} key={source.id}>
+              <article className={styles.source} key={source.id} onClick={async () => {
+                const clip: VideoClip = {
+                  type: 'video',
+                  source: source.id,
+                  trim: {
+                    startMilliseconds: 0,
+                    durationMilliseconds: source.durationMilliseconds
+                  }
+                }
+                
+                const nextDoc = insertClip({
+                  doc, 
+                  insertMillisecond: 0,
+                  clip,
+                });
+
+                const videoUrl = await renderVideoDocument({ doc: nextDoc });
+
+                setDoc({
+                  ...nextDoc,
+                  videoUrl,
+                });
+
+              }}>
                 <h4 className={styles['source-title']}>
                   {source.videoFile.fileName}
                 </h4>
@@ -209,6 +215,41 @@ export function Main() {
           })
         }
       </section>
+      <main className={styles.main}>
+        <video ref={videoElementRef} className={styles.video} src={doc.videoUrl} controls />
+        <Timeline 
+          timeRange={range}
+          durationMilliseconds={doc.durationMilliseconds}
+          onTimeSelect={(milliseconds) => {
+            if (videoElementRef.current) {
+              videoElementRef.current.currentTime = milliseconds / 1000;
+            }
+          }}
+        >
+          <TimelineGrid 
+            stepMilliseconds={1000}
+            labelStepMilliseconds={5000}
+            timeRange={range}
+          />
+        </Timeline>
+        <Timeline 
+          timeRange={{
+            startMilliseconds: 0,
+            durationMilliseconds: doc.durationMilliseconds,
+          }}
+          durationMilliseconds={doc.durationMilliseconds}
+        >
+          { doc.durationMilliseconds > 0 && (
+            <TimelineWindow 
+              timeRange={range}
+              onRangeChange={(nextRange) => {
+                setVisibleRange(nextRange);
+              }}
+              videoDurationMilliseconds={doc.durationMilliseconds}
+            />
+          )}
+        </Timeline>
+      </main>
     </div>
   )
 }
