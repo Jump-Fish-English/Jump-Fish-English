@@ -7,6 +7,8 @@ import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from
 import { VideoPreview } from './VideoPreview';
 import styles from './Main.module.css';
 import { Timeline } from './Timeline';
+import { ClipPlayer } from './ClipPlayer';
+import { ClipPreview } from './ClipPreview';
 
 const video = `
   <style>
@@ -142,8 +144,45 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
   };
 }
 
+function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined) {
+  let currentMilliseconds = 0; 
+  const timelines = doc.timeline.map((item, index) => {
+    const { durationMilliseconds: sourceDurationMilliseconds } = item.trim;
+
+    const timeline = (
+      <Timeline 
+        key={index}
+        className={styles['clip-summary']} 
+        onTimeSelect={(milliseconds) => {
+          console.log(milliseconds)
+          if (videoPlayer !== undefined) {
+            videoPlayer.seek(milliseconds);
+            // videoPlayer.play();
+          }
+        }}
+        timeRange={{
+          startMilliseconds: currentMilliseconds,
+          durationMilliseconds: sourceDurationMilliseconds,
+        }} durationMilliseconds={sourceDurationMilliseconds}>
+        
+          <ClipPreview clip={item} />
+      </Timeline>
+    );
+
+    currentMilliseconds += sourceDurationMilliseconds;
+
+    return timeline;
+  })
+
+  return (
+    <>
+      {timelines}
+    </>
+  )
+}
+
 export function Main() {
-  const videoElementRef = useRef<HTMLVideoElement | null>(null);
+  const [videoPlayer, setVideoPlayer] = useState<ClipPlayer | undefined>(undefined);
   const [doc, setDoc] = useState<VideoDocument>({
     sources: {},
     timeline: [],
@@ -181,14 +220,15 @@ export function Main() {
                   type: 'video',
                   source: source.id,
                   trim: {
-                    startMilliseconds: 0,
-                    durationMilliseconds: source.durationMilliseconds
-                  }
+                    startMilliseconds: 60000,
+                    durationMilliseconds: 10000
+                  },
+                  url: URL.createObjectURL(source.videoFile.data),
                 }
                 
                 const nextDoc = insertClip({
                   doc, 
-                  insertMillisecond: 0,
+                  insertMillisecond: doc.durationMilliseconds,
                   clip,
                 });
 
@@ -205,41 +245,19 @@ export function Main() {
         }
       </section>
       <main className={styles.main}>
+        { doc.timeline.length > 0 && (
+          <ClipPlayer
+            trim={doc.timeline[0].trim}
+            onPlayerReady={(player) => {
+              setVideoPlayer(player);
+            }}
+            className={styles.video}
+            clip={doc.timeline[0]}
+          />
+        )}
         <div className={styles.scroller}>
           {
-            doc.timeline.map((item, index) => {
-              const source = doc.sources[item.source];
-              const { durationMilliseconds: sourceDurationMilliseconds } = source;
-              const src = URL.createObjectURL(source.videoFile.data);
-              
-              const previews = [];
-              for(let i = 0; i <= 4; i += 1) {
-                const milliseconds = sourceDurationMilliseconds / 3 * i;
-                previews.push((
-                  <VideoPreview 
-                    className={styles['clip-summary-video']} 
-                    key={milliseconds} 
-                    videoUrl={src} 
-                    milliseconds={milliseconds}
-                  />
-                ))
-              }
-              return (
-                <Timeline 
-                  key={index}
-                  className={styles['clip-summary']} 
-                  onTimeSelect={(milliseconds) => {
-                    console.log('select', milliseconds)
-                  }}
-                  timeRange={{
-                    startMilliseconds: 0,
-                    durationMilliseconds: sourceDurationMilliseconds,
-                  }} durationMilliseconds={sourceDurationMilliseconds}>
-                  
-                    {previews}
-                </Timeline>
-              )
-            })
+            renderDocument(doc, videoPlayer)
           }
         </div>
       </main>

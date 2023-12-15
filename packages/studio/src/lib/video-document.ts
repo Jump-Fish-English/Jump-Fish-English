@@ -13,6 +13,7 @@ export interface VideoClip {
   type: 'video',
   source: string;
   trim: MillisecondRange;
+  url: string;
 }
 
 export interface VideoDocument {

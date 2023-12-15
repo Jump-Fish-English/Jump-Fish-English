@@ -47,11 +47,13 @@
   height: auto;
   max-width: 100%;
   object-fit: contain;
+  margin-bottom: 2rem;
 }
 
 .scroller {
   overflow-x: scroll;
   height: 50px;
+  white-space: nowrap;
 }
 
 .clip-summary {
@@ -62,9 +64,9 @@
   display: inline-block;
   line-height: 0;
   height: 100%;
+  margin-left: 1rem;
 }
 
-.clip-summary-video {
-  height: 100%;
-  width: auto;
+.clip-summary:first-child {
+  margin-left: 0;
 }
