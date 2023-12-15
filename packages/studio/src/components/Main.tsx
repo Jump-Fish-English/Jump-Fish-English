@@ -10,6 +10,7 @@ import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-proces
 import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
 import { insertClip, renderVideoDocument, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
+import { VideoPreview } from './VideoPreview';
 
 const video = `
   <style>
@@ -145,6 +146,7 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 }
 
 export function Main() {
+  const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, milliseconds: number } | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const [doc, setDoc] = useState<VideoDocument>({
     sources: {},
@@ -225,12 +227,31 @@ export function Main() {
               videoElementRef.current.currentTime = milliseconds / 1000;
             }
           }}
+          onTimeMouseOut={() => {
+            setMouseOverMarkerTransform(null);
+          }}
+          onTimeMouseOver={async ({ translateX, milliseconds }) => {
+            setMouseOverMarkerTransform({ 
+              translateX,
+              milliseconds,
+            });
+          }}
         >
           <TimelineGrid 
             stepMilliseconds={1000}
             labelStepMilliseconds={5000}
             timeRange={range}
           />
+          {
+            mouseOverMarkerTransform !== null && doc.videoUrl !== undefined && (
+              <TimeMarker 
+                childrenTop={(
+                  <VideoPreview videoUrl={doc.videoUrl} milliseconds={mouseOverMarkerTransform.milliseconds} />
+                )}
+                millisecond={mouseOverMarkerTransform.milliseconds}
+              />
+            )
+          }
         </Timeline>
         <Timeline 
           timeRange={{
