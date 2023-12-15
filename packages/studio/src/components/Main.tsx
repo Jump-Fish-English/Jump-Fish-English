@@ -1,8 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import src from '../../../../videos/output.mp4';
 import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
 import styles from './Main.module.css';
 import { Timeline } from './Timeline';
@@ -10,6 +9,11 @@ import { ClipPlayer } from './ClipPlayer';
 import { ClipPreview } from './ClipPreview';
 import { TimelineContextMenu } from './TimelineContextMenu';
 import { Tabs, Tab } from './Tabs';
+
+
+// videos
+import src from '../../../../videos/output.mp4';
+import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
 
 const video = `
   <style>
@@ -114,16 +118,18 @@ const video = `
 
 
 async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
+  const id = uuidV4();
   const videoFile = await writeVideoFile({
-    fileName: `${uuidV4()}.mp4`,
+    fileName: `${id}.mp4`,
     buffer: new Uint8Array(arrayBuffer),
     type: 'video/mp4',
   });
-
+  const url = URL.createObjectURL(videoFile.data);
+  
   const durationMilliseconds = await new Promise<number>((res) => {
     const videoElm = document.createElement('video');
     videoElm.preload = 'metadata';
-    videoElm.src = src;
+    videoElm.src = url;
     videoElm.addEventListener('durationchange', () => {
       res(videoElm.duration * 1000);
     }, {
@@ -138,18 +144,19 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 
   return {
     type: 'video',
-    id: 'ididid',
+    id,
     durationMilliseconds,
     thumbnailUrl,
     videoFile,
+    url,
   };
 }
 
 function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined) {
   let currentMilliseconds = 0; 
   const timelines = doc.timeline.map((item, index) => {
+    const source = doc.sources[item.source];
     const { durationMilliseconds: sourceDurationMilliseconds } = item.trim;
-
     const timeline = (
       <Timeline 
         key={index}
@@ -168,6 +175,7 @@ function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined)
           )
         }}
         onTimeSelect={(milliseconds) => {
+          console.log(milliseconds)
           if (videoPlayer !== undefined) {
             videoPlayer.seek(milliseconds);
             // videoPlayer.play();
@@ -178,7 +186,7 @@ function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined)
           durationMilliseconds: sourceDurationMilliseconds,
         }} durationMilliseconds={sourceDurationMilliseconds}>
         
-          <ClipPreview clip={item} />
+          <ClipPreview source={source} clip={item} />
       </Timeline>
     );
 
@@ -203,18 +211,31 @@ export function Main() {
   });
 
   useEffect(() => {
-    fetch(src)
+    // other
+    const  first = fetch(src)
       .then((resp) => resp.arrayBuffer())
       .then((buffer) => {
         return loadSource(buffer);
-      })
-      .then((source) => {
-        setDoc(
-          produce((draft) => {
+      });
+
+    const second = fetch(other)
+      .then((resp) => resp.arrayBuffer())
+      .then((buffer) => {
+        return loadSource(buffer);
+      });
+
+    Promise.all([
+      first,
+      second,
+    ]).then((sources) => {
+      setDoc(
+        produce((draft) => {
+          sources.forEach((source) => {
             draft.sources[source.id] = source;
-          })
-        )
-      })
+          });
+        })
+      )
+    })
     
   }, []);
 
@@ -242,8 +263,8 @@ export function Main() {
                     type: 'video',
                     source: source.id,
                     trim: {
-                      startMilliseconds: 60000,
-                      durationMilliseconds: 10000
+                      startMilliseconds: 0,
+                      durationMilliseconds: source.durationMilliseconds,
                     },
                     url: URL.createObjectURL(source.videoFile.data),
                   }
@@ -266,7 +287,7 @@ export function Main() {
             })
           }
         </Tab>
-        <Tab key="ok" textValue="Clips" title="Hi">
+        <Tab key="ok" textValue="Clips" title="Overlays">
           Other
         </Tab>
       </Tabs>

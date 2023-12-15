@@ -55,13 +55,13 @@ export async function writeFile({ fileName, buffer, type }: { type: 'video/mp4' 
 export async function exportFrame({ millisecond, source: { fileName } }: { source: Pick<VideoFile, 'fileName'>, millisecond: number }) {
   const ffmpeg = await instance();
   const outputFileName = `${uuidv4()}.png`;
-  const command = ['-i', fileName, '-ss', millisecondsToFFMpegFormat(millisecond), '-vframes', '1'];
+  const command = ['-ss', millisecondsToFFMpegFormat(millisecond), '-i', fileName, '-vframes', '1'];
   await ffmpeg.exec([...command, outputFileName]);
+  
   const data = await ffmpeg.readFile(outputFileName);
   if (typeof data === 'string') {
     throw new Error('String returned from readFile');
   }
-
   return URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
 }
 

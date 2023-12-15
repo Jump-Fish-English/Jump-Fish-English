@@ -6,6 +6,7 @@ export interface VideoSource {
   durationMilliseconds: number;
   thumbnailUrl: string;
   videoFile: VideoFile;
+  url: string;
 }
 
 

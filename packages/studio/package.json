@@ -9,7 +9,8 @@
       "immer": "10.0.3",
       "uuid": "9.0.1",
       "react-aria": "3.30.0",
-      "react-stately": "3.28.0"
+      "react-stately": "3.28.0",
+      "use-resize-observer": "9.1.0"
     },
     "devDependencies": {
       "astro-rpc": "*",

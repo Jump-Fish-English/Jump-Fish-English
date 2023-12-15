@@ -1,6 +1,7 @@
 import { useRef,useState, useLayoutEffect, type ReactNode, useContext, createContext } from "react";
 import { usePopover, Overlay} from 'react-aria';
 import { useOverlayTriggerState } from "react-stately";
+import useResizeObserver from 'use-resize-observer';
 
 export interface TimeRange {
   startMilliseconds: number;
@@ -54,6 +55,9 @@ export function useTimeline() {
 
 export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { width: containerWidth } = useResizeObserver({
+    ref: containerRef,
+  });
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const [contextMenu, setContextMenuState] = useState<{
     offset: number;
@@ -76,17 +80,7 @@ export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut
     crossOffset: contextMenu?.crossOffset,
     
   }, overlayTriggerState);
-  const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
-
-  useLayoutEffect(() => {
-    const { current } = containerRef;
-    if (current === null) {
-      return;
-    }
-
-    setContainerWidth(current.getBoundingClientRect().width);
-  }, [containerRef.current]);
-
+  
   return (
     <TimelineContext.Provider value={{
       containerWidth: containerWidth === undefined ? 0 : containerWidth,
@@ -105,7 +99,7 @@ export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut
           const milliseconds = leftToMilliseconds(
             e.pageX,
             timeRange,
-            containerWidth
+            containerWidth,
           );
 
           setContextMenuState({
@@ -127,7 +121,7 @@ export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut
           const milliseconds = leftToMilliseconds(
             relativeLeft,
             timeRange,
-            containerWidth
+            containerWidth,
           );
           onTimeMouseOver?.({ milliseconds, translateX: relativeLeft });
         }}
@@ -140,7 +134,7 @@ export function Timeline({ contextMenu: onContextMenu, className, onTimeMouseOut
           const milliseconds = leftToMilliseconds(
             relativeLeft,
             timeRange,
-            containerWidth
+            containerWidth,
           );
           onTimeSelect?.(milliseconds);
         }}

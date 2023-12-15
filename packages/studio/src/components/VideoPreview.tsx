@@ -1,37 +1,45 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useState } from "react";
+import { exportFrame } from '@jumpfish/video-processor';
+import type { VideoSource } from "../lib/video-document";
 
 import styles from './VideoPreview.module.css';
 
 interface Props {
   className?: string;
-  videoUrl: string;
+  source: VideoSource;
   milliseconds: number;
 }
 
-export function VideoPreview({ className, videoUrl, milliseconds }: Props) {
-  const ref = useRef<HTMLVideoElement | null>(null);
+async function loadFrame({ source, milliseconds }: Props) {
+  const url = await exportFrame({
+    millisecond: milliseconds,
+    source: { fileName: source.videoFile.fileName }
+  });
+  
+  return url;
+}
+
+export function VideoPreview({ className: classNameProp, source, milliseconds }: Props) {
+  const [src, setSrc] = useState<string | undefined>(undefined);
 
   useLayoutEffect(() => {
-    const { current } = ref;
-    if (current === null) {
-      return;
-    }
+    loadFrame({
+      source,
+      milliseconds,
+    })
+    .then(setSrc);
+  }, [milliseconds, source.videoFile.fileName]);
 
-    const { readyState } = current;
-    current.load();
-    if (readyState !== 4) {
-      current.addEventListener('durationchange', () => {
-        current.currentTime = milliseconds / 1000;
-      }, {
-        once: true,
-      });
-      return;
-    }
-    
-    current.currentTime = milliseconds / 1000;
-  }, [milliseconds]);
+  const className = [styles.preview, classNameProp].filter((item) => item !== undefined).join(' ');
+
+  if (src === undefined) {
+    return (
+      <div className={styles.loading}></div>
+    )
+  }
+
 
   return (
-    <video className={[styles.preview, className].filter((item) => item !== undefined).join(' ')} src={videoUrl} autoPlay={false} ref={ref} />
+    <img className={className} src={src}  />
   )
 }
