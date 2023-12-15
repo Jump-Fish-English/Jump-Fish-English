@@ -1,16 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
-import { Timeline } from './Timeline';
-import { Preview } from './Preview';
-import { TimeMarker } from './TimeMarker';
-import { TimelineGrid } from './TimelineGrid';
-import { TimelineWindow } from './TimelineWindow';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import styles from './Main.module.css';
 import src from '../../../../videos/output.mp4';
-import { insertClip, renderVideoDocument, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
+import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
 import { VideoPreview } from './VideoPreview';
+import styles from './Main.module.css';
+import { Timeline } from './Timeline';
 
 const video = `
   <style>
@@ -147,17 +143,12 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 }
 
 export function Main() {
-  const [mouseOverMarkerTransform, setMouseOverMarkerTransform] = useState<{ translateX: number, milliseconds: number } | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const [doc, setDoc] = useState<VideoDocument>({
     sources: {},
     timeline: [],
     durationMilliseconds: 0,
   });
-  const [range, setVisibleRange] = useState({
-    startMilliseconds: 0,
-    durationMilliseconds: 30000,
-  })
 
   useEffect(() => {
     fetch(src)
@@ -201,12 +192,7 @@ export function Main() {
                   clip,
                 });
 
-                const videoUrl = await renderVideoDocument({ doc: nextDoc });
-
-                setDoc({
-                  ...nextDoc,
-                  videoUrl,
-                });
+                setDoc(nextDoc);
 
               }}>
                 <h4 className={styles['source-title']}>
@@ -219,58 +205,43 @@ export function Main() {
         }
       </section>
       <main className={styles.main}>
-        <video ref={videoElementRef} className={styles.video} src={doc.videoUrl} controls />
-        <Timeline 
-          timeRange={range}
-          durationMilliseconds={doc.durationMilliseconds}
-          onTimeSelect={(milliseconds) => {
-            if (videoElementRef.current) {
-              videoElementRef.current.currentTime = milliseconds / 1000;
-            }
-          }}
-          onTimeMouseOut={() => {
-            setMouseOverMarkerTransform(null);
-          }}
-          onTimeMouseOver={async ({ translateX, milliseconds }) => {
-            setMouseOverMarkerTransform({ 
-              translateX,
-              milliseconds,
-            });
-          }}
-        >
-          <TimelineGrid 
-            stepMilliseconds={1000}
-            labelStepMilliseconds={5000}
-            timeRange={range}
-          />
+        <div className={styles.scroller}>
           {
-            mouseOverMarkerTransform !== null && doc.videoUrl !== undefined && (
-              <TimeMarker 
-                childrenTop={(
-                  <VideoPreview videoUrl={doc.videoUrl} milliseconds={mouseOverMarkerTransform.milliseconds} />
-                )}
-                millisecond={mouseOverMarkerTransform.milliseconds}
-              />
-            )
+            doc.timeline.map((item, index) => {
+              const source = doc.sources[item.source];
+              const { durationMilliseconds: sourceDurationMilliseconds } = source;
+              const src = URL.createObjectURL(source.videoFile.data);
+              
+              const previews = [];
+              for(let i = 0; i <= 4; i += 1) {
+                const milliseconds = sourceDurationMilliseconds / 3 * i;
+                previews.push((
+                  <VideoPreview 
+                    className={styles['clip-summary-video']} 
+                    key={milliseconds} 
+                    videoUrl={src} 
+                    milliseconds={milliseconds}
+                  />
+                ))
+              }
+              return (
+                <Timeline 
+                  key={index}
+                  className={styles['clip-summary']} 
+                  onTimeSelect={(milliseconds) => {
+                    console.log('select', milliseconds)
+                  }}
+                  timeRange={{
+                    startMilliseconds: 0,
+                    durationMilliseconds: sourceDurationMilliseconds,
+                  }} durationMilliseconds={sourceDurationMilliseconds}>
+                  
+                    {previews}
+                </Timeline>
+              )
+            })
           }
-        </Timeline>
-        <Timeline 
-          timeRange={{
-            startMilliseconds: 0,
-            durationMilliseconds: doc.durationMilliseconds,
-          }}
-          durationMilliseconds={doc.durationMilliseconds}
-        >
-          { doc.durationMilliseconds > 0 && doc.videoUrl !== undefined && (
-            <TimelineWindow 
-              timeRange={range}
-              onRangeChange={(nextRange) => {
-                setVisibleRange(nextRange);
-              }}
-              videoDurationMilliseconds={doc.durationMilliseconds}
-            />
-          )}
-        </Timeline>
+        </div>
       </main>
     </div>
   )

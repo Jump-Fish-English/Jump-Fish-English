@@ -1,7 +1,4 @@
 import { useRef,useState, useLayoutEffect, type ReactNode, useContext, createContext } from "react";
-import rafThrottle from 'raf-throttle';
-
-import styles from './Timeline.module.css';
 
 export interface TimeRange {
   startMilliseconds: number;
@@ -9,6 +6,7 @@ export interface TimeRange {
 }
 
 interface Props {
+  className?: string;
   durationMilliseconds: number;
   onTimeMouseOver?(params: { milliseconds: number, translateX: number }): void;
   onTimeMouseOut?(): void;
@@ -51,14 +49,9 @@ export function useTimeline() {
   }
 }
 
-export function Timeline({ onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
+export function Timeline({ className, onTimeMouseOut, timeRange, children, onTimeMouseOver, onTimeSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number | undefined>(undefined);
-  const [{ startMillisecond }, setStartMillisecond] = useState<{
-    startMillisecond: number;
-  }>({
-    startMillisecond: 0,
-  });
 
   useLayoutEffect(() => {
     const { current } = containerRef;
@@ -104,7 +97,7 @@ export function Timeline({ onTimeMouseOut, timeRange, children, onTimeMouseOver,
           );
           onTimeSelect?.(milliseconds);
         }}
-        ref={containerRef} className={styles.container}>
+        ref={containerRef} className={className}>
         {children}
       </div>
     </TimelineContext.Provider>

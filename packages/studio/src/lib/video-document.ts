@@ -19,7 +19,6 @@ export interface VideoDocument {
   sources: Record<string, VideoSource>;
   timeline: VideoClip[];
   durationMilliseconds: number;
-  videoUrl?: string;
 }
 
 export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond: number, clip: VideoClip, doc: VideoDocument }): VideoDocument {
@@ -67,24 +66,4 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
       return max + clip.trim.durationMilliseconds;
     }, 0),
   }
-}
-
-export async function renderVideoDocument({ doc }: { doc: VideoDocument }) {
-  const { timeline, sources } = doc;
-
-  const file = await concatVideoFiles({
-    output: {
-      encodingPreset: 'ultrafast'
-    },
-    files: timeline.map(({ trim, source: sourceId }) => {
-      const source = sources[sourceId];
-      return {
-        file: source.videoFile,
-        inpointMilliseconds: trim.startMilliseconds,
-        outpointMilliseconds: trim.durationMilliseconds,
-      }
-    })
-  });
-
-  return URL.createObjectURL(file.data);
 }
