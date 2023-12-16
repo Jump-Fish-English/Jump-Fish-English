@@ -10,11 +10,20 @@ interface Props {
   milliseconds: number;
 }
 
+const cache: Record<string, string> = {};
+
 async function loadFrame({ source, milliseconds }: Props) {
+  const key = `${source.url}-${milliseconds}`;
+  const cacheCheck = cache[key];
+  if (cacheCheck !== undefined) {
+    return cacheCheck;
+  }
   const url = await exportFrame({
     millisecond: milliseconds,
     source: { fileName: source.videoFile.fileName }
   });
+
+  cache[key] = url;
   
   return url;
 }
