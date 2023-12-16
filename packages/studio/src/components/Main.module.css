@@ -46,24 +46,10 @@
 
 .scroller {
   overflow-x: scroll;
-  height: 50px;
+  padding: 1rem 0;
   white-space: nowrap;
 }
 
-.clip-summary {
-  border: 2px solid #000;
-  box-sizing: border-box;
-  overflow: hidden;
-  border-radius: 10px;
-  display: inline-block;
-  line-height: 0;
-  height: 100%;
-  margin-left: 1rem;
-}
-
-.clip-summary:first-child {
-  margin-left: 0;
-}
 
 .tabs {
   background: rgb(24, 24, 24);

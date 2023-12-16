@@ -89,7 +89,7 @@ describe('exportFrame', () => {
       millisecond: 0,
     });
 
-    expect(ffmpeg.exec).toHaveBeenCalledWith(['-i', 'first.mp4', '-ss', '00:00:00', '-vframes', '1', 'mockuuid.png']);
+    expect(ffmpeg.exec).toHaveBeenCalledWith(['-ss', '00:00:00', '-i', 'first.mp4', '-vframes', '1', 'mockuuid.png']);
     expect(result).toBe('mockedurl');
   });
 });

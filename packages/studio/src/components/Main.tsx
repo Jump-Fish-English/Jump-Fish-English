@@ -3,17 +3,16 @@ import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
-import styles from './Main.module.css';
-import { Timeline } from './Timeline';
-import { ClipPlayer } from './ClipPlayer';
-import { ClipPreview } from './ClipPreview';
-import { TimelineContextMenu } from './TimelineContextMenu';
 import { Tabs, Tab } from './Tabs';
+
+import styles from './Main.module.css';
 
 
 // videos
 import src from '../../../../videos/output.mp4';
 import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
+import { usePlayer } from '../hooks/usePlayer';
+import { ClipTimeline } from './ClipTimeline';
 
 const video = `
   <style>
@@ -152,63 +151,18 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
   };
 }
 
-function renderDocument(doc: VideoDocument, videoPlayer: ClipPlayer | undefined) {
-  let currentMilliseconds = 0; 
-  const timelines = doc.timeline.map((item, index) => {
-    const source = doc.sources[item.source];
-    const { durationMilliseconds: sourceDurationMilliseconds } = item.trim;
-    const timeline = (
-      <Timeline 
-        key={index}
-        className={styles['clip-summary']} 
-        contextMenu={(milliseconds) => {
-          return (
-            <TimelineContextMenu
-              onSeek={(milliseconds) => {
-                if (videoPlayer === undefined) {
-                  return;
-                }
-                videoPlayer.seek(milliseconds);
-              }} 
-              milliseconds={milliseconds}
-            />
-          )
-        }}
-        onTimeSelect={(milliseconds) => {
-          console.log(milliseconds)
-          if (videoPlayer !== undefined) {
-            videoPlayer.seek(milliseconds);
-            // videoPlayer.play();
-          }
-        }}
-        timeRange={{
-          startMilliseconds: currentMilliseconds,
-          durationMilliseconds: sourceDurationMilliseconds,
-        }} durationMilliseconds={sourceDurationMilliseconds}>
-        
-          <ClipPreview source={source} clip={item} />
-      </Timeline>
-    );
-
-    currentMilliseconds += sourceDurationMilliseconds;
-
-    return timeline;
-  })
-
-  return (
-    <>
-      {timelines}
-    </>
-  )
-}
-
 export function Main() {
-  const [videoPlayer, setVideoPlayer] = useState<ClipPlayer | undefined>(undefined);
   const [doc, setDoc] = useState<VideoDocument>({
     sources: {},
     timeline: [],
     durationMilliseconds: 0,
   });
+
+  const player = usePlayer({
+    className: styles.video,
+    doc
+  });
+  const { el: playerElement } = player;
 
   useEffect(() => {
     // other
@@ -266,7 +220,7 @@ export function Main() {
                       startMilliseconds: 0,
                       durationMilliseconds: source.durationMilliseconds,
                     },
-                    url: URL.createObjectURL(source.videoFile.data),
+                    url: source.url,
                   }
                   
                   const nextDoc = insertClip({
@@ -292,20 +246,20 @@ export function Main() {
         </Tab>
       </Tabs>
       <main className={styles.main}>
-        { doc.timeline.length > 0 && (
-          <ClipPlayer
-            trim={doc.timeline[0].trim}
-            onPlayerReady={(player) => {
-              setVideoPlayer(player);
-            }}
-            className={styles.video}
-            clip={doc.timeline[0]}
-          />
-        )}
+        {playerElement}
         <div className={styles.scroller}>
-          {
-            renderDocument(doc, videoPlayer)
-          }
+          <ClipTimeline 
+            onDeleteClip={(clip) => {
+              const next = doc.timeline.filter((item) => {
+                return item !== clip;
+              });
+              setDoc(
+                produce((draft) => {
+                  draft.timeline = next;
+                })
+              );
+            }}
+            doc={doc} player={player} />
         </div>
       </main>
     </div>

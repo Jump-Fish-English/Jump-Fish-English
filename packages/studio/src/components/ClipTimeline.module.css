@@ -1,3 +1,30 @@
+.container {
+  height: 50px;
+  padding: 0.2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  line-height: 0;
+  box-sizing: content-box;
+  border-radius: 10px;
+
+  &:focus {
+    outline: 2px solid blue;
+  }
+}
+
+.clip-summary {
+  border: 2px solid #000;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 10px;
+  
+  height: 100%;
+}
+
+.clip-summary:first-child {
+  margin-left: 0;
+}
+
 .context-menu {
   background-color: rgb(184, 189, 193);
   border: 1px solid #aaa; /* Light grey border */
