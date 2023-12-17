@@ -1,4 +1,4 @@
-import { AnimationPlayerState, emptyState } from "./fsm";
+import { type AnimationPlayerState, emptyState } from "./fsm";
 
 interface AnimationContents {
   css: string;
@@ -7,14 +7,13 @@ interface AnimationContents {
 
 
 export class AnimationPlayer extends HTMLElement {
-  shadowRoot: ShadowRoot;
   #state: AnimationPlayerState;
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
     this.#state = emptyState({
-      shadowRoot: this.shadowRoot,
+      shadowRoot,
       element: this,
       enterState: (nextState) => {
         this.#state.exit?.();
@@ -46,6 +45,10 @@ export class AnimationPlayer extends HTMLElement {
 
   load(contents: AnimationContents) {
     this.#state.load?.(contents);
+  }
+
+  requestVideoFrameCallback(cb: () => void) {
+    requestAnimationFrame(cb);
   }
   
 }

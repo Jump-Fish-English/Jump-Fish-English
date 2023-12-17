@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import { insertClip, type VideoClip, type VideoDocument, type VideoSource } from '../lib/video-document';
+import { insertClip, type AnimationClip, type VideoClip, type VideoDocument, type VideoSource, type AnimationSource } from '../lib/video-document';
 import { Tabs, Tab } from './Tabs';
+import { usePlayer } from '../hooks/usePlayer';
+import { ClipTimeline } from './ClipTimeline';
+import type { AnimationPlayer } from 'animation-player';
+import { AnimationThumbnail } from './AnimationThumbnail';
 
 import styles from './Main.module.css';
 
@@ -11,24 +15,14 @@ import styles from './Main.module.css';
 // videos
 import src from '../../../../videos/output.mp4';
 import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
-import { usePlayer } from '../hooks/usePlayer';
-import { ClipTimeline } from './ClipTimeline';
 
-const video = `
-  <style>
-    video {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-      margin: 0 auto;
-    }
 
+
+const animationContents = {
+  css: `
     .parent {
       animation: hide-subscribe 350ms both;
-      animation-delay: 346s;
-      position: absolute;
-      bottom: 2rem;
-      right: 2rem;
+      animation-delay: 4s;
     }
 
     .subscribe {
@@ -44,7 +38,6 @@ const video = `
       justify-content: center;
       align-items: center;
       animation: show-subscribe 350ms both;
-      animation-delay: 342s;
       
     }
 
@@ -78,7 +71,6 @@ const video = `
       justify-content: center;
       display: flex;
       animation: show-text 500ms both;
-      animation-delay: 342300ms;
       margin-right: 18px;
     }
 
@@ -104,15 +96,17 @@ const video = `
         opacity: 1;
       }
     }
-  </style>
-  <div class="parent">
-    <div 
-      class="subscribe"
-    >
-      <div class="subscribe-text">Subscribe</div>
-    </div>
+  `,
+  html: `
+    <div class="parent">
+      <div 
+        class="subscribe"
+      >
+        <div class="subscribe-text">Subscribe</div>
+      </div>
   </div>
-`;
+  `
+};
 
 
 
@@ -159,7 +153,6 @@ export function Main() {
   });
 
   const player = usePlayer({
-    className: styles.video,
     doc
   });
   const { el: playerElement } = player;
@@ -178,9 +171,32 @@ export function Main() {
         return loadSource(buffer);
       });
 
+    const animation = new Promise<AnimationSource>((res) => {
+      const elm = document.createElement('jf-animation-player') as AnimationPlayer;
+      const id = uuidV4();
+      
+      document.body.appendChild(elm);
+      elm.style.visibility = 'hidden';
+      elm.addEventListener('durationchange', () => {
+        console.log(elm.duration);
+        document.body.removeChild(elm);
+        res({
+          durationMilliseconds: elm.duration * 1000,
+          id,
+          type: 'animation',
+          html: animationContents.html,
+          css: animationContents.css,
+        });
+      }, { once: true });
+
+      elm.load(animationContents);
+      
+    });
+
     Promise.all([
       first,
       second,
+      animation,
     ]).then((sources) => {
       setDoc(
         produce((draft) => {
@@ -211,16 +227,47 @@ export function Main() {
         )}>
           {
             Object.values(doc.sources).map((source) => {
+              if (source.type === 'video') {
+                return (
+                  <article className={styles.source} key={source.id} onClick={async () => {
+                    const clip: VideoClip = {
+                      type: 'video',
+                      id: uuidV4(),
+                      source: source.id,
+                      trim: {
+                        startMilliseconds: 0,
+                        durationMilliseconds: source.durationMilliseconds,
+                      },
+                      url: source.url,
+                    }
+                    
+                    const nextDoc = insertClip({
+                      doc, 
+                      insertMillisecond: doc.durationMilliseconds,
+                      clip,
+                    });
+
+                    setDoc(nextDoc);
+
+                  }}>
+                    <h4 className={styles['source-title']}>
+                      {source.videoFile.fileName}
+                    </h4>
+                    <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
+                  </article>
+                )
+              }
+
               return (
                 <article className={styles.source} key={source.id} onClick={async () => {
-                  const clip: VideoClip = {
-                    type: 'video',
+                  const clip: AnimationClip = {
+                    type: 'animation',
+                    id: uuidV4(),
                     source: source.id,
                     trim: {
                       startMilliseconds: 0,
                       durationMilliseconds: source.durationMilliseconds,
                     },
-                    url: source.url,
                   }
                   
                   const nextDoc = insertClip({
@@ -232,17 +279,14 @@ export function Main() {
                   setDoc(nextDoc);
 
                 }}>
-                  <h4 className={styles['source-title']}>
-                    {source.videoFile.fileName}
-                  </h4>
-                  <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
+                  <AnimationThumbnail millisecond={600} contents={{
+                    html: source.html,
+                    css: source.css,
+                  }} />
                 </article>
               )
             })
           }
-        </Tab>
-        <Tab key="ok" textValue="Clips" title="Overlays">
-          Other
         </Tab>
       </Tabs>
       <main className={styles.main}>

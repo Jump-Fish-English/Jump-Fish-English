@@ -1,25 +1,26 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { VideoClip, VideoDocument } from "../lib/video-document";
+import { useLayoutEffect, useRef, useState } from "react";
+import type { Clip, VideoDocument } from "../lib/video-document";
 
 import styles from './usePlayer.module.css';
+import { AnimationPlayer } from "../components/AnimationPlayer";
+import type { AnimationPlayer as AnimationPlayerElm } from "animation-player";
 
 interface Props {
-  className?: string;
   doc: VideoDocument;
 }
 
-function findNextClipByUrl(url: string, doc: VideoDocument) {
+function findNextClipById(id: string, doc: VideoDocument) {
   let found = false;
   return doc.timeline.find((clip) => {
     if (found === true) {
       return clip;
     }
-    found = clip.url === url;
+    found = clip.id === id;
   });
 }
 
 function findClipAtMillisecond(millisecond: number, doc: VideoDocument): {
-  clip: VideoClip;
+  clip: Clip;
   localTimeMilliseconds: number;
 } {
   let currentTime = 0;
@@ -37,16 +38,16 @@ function findClipAtMillisecond(millisecond: number, doc: VideoDocument): {
   throw new Error('Unable to find clip!');
  }
 
-export function usePlayer({ className, doc }: Props) {
-  const videoElements = useRef<Record<string, HTMLVideoElement>>({});
+export function usePlayer({ doc }: Props) {
+  const videoElements = useRef<Record<string, HTMLVideoElement | AnimationPlayerElm>>({});
   const { durationMilliseconds } = doc;
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentClipId, setCurrentClipId] = useState<string | null>(null);
 
   const reducedClips = doc.timeline.reduce((acc, clip) => {
-    acc[clip.url] = clip;
+    acc[clip.id] = clip;
     return acc;
-  }, {} as Record<string, VideoClip>);
+  }, {} as Record<string, Clip>);
 
   useLayoutEffect(() => {
     if (currentClipId === null) {
@@ -58,16 +59,16 @@ export function usePlayer({ className, doc }: Props) {
     }
     
     const onEnded = () => {
-      const nextClip = findNextClipByUrl(currentClipId, doc);
+      const nextClip = findNextClipById(currentClipId, doc);
       if (nextClip === undefined) {
         // reached end of video
         return;
       }
 
-      const { url: nextClipUrl } = nextClip;
-      const nextVideoEl = videoElements.current[nextClipUrl];
+      const { id: nextClipId } = nextClip;
+      const nextVideoEl = videoElements.current[nextClipId];
       nextVideoEl.currentTime = 0;
-      setCurrentClipId(nextClipUrl);
+      setCurrentClipId(nextClipId);
       nextVideoEl.play();
     }
 
@@ -81,11 +82,11 @@ export function usePlayer({ className, doc }: Props) {
   if (doc.timeline.length > 0) {
     if (currentClipId === null) {
       const { clip } = findClipAtMillisecond(0, doc);
-      setCurrentClipId(clip.url);
-    } else if (currentClipId !== null && doc.timeline.find((clip) => clip.url === currentClipId) === undefined) {
+      setCurrentClipId(clip.id);
+    } else if (currentClipId !== null && doc.timeline.find((clip) => clip.id === currentClipId) === undefined) {
       const next = doc.timeline[0];
-      setCurrentClipId(next.url);
-      const vidEl = videoElements.current[next.url];
+      setCurrentClipId(next.id);
+      const vidEl = videoElements.current[next.id];
       vidEl.currentTime = 0;
     }
   } else  {
@@ -98,31 +99,54 @@ export function usePlayer({ className, doc }: Props) {
     <div ref={containerRef}>
       {
         Object.values(reducedClips).map((clip) => {
-          const { url } = clip;
+          const { id: clipId } = clip;
           const classNames: string[] = [];
-          const activeVideoElement = currentClipId === url;
+          const activeVideoElement = currentClipId === clipId;
           if (activeVideoElement !== true) {
             classNames.push(styles.hidden);
+          } else {
+            classNames.push(styles.video);
           }
 
-          if (className !== undefined) {
-            classNames.push(className);
+
+          if (clip.type === 'video') {
+            return (
+              <video 
+                ref={(el) => {
+                  if (el === null) {
+                    return;
+                  }
+                  videoElements.current[clipId] = el;
+                }} 
+                className={classNames.join(' ')} 
+                key={clipId} 
+                src={clip.url} 
+                controls 
+              />
+            );
           }
-          
+
+          const source = doc.sources[clip.source];
+          if (source.type !== 'animation') {
+            throw new Error();
+          }
+
           return (
-            <video 
+            <AnimationPlayer 
               ref={(el) => {
                 if (el === null) {
                   return;
                 }
-                videoElements.current[url] = el;
+                videoElements.current[clipId] = el;
+              }}
+              contents={{
+                html: source.html,
+                css: source.css,
               }} 
-              className={classNames.join(' ')} 
-              key={url} 
-              src={url} 
-              controls 
             />
-          );
+          )
+          
+          
         })
       }
     </div>
@@ -140,15 +164,13 @@ export function usePlayer({ className, doc }: Props) {
     },
     seek(millisecond: number) {
       const { clip, localTimeMilliseconds } = findClipAtMillisecond(millisecond, doc);
-      
-      const vidElm = videoElements.current[clip.url];
+      const vidElm = videoElements.current[clip.id];
       vidElm.currentTime = localTimeMilliseconds / 1000;
       vidElm.requestVideoFrameCallback(() => {
-        if (clip.url !== currentClipId) {
-          setCurrentClipId(clip.url);
+        if (clip.id !== currentClipId) {
+          setCurrentClipId(clip.id);
         }
       });
-      
     }
   }
 }

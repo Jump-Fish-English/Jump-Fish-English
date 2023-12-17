@@ -1,5 +1,5 @@
 import type { Player } from "../hooks/usePlayer";
-import type { VideoClip, VideoDocument, VideoSource } from "../lib/video-document";
+import type { Clip, Source, VideoClip, VideoDocument, VideoSource } from "../lib/video-document";
 import { ClipPreview } from "./ClipPreview";
 import { Timeline } from "./Timeline";
 
@@ -9,8 +9,8 @@ import styles from './ClipTimeline.module.css';
 
 interface ItemProps {
   player: Player;
-  source: VideoSource;
-  clip: VideoClip;
+  source: Source;
+  clip: Clip;
   startMilliseconds: number;
   durationMilliseconds: number;
   onDeleteClip?: () => void;
@@ -65,7 +65,7 @@ function TimelineItem({ onDeleteClip, startMilliseconds, durationMilliseconds, c
 interface Props {
   player: Player;
   doc: VideoDocument;
-  onDeleteClip: (clip: VideoClip) => void;
+  onDeleteClip: (clip: Clip) => void;
 }
 
 export function ClipTimeline({ onDeleteClip, doc, player: videoPlayer }: Props) {
@@ -78,7 +78,7 @@ export function ClipTimeline({ onDeleteClip, doc, player: videoPlayer }: Props) 
         onDeleteClip={() => {
           onDeleteClip(item);
         }}
-        key={`${item.url}-${index}`}
+        key={`${item.id}-${index}`}
         clip={item}
         source={source}
         player={videoPlayer}

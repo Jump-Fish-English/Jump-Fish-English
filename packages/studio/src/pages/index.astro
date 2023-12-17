@@ -71,6 +71,10 @@ import { Main } from '../components/Main';
         padding: 0;
       }
     </style>
+    <script>
+      import { AnimationPlayer } from 'animation-player';
+      customElements.define('jf-animation-player', AnimationPlayer);
+    </script>
   </head>
   <body>
     <Main client:only />

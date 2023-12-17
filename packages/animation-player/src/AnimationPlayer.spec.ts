@@ -10,21 +10,21 @@ async function waitForCanPlayThrough(elm: HTMLElement) {
   })
 }
 
+beforeAll(() => {
+  customElements.define('x-foo', AnimationPlayer);
+});
+
+afterEach(() => {
+  [
+    ...document.querySelectorAll('x-foo')
+  ].forEach((el) => {
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  })
+});
+
 describe('AnimationPlayer', () => {
-  beforeAll(() => {
-    customElements.define('x-foo', AnimationPlayer);
-  });
-
-  afterEach(() => {
-    [
-      ...document.querySelectorAll('x-foo')
-    ].forEach((el) => {
-      if (el.parentNode) {
-        el.parentNode.removeChild(el);
-      }
-    })
-  });
-
   describe('loading', () => {
     it('should fire canplaythrough event when ready', async () => {
       const elm = document.createElement('x-foo') as AnimationPlayer;
@@ -132,6 +132,44 @@ describe('AnimationPlayer', () => {
     });
   });
 
+  describe('durationchange event', () => {
+    it('should report correct duration', async () => {
+      const elm = document.createElement('x-foo') as AnimationPlayer;
+      document.body.appendChild(elm);
+      const contents = {
+        css: `
+          #ball {
+            animation: show-ball 400ms;
+          }
+
+          @keyframes show-ball {
+            0% {
+              opacity: 0;
+            }
+
+            100% {
+              opacity: 1;
+            }
+          }
+        `,
+        html: `
+          <div id="ball"></div>
+        `
+      }
+
+      let elmDuration = 0;
+      elm.addEventListener('durationchange', () => {
+        elmDuration = elm.duration;
+      }, { once: true });
+
+      elm.load(contents);
+
+      await waitFor(() => {
+        expect(elmDuration).toBe(0.4);
+      });
+    });
+  });
+
   it('should have duration 0 before any contents are loaded', () => {
     const elm = document.createElement('x-foo') as AnimationPlayer;
     document.body.appendChild(elm);
@@ -163,7 +201,7 @@ describe('AnimationPlayer', () => {
     }
     elm.load(contents);
     await waitForCanPlayThrough(elm);
-    
+
     expect(elm.duration).toBe(0.4);
   });
 
@@ -197,7 +235,7 @@ describe('AnimationPlayer', () => {
     }
     elm.load(contents);
     await waitForCanPlayThrough(elm);
-    
+
     expect(elm.duration).toBe(1);
   });
 
@@ -232,7 +270,7 @@ describe('AnimationPlayer', () => {
     }
     elm.load(contents);
     await waitForCanPlayThrough(elm);
-    
+
     expect(elm.duration).toBe(1.4);
   });
 
@@ -335,7 +373,7 @@ describe('AnimationPlayer', () => {
     }
     elm.load(contents);
     await waitForCanPlayThrough(elm);
-    
+
     elm.play();
 
     await new Promise((res) => {
@@ -358,7 +396,7 @@ describe('AnimationPlayer', () => {
     it('should report 0 currentTime before animation has loaded', () => {
       const elm = document.createElement('x-foo') as AnimationPlayer;
       document.body.appendChild(elm);
-  
+
       expect(elm.currentTime).toBe(0);
     });
 
@@ -593,7 +631,7 @@ describe('AnimationPlayer', () => {
     elm.addEventListener('seeking', spy, { once: true });
 
     elm.currentTime = 0.2;
-    
+
     await waitFor(() => {
       expect(spy).toHaveBeenCalled();
     });
@@ -630,7 +668,7 @@ describe('AnimationPlayer', () => {
     elm.addEventListener('seeked', spy, { once: true });
 
     elm.currentTime = 0.2;
-    
+
     await waitFor(() => {
       expect(spy).toHaveBeenCalled();
     });
@@ -663,7 +701,7 @@ describe('AnimationPlayer', () => {
     await waitForCanPlayThrough(elm);
 
     const endedSpy = vi.fn();
-    
+
     elm.addEventListener('timeupdate', () => {
       elm.currentTime = 0;
     }, { once: true });

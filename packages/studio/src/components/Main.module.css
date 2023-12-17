@@ -35,15 +35,6 @@
   height: auto;
 }
 
-.video {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  object-fit: contain;
-  margin-bottom: 2rem;
-}
-
 .scroller {
   overflow-x: scroll;
   padding: 1rem 0;

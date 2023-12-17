@@ -9,21 +9,40 @@ export interface VideoSource {
   url: string;
 }
 
+export interface AnimationSource {
+  type: 'animation';
+  id: string;
+  html: string;
+  css: string;
+  durationMilliseconds: number;
+}
+
+export interface AnimationClip {
+  type: 'animation';
+  source: string;
+  trim: MillisecondRange;
+  id: string;
+}
+
 
 export interface VideoClip {
   type: 'video',
+  id: string;
   source: string;
   trim: MillisecondRange;
   url: string;
 }
 
+export type Source = VideoSource | AnimationSource;
+export type Clip = VideoClip | AnimationClip;
+
 export interface VideoDocument {
-  sources: Record<string, VideoSource>;
-  timeline: VideoClip[];
+  sources: Record<string, Source>;
+  timeline: Clip[];
   durationMilliseconds: number;
 }
 
-export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond: number, clip: VideoClip, doc: VideoDocument }): VideoDocument {
+export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond: number, clip: Clip, doc: VideoDocument }): VideoDocument {
   const newTimeline = [];
   const clipStart = insertMillisecond;
   const clipEnd = clipStart + clip.trim.durationMilliseconds;

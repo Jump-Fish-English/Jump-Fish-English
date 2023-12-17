@@ -47,11 +47,13 @@ function getDuration(animations: Animation[]): {
     }
 
     const { duration: effectDuration, delay = 0 } = effect.getTiming();
+    
     if (effectDuration === undefined) {
       return acc;
     }
     
     const milliseconds = coerceEffectTiming(effectDuration) + delay;
+
     if (milliseconds > acc.duration) {
       return {
         duration: milliseconds,
@@ -213,10 +215,14 @@ function pausedState(animationState: AnimationStateReady): AnimationPlayerState 
 
 function loadingState({ css, html }: AnimationContents, animationState: AnimationStateEmpty): AnimationPlayerState {
   const { shadowRoot, enterState, element } = animationState;
+  let durationMilliseconds = 0;
+  
   return {
     state: 'loading',
     currentTimeMilliseconds: 0,
-    durationMilliseconds: 0,
+    get durationMilliseconds() {
+      return durationMilliseconds;
+    },
     exit() {
       element.dispatchEvent(
         new CustomEvent('canplaythrough')
@@ -227,6 +233,9 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
       );
     },
     async enter() {
+      if (element.isConnected === false) {
+        console.log('Attempting to load animations for an element that is not connected to DOM. This will not work as expected');
+      }
       const event = new CustomEvent('loadstart');
       element.dispatchEvent(event);
 
@@ -236,15 +245,17 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
         </style>
         ${html}
       `;
-
       const animations = shadowRoot.getAnimations();
       const { duration, longestAnimation } = getDuration(animations);
+  
       if (longestAnimation === undefined) {
         enterState(
           emptyState(animationState)
         );
         return;
       }
+      
+      durationMilliseconds = duration;
       
       try {
         await longestAnimation.ready;
