@@ -95,7 +95,7 @@ describe('AnimationPlayer', () => {
 
     });
 
-    it.only('should fire a durationchange event', async () => {
+    it('should fire a durationchange event', async () => {
       const elm = document.createElement('x-foo') as AnimationPlayer;
       document.body.appendChild(elm);
       const contents = {
@@ -529,7 +529,7 @@ describe('AnimationPlayer', () => {
     });
   });
 
-  describe.only('seeking', () => {
+  describe('seeking', () => {
     it('should allow seeking to a specific time', async () => {
       const elm = document.createElement('x-foo') as AnimationPlayer;
       document.body.appendChild(elm);
