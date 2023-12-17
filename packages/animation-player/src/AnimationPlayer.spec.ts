@@ -528,4 +528,152 @@ describe('AnimationPlayer', () => {
       expect(currentTime).toBe(elm.currentTime);
     });
   });
+
+  describe.only('seeking', () => {
+    it('should allow seeking to a specific time', async () => {
+      const elm = document.createElement('x-foo') as AnimationPlayer;
+      document.body.appendChild(elm);
+      const contents = {
+        css: `
+          #first {
+            animation: show-ball 50ms;
+          }
+
+          @keyframes show-ball {
+            0% {
+              opacity: 0;
+            }
+
+            100% {
+              opacity: 1;
+            }
+          }
+        `,
+        html: `
+          <div id="first"></div>
+        `
+      }
+      elm.load(contents);
+      await waitForCanPlayThrough(elm);
+      elm.currentTime = 0.2;
+      await waitFor(() => {
+        expect(elm.currentTime).toBe(0.2);
+      });
+    });
+  });
+
+  it('should fire seeking event', async () => {
+    const elm = document.createElement('x-foo') as AnimationPlayer;
+    document.body.appendChild(elm);
+    const contents = {
+      css: `
+        #first {
+          animation: show-ball 50ms;
+        }
+
+        @keyframes show-ball {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+      `,
+      html: `
+        <div id="first"></div>
+      `
+    }
+    elm.load(contents);
+    await waitForCanPlayThrough(elm);
+
+    const spy = vi.fn();
+
+    elm.addEventListener('seeking', spy, { once: true });
+
+    elm.currentTime = 0.2;
+    
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  it('should fire seeked event', async () => {
+    const elm = document.createElement('x-foo') as AnimationPlayer;
+    document.body.appendChild(elm);
+    const contents = {
+      css: `
+        #first {
+          animation: show-ball 50ms;
+        }
+
+        @keyframes show-ball {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+      `,
+      html: `
+        <div id="first"></div>
+      `
+    }
+    elm.load(contents);
+    await waitForCanPlayThrough(elm);
+
+    const spy = vi.fn();
+
+    elm.addEventListener('seeked', spy, { once: true });
+
+    elm.currentTime = 0.2;
+    
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  it('should resume playing when seeked while playing', async () => {
+    const elm = document.createElement('x-foo') as AnimationPlayer;
+    document.body.appendChild(elm);
+    const contents = {
+      css: `
+        #first {
+          animation: show-ball 50ms;
+        }
+
+        @keyframes show-ball {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+      `,
+      html: `
+        <div id="first"></div>
+      `
+    }
+    elm.load(contents);
+    await waitForCanPlayThrough(elm);
+
+    const endedSpy = vi.fn();
+    
+    elm.addEventListener('timeupdate', () => {
+      elm.currentTime = 0;
+    }, { once: true });
+
+    elm.addEventListener('ended', endedSpy, { once: true });
+
+    elm.play();
+
+    await waitFor(() => {
+      expect(endedSpy).toHaveBeenCalled();
+    });
+  });
 });

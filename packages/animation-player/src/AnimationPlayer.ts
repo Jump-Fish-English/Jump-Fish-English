@@ -6,7 +6,7 @@ interface AnimationContents {
 }
 
 
-export class AnimationPlayer extends HTMLElement {
+export class AnimationPlayer extends HTMLElement implements Omit<HTMLVideoElement, 'load'> {
   shadowRoot: ShadowRoot;
   #state: AnimationPlayerState;
 
@@ -30,6 +30,10 @@ export class AnimationPlayer extends HTMLElement {
 
   get currentTime() {
     return this.#state.currentTimeMilliseconds / 1000;
+  }
+
+  set currentTime(seconds: number) {
+    this.#state.seek?.(seconds);
   }
 
   play() {
