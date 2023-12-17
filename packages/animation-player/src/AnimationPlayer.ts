@@ -6,7 +6,7 @@ interface AnimationContents {
 }
 
 
-export class AnimationPlayer extends HTMLElement implements Omit<HTMLVideoElement, 'load'> {
+export class AnimationPlayer extends HTMLElement {
   shadowRoot: ShadowRoot;
   #state: AnimationPlayerState;
 
