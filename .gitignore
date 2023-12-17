@@ -5,3 +5,7 @@ dist
 .vscode
 videos
 .nx
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
