@@ -2,55 +2,46 @@ import { type VideoFile, type MillisecondRange, concatVideoFiles } from '@jumpfi
 
 export interface VideoSource {
   type: 'video',
+  title: string;
   id: string;
   durationMilliseconds: number;
   thumbnailUrl: string;
   videoFile: VideoFile;
-  url: string;
 }
 
 export interface AnimationSource {
   type: 'animation';
+  title: string;
   id: string;
   html: string;
   css: string;
   durationMilliseconds: number;
-}
-
-export interface AnimationClip {
-  type: 'animation';
-  source: string;
-  trim: MillisecondRange;
-  id: string;
-}
-
-
-export interface VideoClip {
-  type: 'video',
-  id: string;
-  source: string;
-  trim: MillisecondRange;
-  url: string;
+  thumbnailUrl: string;
 }
 
 export type Source = VideoSource | AnimationSource;
-export type Clip = VideoClip | AnimationClip;
+export type Clip = {
+  id: string;
+  source: string;
+  win: MillisecondRange;
+}
 
 export interface VideoDocument {
-  sources: Record<string, Source>;
   timeline: Clip[];
   durationMilliseconds: number;
 }
 
 export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond: number, clip: Clip, doc: VideoDocument }): VideoDocument {
+  const { win: clipWindow } = clip;
   const newTimeline = [];
   const clipStart = insertMillisecond;
-  const clipEnd = clipStart + clip.trim.durationMilliseconds;
+  const clipEnd = clipStart + clipWindow.durationMilliseconds;
   let clipInserted = false;
 
   for (const existingClip of doc.timeline) {
-    const existingStart = existingClip.trim.startMilliseconds;
-    const existingEnd = existingStart + existingClip.trim.durationMilliseconds;
+    const { win: existingClipWindow } = existingClip;
+    const existingStart = existingClipWindow.startMilliseconds;
+    const existingEnd = existingStart + existingClipWindow.durationMilliseconds;
 
     // If the existing clip ends before the insert point, keep it as is
     if (existingEnd <= clipStart) {
@@ -58,7 +49,7 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
     } else {
       // If the clip has not been inserted and the existing clip starts after the insert point
       if (!clipInserted && existingStart >= clipStart) {
-        newTimeline.push({ ...clip, trim: { startMilliseconds: clipStart, durationMilliseconds: clip.trim.durationMilliseconds } });
+        newTimeline.push({ ...clip, trim: { startMilliseconds: clipStart, durationMilliseconds: clipWindow.durationMilliseconds } });
         clipInserted = true;
       }
 
@@ -84,7 +75,7 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
     ...doc,
     timeline: newTimeline,
     durationMilliseconds: newTimeline.reduce((max, clip) => {
-      return max + clip.trim.durationMilliseconds;
+      return max + clipWindow.durationMilliseconds;
     }, 0),
   }
 }

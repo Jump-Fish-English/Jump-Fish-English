@@ -1,0 +1,87 @@
+.container {
+  background: rgb(31, 31, 31);
+  height: 100vh;
+  display: flex;
+}
+
+.cell {
+  padding: 0.8rem;
+}
+
+.main {
+  composes: cell;
+  flex: 1 0 400px;
+  min-width: 0;
+}
+
+.source {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0.5rem;
+}
+
+.source-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.2rem;
+}
+
+.source-thumbnail {
+  max-width: 100%;
+  height: auto;
+}
+
+.scroller {
+  overflow-x: scroll;
+  padding: 1rem 0;
+  white-space: nowrap;
+}
+
+
+.tabs {
+  background: rgb(24, 24, 24);
+  flex: 0 0 300px;
+  border-right: 1px solid black;
+  display: flex;
+}
+
+.tab {
+  composes: cell;
+  flex: 1 0 50px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgb(43, 43, 43);
+  border-left: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tab:focus, .tab:hover {
+  outline: none;
+  color: #fff;
+}
+
+.tab-active {
+  composes: tab;
+  color: #fff;
+  border-left: 3px solid rgb(51, 118, 205);
+}
+
+.tab-panel {
+  composes: cell;
+  flex: 1 0 200px;
+  position: relative;
+  border-left: 1px solid rgb(43, 43, 43);;
+}
+
+.tab-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}

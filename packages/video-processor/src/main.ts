@@ -16,6 +16,7 @@ interface OutputOptions {
 export interface VideoFile {
   fileName: string;
   data: Blob;
+  url: string;
 }
 
 interface ClipParams { 
@@ -39,10 +40,11 @@ async function readFile({ fileName, type }: { type: 'video/mp4' | 'image/png', f
   if (typeof contents === 'string') {
     throw new Error('String returned from readFile');
   }
-
+  const blob = new Blob([contents.buffer], { type });
   return {
     fileName,
-    data: new Blob([contents.buffer], { type }),
+    data: blob,
+    url: URL.createObjectURL(blob)
   };
 }
 

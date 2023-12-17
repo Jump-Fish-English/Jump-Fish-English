@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { produce } from 'immer';
+import generate from 'html2canvas';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import { insertClip, type AnimationClip, type VideoClip, type VideoDocument, type VideoSource, type AnimationSource } from '../lib/video-document';
-import { Tabs, Tab } from './Tabs';
+import { type VideoDocument, type VideoSource, type AnimationSource, type Source } from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
-import { ClipTimeline } from './ClipTimeline';
 import type { AnimationPlayer } from 'animation-player';
-import { AnimationThumbnail } from './AnimationThumbnail';
+import { Workspace } from './Workspace';
 
 import styles from './Main.module.css';
 
@@ -23,6 +22,7 @@ const animationContents = {
     .parent {
       animation: hide-subscribe 350ms both;
       animation-delay: 4s;
+      display: inline-block;
     }
 
     .subscribe {
@@ -108,6 +108,44 @@ const animationContents = {
   `
 };
 
+async function loadAnimationSource({ html, css }: { html: string, css: string }): Promise<AnimationSource> {
+  const elm = document.createElement('jf-animation-player') as AnimationPlayer;
+  const id = uuidV4();
+  
+  document.body.appendChild(elm);
+  // elm.style.visibility = 'hidden';
+  const durationMilliseconds = await new Promise<number>((res) => {
+    elm.addEventListener('durationchange', () => {
+      res(elm.duration * 1000);
+    }, { once: true });
+
+    elm.load(animationContents);
+  });
+
+  const container = elm.container();
+  if (container === undefined) {
+    throw new Error('Should be a container here');
+  }
+  const canvasElement = await generate(elm, {
+    onclone(doc, element) {
+      doc.getAnimations().forEach((animation) => {
+        animation.currentTime = 600;
+      })
+    }
+  });
+  const thumbnailUrl = canvasElement.toDataURL();
+  // document.body.removeChild(elm);
+  document.body.appendChild(canvasElement);
+  return {
+    durationMilliseconds,
+    id,
+    title: id,
+    thumbnailUrl,
+    type: 'animation',
+    html,
+    css,
+  }
+}
 
 
 async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
@@ -117,12 +155,11 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
     buffer: new Uint8Array(arrayBuffer),
     type: 'video/mp4',
   });
-  const url = URL.createObjectURL(videoFile.data);
   
   const durationMilliseconds = await new Promise<number>((res) => {
     const videoElm = document.createElement('video');
     videoElm.preload = 'metadata';
-    videoElm.src = url;
+    videoElm.src = videoFile.url;
     videoElm.addEventListener('durationchange', () => {
       res(videoElm.duration * 1000);
     }, {
@@ -137,17 +174,17 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 
   return {
     type: 'video',
+    title: id,
     id,
     durationMilliseconds,
     thumbnailUrl,
     videoFile,
-    url,
   };
 }
 
 export function Main() {
+  const [sources, setSources] = useState<Record<string, Source>>({});
   const [doc, setDoc] = useState<VideoDocument>({
-    sources: {},
     timeline: [],
     durationMilliseconds: 0,
   });
@@ -171,37 +208,17 @@ export function Main() {
         return loadSource(buffer);
       });
 
-    const animation = new Promise<AnimationSource>((res) => {
-      const elm = document.createElement('jf-animation-player') as AnimationPlayer;
-      const id = uuidV4();
-      
-      document.body.appendChild(elm);
-      elm.style.visibility = 'hidden';
-      elm.addEventListener('durationchange', () => {
-        console.log(elm.duration);
-        document.body.removeChild(elm);
-        res({
-          durationMilliseconds: elm.duration * 1000,
-          id,
-          type: 'animation',
-          html: animationContents.html,
-          css: animationContents.css,
-        });
-      }, { once: true });
-
-      elm.load(animationContents);
-      
-    });
+    const animation = loadAnimationSource(animationContents);
 
     Promise.all([
       first,
       second,
       animation,
     ]).then((sources) => {
-      setDoc(
+      setSources(
         produce((draft) => {
           sources.forEach((source) => {
-            draft.sources[source.id] = source;
+            draft[source.id] = source;
           });
         })
       )
@@ -209,103 +226,12 @@ export function Main() {
     
   }, []);
 
-  if (doc === undefined) {
-    return null;
-  }
 
   return (
-    <div className={styles.container}>
-      <Tabs tabActiveClassName={styles['tab-active']} tabPanelClassName={styles['tab-panel']} tabClassName={styles.tab} className={styles.tabs}>
-        <Tab key="clips" textValue="Clips" title={(
-          <div className={styles['tab-icon']}>
-            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="11" strokeWidth="2"/>
-              <polygon points="10,8 16,12 10,16" fill="currentColor"/>
-            </svg>
-            <h6>Clips</h6>
-          </div>
-        )}>
-          {
-            Object.values(doc.sources).map((source) => {
-              if (source.type === 'video') {
-                return (
-                  <article className={styles.source} key={source.id} onClick={async () => {
-                    const clip: VideoClip = {
-                      type: 'video',
-                      id: uuidV4(),
-                      source: source.id,
-                      trim: {
-                        startMilliseconds: 0,
-                        durationMilliseconds: source.durationMilliseconds,
-                      },
-                      url: source.url,
-                    }
-                    
-                    const nextDoc = insertClip({
-                      doc, 
-                      insertMillisecond: doc.durationMilliseconds,
-                      clip,
-                    });
-
-                    setDoc(nextDoc);
-
-                  }}>
-                    <h4 className={styles['source-title']}>
-                      {source.videoFile.fileName}
-                    </h4>
-                    <img className={styles['source-thumbnail']} src={source.thumbnailUrl} />
-                  </article>
-                )
-              }
-
-              return (
-                <article className={styles.source} key={source.id} onClick={async () => {
-                  const clip: AnimationClip = {
-                    type: 'animation',
-                    id: uuidV4(),
-                    source: source.id,
-                    trim: {
-                      startMilliseconds: 0,
-                      durationMilliseconds: source.durationMilliseconds,
-                    },
-                  }
-                  
-                  const nextDoc = insertClip({
-                    doc, 
-                    insertMillisecond: doc.durationMilliseconds,
-                    clip,
-                  });
-
-                  setDoc(nextDoc);
-
-                }}>
-                  <AnimationThumbnail millisecond={600} contents={{
-                    html: source.html,
-                    css: source.css,
-                  }} />
-                </article>
-              )
-            })
-          }
-        </Tab>
-      </Tabs>
-      <main className={styles.main}>
-        {playerElement}
-        <div className={styles.scroller}>
-          <ClipTimeline 
-            onDeleteClip={(clip) => {
-              const next = doc.timeline.filter((item) => {
-                return item !== clip;
-              });
-              setDoc(
-                produce((draft) => {
-                  draft.timeline = next;
-                })
-              );
-            }}
-            doc={doc} player={player} />
-        </div>
-      </main>
-    </div>
+    <Workspace 
+      sources={sources}
+      doc={doc}
+      player={player}
+    />
   )
 }

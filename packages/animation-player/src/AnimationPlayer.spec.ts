@@ -598,6 +598,37 @@ describe('AnimationPlayer', () => {
         expect(elm.currentTime).toBe(0.2);
       });
     });
+
+    it('should apply the CSS styles after seek', async () => {
+      const elm = document.createElement('x-foo') as AnimationPlayer;
+      document.body.appendChild(elm);
+      const contents = {
+        css: `
+          #first {
+            animation: show-ball 1s;
+          }
+
+          @keyframes show-ball {
+            0% {
+              opacity: 0;
+            }
+
+            100% {
+              opacity: 1;
+            }
+          }
+        `,
+        html: `
+          <div id="first"></div>
+        `
+      }
+      elm.load(contents);
+      await waitForCanPlayThrough(elm);
+      elm.currentTime = 1;
+      await waitFor(() => {
+        expect(elm.shadowRoot?.querySelector('#first')?.getAttribute('style')).toBe('opacity: 1;');
+      });
+    });
   });
 
   it('should fire seeking event', async () => {
@@ -713,5 +744,41 @@ describe('AnimationPlayer', () => {
     await waitFor(() => {
       expect(endedSpy).toHaveBeenCalled();
     });
+  });
+
+  it('should have a container when canplaythrough event is fired', async () => {
+    const elm = document.createElement('x-foo') as AnimationPlayer;
+      document.body.appendChild(elm);
+      const contents = {
+        css: `
+          #first {
+            animation: show-ball 1s;
+          }
+
+          @keyframes show-ball {
+            0% {
+              opacity: 0;
+            }
+
+            100% {
+              opacity: 1;
+            }
+          }
+        `,
+        html: `
+          <div id="first"></div>
+        `
+      }
+
+      let container: HTMLElement | undefined = undefined;
+      elm.addEventListener('canplaythrough', () => {
+        container = elm.container();
+      }, { once: true });
+
+      elm.load(contents);
+      
+      await waitFor(() => {
+        expect(container).toBeDefined();
+      });
   });
 });

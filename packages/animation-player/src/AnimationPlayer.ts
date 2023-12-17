@@ -1,6 +1,6 @@
 import { type AnimationPlayerState, emptyState } from "./fsm";
 
-interface AnimationContents {
+export interface AnimationContents {
   css: string;
   html: string;
 }
@@ -49,6 +49,11 @@ export class AnimationPlayer extends HTMLElement {
 
   requestVideoFrameCallback(cb: () => void) {
     requestAnimationFrame(cb);
+  }
+  
+  container() {
+    console.log(this.#state)
+    return this.#state.container?.();
   }
   
 }

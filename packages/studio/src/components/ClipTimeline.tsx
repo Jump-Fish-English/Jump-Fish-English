@@ -1,5 +1,5 @@
 import type { Player } from "../hooks/usePlayer";
-import type { Clip, Source, VideoClip, VideoDocument, VideoSource } from "../lib/video-document";
+import type { Clip, Source, VideoDocument } from "../lib/video-document";
 import { ClipPreview } from "./ClipPreview";
 import { Timeline } from "./Timeline";
 
@@ -64,15 +64,16 @@ function TimelineItem({ onDeleteClip, startMilliseconds, durationMilliseconds, c
 
 interface Props {
   player: Player;
+  sources: Record<string, Source>;
   doc: VideoDocument;
   onDeleteClip: (clip: Clip) => void;
 }
 
-export function ClipTimeline({ onDeleteClip, doc, player: videoPlayer }: Props) {
+export function ClipTimeline({ sources, onDeleteClip, doc, player: videoPlayer }: Props) {
   let currentMilliseconds = 0;
   const timelines = doc.timeline.map((item, index) => {
-    const source = doc.sources[item.source];
-    const { durationMilliseconds: sourceDurationMilliseconds } = item.trim;
+    const source = sources[item.source];
+    const { durationMilliseconds: sourceDurationMilliseconds } = item.win;
     const timeline = (
       <TimelineItem
         onDeleteClip={() => {

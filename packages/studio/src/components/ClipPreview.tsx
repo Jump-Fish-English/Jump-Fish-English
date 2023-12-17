@@ -1,8 +1,7 @@
-import type { Clip, Source, VideoClip, VideoSource } from "../lib/video-document";
+import type { Clip, Source } from "../lib/video-document";
 import { VideoPreview } from "./VideoPreview";
 
 import styles from './ClipPreview.module.css';
-import { AnimationThumbnail } from "./AnimationThumbnail";
 
 interface Props {
   clip: Clip;
@@ -10,8 +9,8 @@ interface Props {
 }
 
 export function ClipPreview({ clip, source }: Props) {
-  const { trim } = clip;
-  const { startMilliseconds, durationMilliseconds: trimDurationMilliseconds } = trim;
+  const { win: clipWindow } = clip;
+  const { startMilliseconds, durationMilliseconds: trimDurationMilliseconds } = clipWindow;
 
   const previews = [];
   const step = trimDurationMilliseconds / 4;
@@ -27,15 +26,6 @@ export function ClipPreview({ clip, source }: Props) {
       ));
       continue;
     }
-
-    previews.push(
-      <AnimationThumbnail 
-        className={styles.clip} 
-        contents={{
-          html: source.html,
-          css: source.css,
-        }} millisecond={600} />
-    )
   }
   
 
