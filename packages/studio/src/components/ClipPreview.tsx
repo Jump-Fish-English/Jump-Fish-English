@@ -42,11 +42,8 @@ async function buildPreview({ doc, clip, source }: Props): Promise<string[]> {
     }
     
     if (source.type === 'video') {
-      
       continue;
     }
-
-    
 
     const { url } = await generateScreenshot({
       contents: {
@@ -57,6 +54,7 @@ async function buildPreview({ doc, clip, source }: Props): Promise<string[]> {
     });
 
     const image = await loadImage(url);
+    document.body.appendChild(image);
     context.drawImage(image, 0 ,0);
     const blob = await canvas.convertToBlob();
     urls.push(

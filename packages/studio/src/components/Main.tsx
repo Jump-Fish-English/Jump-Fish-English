@@ -14,6 +14,88 @@ import src from '../../../../videos/output.mp4';
 import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
 
 
+const counter = {
+  css: `
+    .container {
+      font-size: 128px;
+      width: 1600px;
+      height: 900px;
+      position: relative;
+      color: #000;
+      background: #fff;
+    }
+
+    .one {
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%);
+      animation: fade-in 1s both;
+    }
+
+    .two {
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%);
+      animation: fade-in 1s both;
+      animation-delay: 1s;
+    }
+
+    .three {
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%);
+      animation: fade-in 1s both;
+      animation-delay: 2s;
+    }
+
+    .four {
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%);
+      animation: fade-in 1s both;
+      animation-delay: 3s;
+    }
+
+    .five {
+      background: #fff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%);
+      animation: fade-in 1s both;
+      animation-delay: 4s;
+    }
+
+    @keyframes fade-in {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+  
+  `,
+  html: `
+    <div class="container">
+      <div class="one">1</div>
+      <div class="two">2</div>
+      <div class="three">3</div>
+      <div class="four">4</div>
+      <div class="five">5</div>
+    </div>
+  `,
+}
+
 const animationContents = {
   css: `
     .container {
@@ -120,7 +202,7 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
       res(elm.duration * 1000);
     }, { once: true });
 
-    elm.load(animationContents);
+    elm.load({ html, css });
   });
 
   const screenShot = await generateScreenshot({ contents: { html, css }, milliseconds: 1000 });
@@ -201,12 +283,11 @@ export function Main() {
         return loadSource(buffer);
       });
 
-    const animation = loadAnimationSource(animationContents);
-
     Promise.all([
       // first,
       // second,
-      animation,
+      loadAnimationSource(animationContents),
+      loadAnimationSource(counter)
     ]).then((sources) => {
       setSources(
         produce((draft) => {
