@@ -1,4 +1,11 @@
-.clip {
+
+
+.preview {
   height: 100%;
   width: auto;
+}
+
+.loading {
+  width: 200px;
+  height: 100%;
 }

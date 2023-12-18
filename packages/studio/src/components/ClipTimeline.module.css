@@ -1,10 +1,10 @@
 .container {
-  height: 50px;
-  padding: 0.2rem;
+  padding: 0.5rem;
+  border: 2px solid #000;
   display: inline-block;
   margin-left: 1rem;
+  height: 55px;
   line-height: 0;
-  box-sizing: content-box;
   border-radius: 10px;
 
   &:focus {
@@ -13,7 +13,6 @@
 }
 
 .clip-summary {
-  border: 2px solid #000;
   box-sizing: border-box;
   overflow: hidden;
   border-radius: 10px;

@@ -16,6 +16,12 @@ import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-
 
 const animationContents = {
   css: `
+    .container {
+      height: 400px;
+      width: 400px;
+      background: purple;
+    }
+    
     .parent {
       animation: hide-subscribe 350ms both;
       animation-delay: 4s;
@@ -98,6 +104,7 @@ const animationContents = {
         <div class="subscribe-text">Subscribe</div>
       </div>
   </div>
+  <div class="container"></div>
   `
 };
 

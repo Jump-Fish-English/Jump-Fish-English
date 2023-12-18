@@ -1,4 +1,5 @@
 import type { Player } from "../hooks/usePlayer";
+import type { ReactElement } from "react";
 import type { Clip, Source, VideoDocument } from "../lib/video-document";
 import { ClipPreview } from "./ClipPreview";
 import { Timeline } from "./Timeline";
@@ -9,17 +10,18 @@ import styles from './ClipTimeline.module.css';
 
 interface ItemProps {
   player: Player;
-  source: Source;
-  clip: Clip;
   startMilliseconds: number;
   durationMilliseconds: number;
   onDeleteClip?: () => void;
+  children: ReactElement;
 }
 
 
 type Actions = 'seek' | 'delete-clip';
 
-function TimelineItem({ onDeleteClip, startMilliseconds, durationMilliseconds, clip, source, player: videoPlayer }: ItemProps) {
+
+function TimelineItem({ onDeleteClip, startMilliseconds, durationMilliseconds, player: videoPlayer, children }: ItemProps) {
+  
   return (
     <article onKeyUp={(e) => {
         if (e.key === 'Backspace') {
@@ -56,7 +58,7 @@ function TimelineItem({ onDeleteClip, startMilliseconds, durationMilliseconds, c
         }}
         durationMilliseconds={durationMilliseconds}
       >
-        <ClipPreview source={source} clip={clip} />
+      {children} 
       </Timeline>
     </article>
   )
@@ -69,9 +71,11 @@ interface Props {
   onDeleteClip: (clip: Clip) => void;
 }
 
+
+
 export function ClipTimeline({ sources, onDeleteClip, doc, player: videoPlayer }: Props) {
   let currentMilliseconds = 0;
-  const timelines = doc.timeline.map((item, index) => {
+  const timelines = doc.timeline.map((item) => {
     const source = sources[item.source];
     const { durationMilliseconds: sourceDurationMilliseconds } = item.win;
     const timeline = (
@@ -80,14 +84,18 @@ export function ClipTimeline({ sources, onDeleteClip, doc, player: videoPlayer }
           onDeleteClip(item);
         }}
         key={item.id}
-        clip={item}
-        source={source}
         player={videoPlayer}
         startMilliseconds={currentMilliseconds}
         durationMilliseconds={sourceDurationMilliseconds}
-      />
+      >
+        <ClipPreview 
+          doc={doc}
+          source={source} 
+          clip={item} 
+        />
+      </TimelineItem>
     );
-
+    
     currentMilliseconds += sourceDurationMilliseconds;
 
     return timeline;

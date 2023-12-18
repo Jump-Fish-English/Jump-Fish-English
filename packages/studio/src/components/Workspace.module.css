@@ -31,6 +31,9 @@
   background: rgba(0, 0, 0, 0.8);
   padding: 0.2rem;
   flex: 0 0 auto;
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
 .source-image {

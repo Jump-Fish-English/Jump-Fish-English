@@ -2,7 +2,6 @@ import { useLayoutEffect, useState } from "react";
 import { exportFrame } from '@jumpfish/video-processor';
 import type { VideoSource } from "../lib/video-document";
 
-import styles from './VideoPreview.module.css';
 
 interface Props {
   className?: string;
@@ -13,11 +12,12 @@ interface Props {
 const cache: Record<string, string> = {};
 
 async function loadFrame({ source, milliseconds }: Props) {
-  const key = `${source.url}-${milliseconds}`;
+  const key = `${source.videoFile.url}-${milliseconds}`;
   const cacheCheck = cache[key];
   if (cacheCheck !== undefined) {
     return cacheCheck;
   }
+  
   const url = await exportFrame({
     millisecond: milliseconds,
     source: { fileName: source.videoFile.fileName }
@@ -39,11 +39,11 @@ export function VideoPreview({ className: classNameProp, source, milliseconds }:
     .then(setSrc);
   }, [milliseconds, source.videoFile.fileName]);
 
-  const className = [styles.preview, classNameProp].filter((item) => item !== undefined).join(' ');
+  const className = [classNameProp].filter((item) => item !== undefined).join(' ');
 
   if (src === undefined) {
     return (
-      <div className={styles.loading}></div>
+      <div></div>
     )
   }
 

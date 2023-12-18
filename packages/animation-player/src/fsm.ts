@@ -274,6 +274,10 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
       
       shadowRoot.appendChild(containerElement);
       const animations = shadowRoot.getAnimations();
+      animations.forEach((animation) => {
+        animation.pause();
+        animation.currentTime = 0;
+      });
       const { duration, longestAnimation } = getDuration(animations);
   
       if (longestAnimation === undefined) {
