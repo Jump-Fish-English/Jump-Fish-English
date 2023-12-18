@@ -52,10 +52,12 @@ export function Workspace({ sources, doc, player }: Props) {
                   // setDoc(nextDoc);
 
                 }}>
+                  <div className={styles['source-image']}>
+                    <img className={styles['source-thumbnail']} src={thumbnailUrl} />
+                  </div>
                   <h4 className={styles['source-title']}>
                     {sourceTitle}
                   </h4>
-                  <img className={styles['source-thumbnail']} src={thumbnailUrl} />
                 </article>
               )
             })
@@ -74,7 +76,7 @@ export function Workspace({ sources, doc, player }: Props) {
             Object.values(sources).filter((source) => {
               return source.type === 'animation';
             }).map((source) => {
-              const { title: sourceTitle, thumbnail: { url: thumbnailUrl } } = source as AnimationSource;
+              const { title: sourceTitle, thumbnail: { url: thumbnailUrl, originalDimensions: { width: thumbnailWidth, height: thumbnailHeight } } } = source as AnimationSource;
               return (
                 <article className={styles.source} key={source.id} onClick={async () => {
                   // const clip: VideoClip = {
@@ -97,10 +99,12 @@ export function Workspace({ sources, doc, player }: Props) {
                   // setDoc(nextDoc);
 
                 }}>
+                  <div className={styles['source-image']}>
+                    <img width={thumbnailWidth} height={thumbnailHeight} className={styles['source-thumbnail']} src={thumbnailUrl} />
+                  </div>
                   <h4 className={styles['source-title']}>
                     {sourceTitle}
                   </h4>
-                  <img className={styles['source-thumbnail']} src={thumbnailUrl} />
                 </article>
               )
             })

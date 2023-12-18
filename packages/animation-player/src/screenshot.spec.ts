@@ -114,7 +114,3 @@ describe('image dimensions', () => {
     ).toHaveLength(0);
   });
 });
-
-describe('Screenshot tests', () => {
-
-});

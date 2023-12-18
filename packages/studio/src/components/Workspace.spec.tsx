@@ -162,4 +162,65 @@ describe('Sources', () => {
     expect(animationsTab.getByRole('img')).toHaveAttribute('src', 'animation-thumbnail');
 
   });
+
+  it('should render animation image with correct dimensions', () => {
+    render(
+      <Workspace
+        sources={{
+          video: {
+            type: 'video',
+            id: 'video',
+            title: 'Video clip',
+            durationMilliseconds: 100,
+            videoFile: {
+              fileName: 'hello.mp4',
+              data: new Blob(),
+              url: 'blob://url'
+            },
+            thumbnailUrl: 'video-thumbnail',
+          },
+          animation: {
+            title: 'Animation clip',
+            id: 'animation',
+            durationMilliseconds: 100,
+            type: 'animation',
+            html: '<div>hi</div>',
+            css: '',
+            thumbnail: {
+              url: 'animation-thumbnail',
+              originalDevicePixelRatio: 1,
+              originalDimensions: {
+                width: 100,
+                height: 100,
+              },
+              data: new Blob()
+            },
+          }
+        }}
+        doc={{
+          timeline: [],
+          durationMilliseconds: 0,
+        }}
+        player={{
+          el: (
+            <div>Player</div>
+          ),
+          play: vi.fn(),
+          seek: vi.fn(),
+          durationMilliseconds: 0,
+        }}
+      />
+    );
+
+    fireEvent.click(
+      screen.getByRole('tab', { name: 'Animations' })
+    )
+
+    const animationsTab = within(
+      screen.getByRole('tabpanel', { name: 'Animations' })
+    );
+    
+    expect(animationsTab.getByRole('img')).toHaveAttribute('width', '100');
+    expect(animationsTab.getByRole('img')).toHaveAttribute('height', '100');
+  });
 });

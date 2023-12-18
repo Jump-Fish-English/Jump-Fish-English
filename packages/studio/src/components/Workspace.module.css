@@ -18,16 +18,27 @@
   position: relative;
   z-index: 1;
   margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 130px;
+  background: #fff;
+  align-items: center;
+  justify-content: center;
 }
 
 .source-title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
   color: #fff;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.8);
   padding: 0.2rem;
+  flex: 0 0 auto;
+}
+
+.source-image {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .source-thumbnail {
@@ -74,7 +85,7 @@
 
 .tab-panel {
   composes: cell;
-  flex: 1 0 200px;
+  flex: 0 1 200px;
   position: relative;
   border-left: 1px solid rgb(43, 43, 43);;
 }
