@@ -188,7 +188,7 @@ function seekingState(milliseconds: number, animationState: AnimationStateReady)
 }
 
 function pausedState(animationState: AnimationStateReady): AnimationPlayerState {
-  const { shadowRoot, containerElement, durationMilliseconds, animations, currentTimeMilliseconds, enterState, element } = animationState;
+  const { containerElement, durationMilliseconds, animations, currentTimeMilliseconds, enterState, element } = animationState;
 
   return {
     state: 'paused',
@@ -300,7 +300,9 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
             containerElement,
           })
         )
-      } catch {}
+      } catch (e) {
+        // noop
+      }
     }
   }
 }

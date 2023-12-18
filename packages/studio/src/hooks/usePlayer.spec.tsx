@@ -286,7 +286,7 @@ describe('Deleting a clip', () => {
       },
       "id": "second"
     };
-    const { container, rerender } = render(
+    const { rerender } = render(
       <Component
         sources={{
           "607d17f8-2974-4496-9015-a528b92eaa33": {

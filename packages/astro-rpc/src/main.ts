@@ -119,7 +119,7 @@ export function rpc(): AstroIntegration {
            return `virtual:client:${urlPath}`;
          },
          load(id){
-          if (/virtual\:client/.test(id)) {
+          if (/virtual:client/.test(id)) {
             // we inject a module for consumption in the client
             const path = id.replace('virtual:client:', '');
             const def = RPCS.find((entry) => {

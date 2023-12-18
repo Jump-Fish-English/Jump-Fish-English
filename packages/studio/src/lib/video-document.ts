@@ -1,4 +1,4 @@
-import { type VideoFile, type MillisecondRange, concatVideoFiles } from '@jumpfish/video-processor';
+import { type VideoFile, type MillisecondRange } from '@jumpfish/video-processor';
 import type { AnimationScreenshot } from 'animation-player';
 
 export interface VideoSource {
@@ -79,7 +79,7 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
   return {
     ...doc,
     timeline: newTimeline,
-    durationMilliseconds: newTimeline.reduce((max, clip) => {
+    durationMilliseconds: newTimeline.reduce((max) => {
       return max + clipWindow.durationMilliseconds;
     }, 0),
   }

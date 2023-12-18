@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
-import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import { type VideoDocument, type VideoSource, type AnimationSource, type Source, type Clip, insertClip } from '../lib/video-document';
+import { type VideoDocument, type AnimationSource, type Source, type Clip, insertClip } from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
 import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
@@ -10,8 +9,8 @@ import { Workspace } from './Workspace';
 
 
 // videos
-import src from '../../../../videos/output.mp4';
-import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
+// import src from '../../../../videos/output.mp4';
+// import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
 
 
 const counter = {
@@ -23,17 +22,19 @@ const counter = {
       position: relative;
       color: #000;
       background: red;
-      animation: background 5s both;
+      animation: background 30s both;
     }
 
     .ball {
       height: 50px;
       width: 50px;
       background: black;
-      animation: move-ball 5s both;
+      animation: move-ball 2s both;
+      animation-direction: alternate;
       position: absolute;
       left: 50%;
       top: 50%;
+      z-index: 10;
     }
 
     .one {
@@ -231,39 +232,39 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
 }
 
 
-async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
-  const id = uuidV4();
-  const videoFile = await writeVideoFile({
-    fileName: `${id}.mp4`,
-    buffer: new Uint8Array(arrayBuffer),
-    type: 'video/mp4',
-  });
+// async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
+//   const id = uuidV4();
+//   const videoFile = await writeVideoFile({
+//     fileName: `${id}.mp4`,
+//     buffer: new Uint8Array(arrayBuffer),
+//     type: 'video/mp4',
+//   });
   
-  const durationMilliseconds = await new Promise<number>((res) => {
-    const videoElm = document.createElement('video');
-    videoElm.preload = 'metadata';
-    videoElm.src = videoFile.url;
-    videoElm.addEventListener('durationchange', () => {
-      res(videoElm.duration * 1000);
-    }, {
-      once: true,
-    });
-  });
+//   const durationMilliseconds = await new Promise<number>((res) => {
+//     const videoElm = document.createElement('video');
+//     videoElm.preload = 'metadata';
+//     videoElm.src = videoFile.url;
+//     videoElm.addEventListener('durationchange', () => {
+//       res(videoElm.duration * 1000);
+//     }, {
+//       once: true,
+//     });
+//   });
 
-  const thumbnailUrl = await exportFrame({
-    millisecond: 0,
-    source: videoFile,
-  });
+//   const thumbnailUrl = await exportFrame({
+//     millisecond: 0,
+//     source: videoFile,
+//   });
 
-  return {
-    type: 'video',
-    title: id,
-    id,
-    durationMilliseconds,
-    thumbnailUrl,
-    videoFile,
-  };
-}
+//   return {
+//     type: 'video',
+//     title: id,
+//     id,
+//     durationMilliseconds,
+//     thumbnailUrl,
+//     videoFile,
+//   };
+// }
 
 export function Main() {
   const [sources, setSources] = useState<Record<string, Source>>({});
@@ -283,17 +284,17 @@ export function Main() {
 
   useEffect(() => {
     // other
-    const  first = fetch(src)
-      .then((resp) => resp.arrayBuffer())
-      .then((buffer) => {
-        return loadSource(buffer);
-      });
+    // const  first = fetch(src)
+    //   .then((resp) => resp.arrayBuffer())
+    //   .then((buffer) => {
+    //     return loadSource(buffer);
+    //   });
 
-    const second = fetch(other)
-      .then((resp) => resp.arrayBuffer())
-      .then((buffer) => {
-        return loadSource(buffer);
-      });
+    // const second = fetch(other)
+    //   .then((resp) => resp.arrayBuffer())
+    //   .then((buffer) => {
+    //     return loadSource(buffer);
+    //   });
 
     Promise.all([
       // first,

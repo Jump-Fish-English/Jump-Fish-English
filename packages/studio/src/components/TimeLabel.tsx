@@ -5,7 +5,7 @@ interface Props {
 function millisecondsToHoursMinutesSeconds(milliseconds: number) {
   let seconds = Math.floor(milliseconds / 1000);
   let minutes = Math.floor(seconds / 60);
-  let hours = Math.floor(minutes / 60);
+  const hours = Math.floor(minutes / 60);
 
   // To get the remaining minutes and seconds
   minutes = minutes % 60;

@@ -134,6 +134,7 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
                 endMilliseconds: parseFloat(nextTime.toFixed(3)),
               }
             };
+            console.log('generating', currentTime);
             images.push(def);
             currentTime = nextTime;
           }
@@ -163,10 +164,10 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
         <div className={styles.scroller}>
           <ClipTimeline 
             sources={sources}
-            onDeleteClip={(clip) => {
-              const next = doc.timeline.filter((item) => {
-                return item !== clip;
-              });
+            onDeleteClip={() => {
+              // const next = doc.timeline.filter((item) => {
+              //   return item !== clip;
+              // });
               // setDoc(
               //   produce((draft) => {
               //     draft.timeline = next;

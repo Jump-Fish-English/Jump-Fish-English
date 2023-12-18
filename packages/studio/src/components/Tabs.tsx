@@ -14,9 +14,9 @@ interface Props extends TabListStateOptions<object> {
 }
 
 export function Tabs(props: Props) {
-  let state = useTabListState(props);
-  let ref = useRef(null);
-  let { tabListProps, } = useTabList(props, state, ref);
+  const state = useTabListState(props);
+  const ref = useRef(null);
+  const { tabListProps, } = useTabList(props, state, ref);
   return (
     <div className={props.className}>
       <div {...tabListProps} ref={ref} className={props.tabListClassName}>
@@ -30,9 +30,9 @@ export function Tabs(props: Props) {
 }
 
 function Tab({ className, item, state, activeClassName }: { activeClassName?: string, className?: string, state: TabListState<unknown>, item: Node<object> } ) {
-  let { key, rendered } = item;
-  let ref = useRef(null);
-  let { tabProps, } = useTab({ key }, state, ref);
+  const { key, rendered } = item;
+  const ref = useRef(null);
+  const { tabProps, } = useTab({ key }, state, ref);
   const isSelected = state.selectedItem?.key === key;
 
   return (
@@ -43,8 +43,8 @@ function Tab({ className, item, state, activeClassName }: { activeClassName?: st
 }
 
 function TabPanel({ state, className, ...props }: AriaTabPanelProps & { className?: string, state: TabListState<unknown> }) {
-  let ref = useRef(null);
-  let { tabPanelProps } = useTabPanel(props, state, ref);
+  const ref = useRef(null);
+  const { tabPanelProps } = useTabPanel(props, state, ref);
   return (
     <div {...tabPanelProps} ref={ref} className={className}>
       {state.selectedItem?.props.children}

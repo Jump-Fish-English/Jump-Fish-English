@@ -11,9 +11,13 @@
     "@testing-library/react": "14.1.2",
     "@types/node": "^20.10.4",
     "@types/react": "18.2.39",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
     "@vitest/browser": "1.0.4",
     "astro": "3.4.3",
     "create-astro": "4.5.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
     "jsdom": "23.0.1",
     "prettier": "3.0.3",
     "prettier-plugin-astro": "0.12.1",
@@ -26,7 +30,8 @@
   "scripts": {
     "prettier": "prettier . **/*.astro --write",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint ."
   },
   "workspaces": [
     "packages/**"

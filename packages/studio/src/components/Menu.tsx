@@ -28,7 +28,7 @@ export function Menu<T extends object>(props: Props<T>) {
   const { className } = props;
   const state = useTreeState(props);
   const ref = useRef(null);
-  let { menuProps } = useMenu(props, state, ref);
+  const { menuProps } = useMenu(props, state, ref);
   return (
     <ul {...menuProps} className={className} ref={ref}>
       {[...state.collection].map((item) => {

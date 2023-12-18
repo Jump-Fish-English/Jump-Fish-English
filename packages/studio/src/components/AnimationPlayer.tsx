@@ -48,3 +48,5 @@ export const AnimationPlayer = forwardRef<AnimationPlayerElm, Props>(({ contents
     <div ref={ref}></div>
   )
 })
+
+AnimationPlayer.displayName = 'AnimationPlayer';

@@ -79,10 +79,8 @@ interface ConcatParams {
 export async function concatVideoFiles({ output: { encodingPreset }, files }: ConcatParams): Promise<VideoFile> {
   const ffmpeg = await instance();
   const inFile: string[] = [];
-
   for(const file of files) {
     const { file: data, outpointMilliseconds, inpointMilliseconds } = file;
-    console.log('writing', data.fileName)
     await writeFile({
       fileName: data.fileName,
       buffer: new Uint8Array(await data.data.arrayBuffer()),
@@ -258,7 +256,7 @@ async function generateChunk({ durationMilliseconds, dimensions, images, frameRa
 
 function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   const myArray: T[][] = [];
-  for(var i = 0; i < arr.length; i += chunkSize) {
+  for(let i = 0; i < arr.length; i += chunkSize) {
     myArray.push(arr.slice(i, i+chunkSize));
   }
   return myArray;
