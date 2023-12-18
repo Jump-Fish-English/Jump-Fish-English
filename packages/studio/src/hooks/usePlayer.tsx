@@ -1,9 +1,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { Clip, Source, VideoDocument } from "../lib/video-document";
-
-import styles from './usePlayer.module.css';
+import useResizeObserver from 'use-resize-observer';
 import { AnimationPlayer } from "../components/AnimationPlayer";
 import type { AnimationPlayer as AnimationPlayerElm } from "animation-player";
+
+import styles from './usePlayer.module.css';
 
 interface Props {
   doc: VideoDocument;
@@ -41,8 +42,11 @@ function findClipAtMillisecond(millisecond: number, doc: VideoDocument): {
 
 export function usePlayer({ doc, sources }: Props) {
   const videoElements = useRef<Record<string, HTMLVideoElement | AnimationPlayerElm>>({});
-  const { durationMilliseconds } = doc;
+  const { durationMilliseconds, dimensions: { width: videoWidth, height: videoHeight } } = doc;
   const containerRef = useRef<HTMLDivElement>(null);
+  const { width: containerWidth } = useResizeObserver({
+    ref: containerRef,
+  });
   const [currentClipId, setCurrentClipId] = useState<string | null>(null);
 
   const reducedClips = doc.timeline.reduce((acc, clip) => {
@@ -96,56 +100,69 @@ export function usePlayer({ doc, sources }: Props) {
     }
   }
   
+  const scale = containerWidth === undefined ? 0 : containerWidth / doc.dimensions.width;
   const container = (
-    <div ref={containerRef}>
-      {
-        Object.values(reducedClips).map((clip) => {
-          const { id: clipId, source: sourceId } = clip;
-          const source = sources[sourceId];
-          const classNames: string[] = [];
-          const activeVideoElement = currentClipId === clipId;
-          if (activeVideoElement !== true) {
-            classNames.push(styles.hidden);
-          } else {
-            classNames.push(styles.video);
+    <div aria-label="player" className={styles.container} ref={containerRef}>
+      <div style={{ 
+        width: `${doc.dimensions.width * scale}px`,
+        height: `${doc.dimensions.height * scale}px`,
+      }}>
+        <div className={styles.wrapper} style={{ 
+          transform: `scale(${scale})`,
+          width: `${videoWidth}px`,
+          height: `${videoHeight}px`
+        }}>
+          {
+            Object.values(reducedClips).map((clip) => {
+              const { id: clipId, source: sourceId } = clip;
+              const source = sources[sourceId];
+              const classNames: string[] = [];
+              const activeVideoElement = currentClipId === clipId;
+              if (activeVideoElement !== true) {
+                classNames.push(styles.hidden);
+              } else {
+                classNames.push(styles.video);
+              }
+
+
+              if (source.type === 'video') {
+                return (
+                  <video 
+                    ref={(el) => {
+                      if (el === null) {
+                        return;
+                      }
+                      videoElements.current[clipId] = el;
+                    }} 
+                    className={classNames.join(' ')} 
+                    key={clipId} 
+                    src={source.videoFile.url} 
+                    controls 
+                  />
+                );
+              }
+
+              return (
+                <AnimationPlayer 
+                  key={clipId} 
+                  ref={(el) => {
+                    if (el === null) {
+                      return;
+                    }
+                    videoElements.current[clipId] = el;
+                  }}
+                  contents={{
+                    html: source.html,
+                    css: source.css,
+                  }} 
+                />
+              )
+              
+              
+            })
           }
-
-
-          if (source.type === 'video') {
-            return (
-              <video 
-                ref={(el) => {
-                  if (el === null) {
-                    return;
-                  }
-                  videoElements.current[clipId] = el;
-                }} 
-                className={classNames.join(' ')} 
-                key={clipId} 
-                src={source.videoFile.url} 
-                controls 
-              />
-            );
-          }
-
-          return (
-            <AnimationPlayer 
-              ref={(el) => {
-                if (el === null) {
-                  return;
-                }
-                videoElements.current[clipId] = el;
-              }}
-              contents={{
-                html: source.html,
-                css: source.css,
-              }} 
-            />
-          )
-          
-          
-        })
-      }
+        </div>
+      </div>
     </div>
   );
 

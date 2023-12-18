@@ -121,7 +121,7 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
   return {
     durationMilliseconds,
     id,
-    title: id,
+    title: 'Subscribe',
     thumbnail: screenShot,
     type: 'animation',
     html,
@@ -167,6 +167,10 @@ async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 export function Main() {
   const [sources, setSources] = useState<Record<string, Source>>({});
   const [doc, setDoc] = useState<VideoDocument>({
+    dimensions: {
+      width: 1600,
+      height: 900,
+    },
     timeline: [],
     durationMilliseconds: 0,
   });
@@ -175,7 +179,6 @@ export function Main() {
     doc,
     sources,
   });
-  const { el: playerElement } = player;
 
   useEffect(() => {
     // other
@@ -194,8 +197,8 @@ export function Main() {
     const animation = loadAnimationSource(animationContents);
 
     Promise.all([
-      first,
-      second,
+      // first,
+      // second,
       animation,
     ]).then((sources) => {
       setSources(

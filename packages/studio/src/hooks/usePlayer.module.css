@@ -11,3 +11,11 @@
   composes: video;
   display: none;
 }
+
+.container {
+  border: 1px solid black;
+}
+
+.wrapper {
+  transform-origin: 0 0;
+}

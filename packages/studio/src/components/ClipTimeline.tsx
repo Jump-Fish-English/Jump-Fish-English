@@ -79,7 +79,7 @@ export function ClipTimeline({ sources, onDeleteClip, doc, player: videoPlayer }
         onDeleteClip={() => {
           onDeleteClip(item);
         }}
-        key={`${item.id}-${index}`}
+        key={item.id}
         clip={item}
         source={source}
         player={videoPlayer}

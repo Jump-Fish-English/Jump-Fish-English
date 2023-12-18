@@ -28,6 +28,10 @@ export type Clip = {
 }
 
 export interface VideoDocument {
+  dimensions: {
+    height: number;
+    width: number;
+  }
   timeline: Clip[];
   durationMilliseconds: number;
 }
