@@ -52,7 +52,6 @@ export class AnimationPlayer extends HTMLElement {
   }
   
   container() {
-    console.log(this.#state)
     return this.#state.container?.();
   }
   

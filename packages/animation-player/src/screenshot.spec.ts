@@ -1,68 +1,77 @@
-import { describe, expect, it, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterEach} from 'vitest';
 import { generateScreenshot } from './screenshot';
 import { AnimationPlayer } from './AnimationPlayer';
-import { waitFor } from '@testing-library/dom';
-
-
-async function waitForCanPlayThrough(elm: HTMLElement) {
-  return new Promise((res) => {
-    elm.addEventListener('canplaythrough', res, {
-      once: true,
-    })
-  })
-}
 
 beforeAll(() => {
   customElements.define('x-foo', AnimationPlayer);
 });
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  [
+    ...document.querySelectorAll('x-foo')
+  ].forEach((el) => {
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  })
 });
 
-
-describe('screenshot', () => {
-  it('screenshot dimensions should match element width', async () => {
-    const elm = document.createElement('x-foo') as AnimationPlayer;
-    document.body.appendChild(elm);
-    const contents = {
+describe('image dimensions', () => {
+  it('should return the original element dimensions correctly', async () => {
+    const { originalDimensions } = await generateScreenshot({
       css: `
-        #ball {
-          width: 100px;
-          height: 45px;
-          animation: show-ball 400ms;
+        .ball {
+          height: 103px;
+          width: 123px;
+          animation: show 1s;
         }
 
-        @keyframes show-ball {
+        @keyframes show {
           0% {
-            opacity: 0;
+            opacity: 1;
           }
 
           100% {
-            opacity: 1;
+            opacity: 1
           }
         }
       `,
       html: `
-        <div id="ball"></div>
+        <div class="ball"></div>
       `
-    }
-
-    const canPlayThroughPromise = new Promise((res) => {
-      elm.addEventListener('canplaythrough', res, { once: true });
     });
 
-    elm.load(contents);
-
-    await canPlayThroughPromise;
-
-    const url = await generateScreenshot(elm);
-
-    const img = document.createElement('img');
-    img.src = url;
-    await waitFor(() => {
-      expect(img.width).toBe(100);
-      expect(img.height).toBe(45);
+    expect(originalDimensions).toEqual({
+      width: 123,
+      height: 103,
     });
+  });
+
+  it('should return correct dpi', async () => {
+    window.devicePixelRatio = 2;
+    const { originalDevicePixelRatio } = await generateScreenshot({
+      css: `
+        .ball {
+          height: 103px;
+          width: 123px;
+          animation: show 1s;
+        }
+
+        @keyframes show {
+          0% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 1
+          }
+        }
+      `,
+      html: `
+        <div class="ball"></div>
+      `
+    });
+
+    expect(originalDevicePixelRatio).toEqual(2);
   });
 });

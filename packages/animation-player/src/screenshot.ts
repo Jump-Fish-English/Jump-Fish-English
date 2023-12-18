@@ -1,10 +1,28 @@
 import generate from 'html2canvas';
-import { AnimationContents, AnimationPlayer } from "./AnimationPlayer";
+import { type AnimationContents, AnimationPlayer } from "./AnimationPlayer";
+import { v4 as uuidV4 } from 'uuid';
 
-export async function generateScreenshot(contents: AnimationContents) {
+interface Options {
+  onCanvas?(canvas: HTMLCanvasElement): void;
+  appendClone?(el: AnimationPlayer): void;
+}
+
+export async function generateScreenshot(contents: AnimationContents, options: Options = {}) {
+  const { devicePixelRatio: originalDevicePixelRatio } = window;
   const elm = new AnimationPlayer();
+  const elementInstanceId = uuidV4();
   elm.style.display = 'inline-block';
-  document.body.appendChild(elm);
+  elm.style.position = 'fixed';
+  elm.style.left = '-100000px';
+  elm.id = elementInstanceId;
+  const appendClone = options.appendClone === undefined ? (clone: HTMLElement) => {
+    document.body.appendChild(clone);
+  } : options.appendClone;
+
+  appendClone(elm);
+  if (elm.isConnected === false) {
+    throw new Error('appendClone did not append the clone to the document!')
+  }
 
   const canPlayThroughPromise = new Promise((res) => {
     elm.addEventListener('canplaythrough', res, {
@@ -15,24 +33,44 @@ export async function generateScreenshot(contents: AnimationContents) {
   elm.load(contents);
 
   await canPlayThroughPromise;
-  elm.currentTime = 1;
 
   await new Promise(requestAnimationFrame);
+  const rect = elm.getBoundingClientRect();
 
+  elm.currentTime = 1;
   const container = elm.container();
   if (container === undefined) {
     throw new Error('Should be a container here');
   }
   const canvasElement = await generate(elm, {
-    removeContainer: false,
-    scale: 1,
     backgroundColor: 'transparent',
-    onclone(doc, el) {
+    logging: false,
+    onclone(doc) {
       doc.getAnimations().forEach((animation) => {
         animation.cancel();
       });
     }
   });
-  document.body.appendChild(canvasElement);
-  return canvasElement.toDataURL();
+  options.onCanvas?.(canvasElement);
+  
+  const blob = await new Promise<Blob>((res) => {
+    canvasElement.toBlob((blob) => {
+      if (blob === null) {
+        throw new Error('Invalid blob generated');
+      }
+      res(blob);
+    });
+  });
+
+
+
+  return {
+    data: blob,
+    url: URL.createObjectURL(blob),
+    originalDimensions: {
+      width: rect.width,
+      height: rect.height,
+    },
+    originalDevicePixelRatio
+  };
 }

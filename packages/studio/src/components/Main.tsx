@@ -5,16 +5,14 @@ import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import { type VideoDocument, type VideoSource, type AnimationSource, type Source } from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
-import type { AnimationPlayer } from 'animation-player';
+import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
 
-import styles from './Main.module.css';
 
 
 // videos
 import src from '../../../../videos/output.mp4';
 import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
-
 
 
 const animationContents = {
@@ -44,24 +42,20 @@ const animationContents = {
     @keyframes show-subscribe {
       0% {
         opacity: 0;
-        transform: scaleX(0);
       }
 
       100% {
         opacity: 1;
-        transform: scaleX(1);
       }
     }
 
     @keyframes hide-subscribe {
       0% {
         opacity: 1;
-        transform: scaleX(1);
       }
 
       100% {
         opacity: 0;
-        transform: scaleX(0);
       }
     }
 
@@ -113,7 +107,9 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
   const id = uuidV4();
   
   document.body.appendChild(elm);
-  // elm.style.visibility = 'hidden';
+  elm.style.position = 'fixed';
+  elm.style.left = '-10000px';
+  elm.style.visibility = 'hidden';
   const durationMilliseconds = await new Promise<number>((res) => {
     elm.addEventListener('durationchange', () => {
       res(elm.duration * 1000);
@@ -122,20 +118,7 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
     elm.load(animationContents);
   });
 
-  const container = elm.container();
-  if (container === undefined) {
-    throw new Error('Should be a container here');
-  }
-  const canvasElement = await generate(elm, {
-    onclone(doc, element) {
-      doc.getAnimations().forEach((animation) => {
-        animation.currentTime = 600;
-      })
-    }
-  });
-  const thumbnailUrl = canvasElement.toDataURL();
-  // document.body.removeChild(elm);
-  document.body.appendChild(canvasElement);
+  const { url: thumbnailUrl } = await generateScreenshot({ html, css });
   return {
     durationMilliseconds,
     id,
