@@ -277,7 +277,7 @@ function loadingState(
     },
     async enter() {
       if (element.isConnected === false) {
-        console.log(
+        throw new Error(
           'Attempting to load animations for an element that is not connected to DOM. This will not work as expected',
         );
       }

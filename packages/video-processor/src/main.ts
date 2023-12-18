@@ -121,8 +121,7 @@ export async function concatVideoFiles({
   const contentsFileName = `${uuidv4()}.txt`;
   const outputFileName = `${uuidv4()}.mp4`;
   const encoder = new TextEncoder();
-  console.log(inFile);
-  ffmpeg.on('log', console.log.bind(console));
+  
   await writeFile({
     fileName: contentsFileName,
     buffer: encoder.encode(contents),

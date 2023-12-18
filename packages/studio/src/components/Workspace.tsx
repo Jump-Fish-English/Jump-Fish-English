@@ -154,8 +154,7 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
             const clip = doc.timeline[0];
             const source = sources[clip.source] as AnimationSource;
             const frameRate = 30;
-            const milliseconds = 1000 / 60;
-            console.log('generating video');
+            const milliseconds = 1000 / 60
 
             let currentTime = 0;
             const images: Array<{
@@ -185,7 +184,6 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
                   endMilliseconds: parseFloat(nextTime.toFixed(3)),
                 },
               };
-              console.log('generating', currentTime);
               images.push(def);
               currentTime = nextTime;
             }
@@ -199,15 +197,6 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
             const vid = document.createElement('video');
             vid.style.width = '100%';
             vid.src = url;
-            vid.addEventListener(
-              'durationchange',
-              () => {
-                console.log(vid.duration);
-              },
-              {
-                once: true,
-              },
-            );
             document.body.insertBefore(vid, document.body.firstChild!);
             const a = document.createElement('a');
             a.href = url;
