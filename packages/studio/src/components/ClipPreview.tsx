@@ -27,13 +27,20 @@ async function loadImage(src: string): Promise<HTMLImageElement> {
 
 const previewIntervalMilliseconds = 1000;
 
-async function buildPreview({ doc, clip, source }: Props): Promise<string[]> {
+
+export async function buildPreview({ doc, clip, source }: Props): Promise<Array<{
+  url: string;
+  data: Blob;
+}>> {
   const { win: clipWindow } = clip;
   const { startMilliseconds, durationMilliseconds: trimDurationMilliseconds } = clipWindow;
 
   const numberOfPreviews = Math.ceil(trimDurationMilliseconds / previewIntervalMilliseconds);
   const step = trimDurationMilliseconds / numberOfPreviews;
-  const urls: string[] = [];
+  const urls: Array<{
+    url: string;
+    data: Blob;
+  }> = [];
   for(let milliseconds = startMilliseconds; milliseconds < trimDurationMilliseconds + startMilliseconds; milliseconds += step) {
     const canvas = new OffscreenCanvas(doc.dimensions.width, doc.dimensions.height);
     const context = canvas.getContext('2d');
@@ -57,9 +64,10 @@ async function buildPreview({ doc, clip, source }: Props): Promise<string[]> {
     document.body.appendChild(image);
     context.drawImage(image, 0 ,0);
     const blob = await canvas.convertToBlob();
-    urls.push(
-      URL.createObjectURL(blob)
-    );
+    urls.push({
+      data: blob,
+      url: URL.createObjectURL(blob)
+    });
   }
 
   return urls;
@@ -72,7 +80,11 @@ export function ClipPreview({ doc, clip, source }: Props) {
       doc,
       clip,
       source,
-    }).then(setUrls);
+    }).then((result) => {
+      setUrls(
+        result.map(({ url }) => url)
+      );
+    });
   }, [doc, clip, source]);
 
   return (

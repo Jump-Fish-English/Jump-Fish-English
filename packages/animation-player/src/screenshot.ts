@@ -76,7 +76,7 @@ export async function generateScreenshot({ contents, milliseconds }: Params, opt
       res(blob);
     });
   });
-  // elm.parentElement?.removeChild(elm);
+  elm.parentElement?.removeChild(elm);
 
   return {
     data: blob,

@@ -22,54 +22,45 @@ const counter = {
       height: 900px;
       position: relative;
       color: #000;
-      background: #fff;
+      background: red;
+      animation: background 5s both;
+    }
+
+    .ball {
+      height: 50px;
+      width: 50px;
+      background: black;
+      animation: move-ball 5s both;
+      position: absolute;
+      left: 50%;
+      top: 50%;
     }
 
     .one {
       background: #fff;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
       animation: fade-in 1s both;
     }
 
     .two {
       background: #fff;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
       animation: fade-in 1s both;
       animation-delay: 1s;
     }
 
     .three {
       background: #fff;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
       animation: fade-in 1s both;
       animation-delay: 2s;
     }
 
     .four {
       background: #fff;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
       animation: fade-in 1s both;
       animation-delay: 3s;
     }
 
     .five {
       background: #fff;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%);
       animation: fade-in 1s both;
       animation-delay: 4s;
     }
@@ -83,10 +74,31 @@ const counter = {
         opacity: 1;
       }
     }
+
+    @keyframes background {
+      0% {
+        background: red;
+      }
+
+      100% {
+        background: blue;
+      }
+    }
+
+    @keyframes move-ball {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(500px);
+      }
+    }
   
   `,
   html: `
     <div class="container">
+      <div class="ball"></div>
       <div class="one">1</div>
       <div class="two">2</div>
       <div class="three">3</div>
