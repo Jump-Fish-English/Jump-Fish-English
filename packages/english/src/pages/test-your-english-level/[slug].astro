@@ -1,9 +1,9 @@
 ---
-import { getCollection } from "astro:content";
-import BaseLayout from "../../layouts/base.astro";
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/base.astro';
 
 export async function getStaticPaths() {
-  const quizzes = await getCollection("quiz");
+  const quizzes = await getCollection('quiz');
   return quizzes.map((entry) => ({
     params: { slug: entry.slug },
     props: { entry },
@@ -19,29 +19,29 @@ const storyTitle = entry.data.title;
 <script>
   interface Question {
     text: string;
-    answer: "A" | "B" | "C" | "D";
+    answer: 'A' | 'B' | 'C' | 'D';
   }
 
   let allQuestions: Question[] | undefined = undefined;
 
-  document.getElementById("quiz-form")?.addEventListener("submit", (e) => {
+  document.getElementById('quiz-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     if (allQuestions === undefined) {
-      allQuestions = [...document.querySelectorAll(".question")].map((el) => {
+      allQuestions = [...document.querySelectorAll('.question')].map((el) => {
         return {
-          text: el.getAttribute("data-question"),
-          answer: el.getAttribute("data-answer"),
+          text: el.getAttribute('data-question'),
+          answer: el.getAttribute('data-answer'),
         } as Question;
       });
     }
 
-    const answers = [...document.querySelectorAll("input:checked")].reduce(
+    const answers = [...document.querySelectorAll('input:checked')].reduce(
       (acc, input) => {
-        const questionText = input.getAttribute("name");
+        const questionText = input.getAttribute('name');
         if (questionText === null) {
           return acc;
         }
-        const value = input.getAttribute("value");
+        const value = input.getAttribute('value');
         acc[questionText] = value;
         return acc;
       },
@@ -70,7 +70,7 @@ const storyTitle = entry.data.title;
       },
     );
 
-    const resultsEl = document.getElementById("results");
+    const resultsEl = document.getElementById('results');
 
     if (resultsEl === null) {
       return;
@@ -80,10 +80,10 @@ const storyTitle = entry.data.title;
       <ul>
         ${results
           .map((result) => {
-            const color = result.correct === true ? "green" : "red";
+            const color = result.correct === true ? 'green' : 'red';
             return `<li style="color:${color}">${result.text}</li>`;
           })
-          .join("")}
+          .join('')}
       </ul>
 
       Correct Answers: ${results.reduce((acc, result) => {
@@ -118,7 +118,7 @@ const storyTitle = entry.data.title;
     padding: 0.3rem;
   }
 
-  input[type="radio"] {
+  input[type='radio'] {
     display: none;
   }
 

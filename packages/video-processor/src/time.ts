@@ -23,9 +23,13 @@ function formatToThreeDigits(number: number, digits: number = 3) {
   return String(number).padStart(digits, '0');
 }
 
-
 export function millisecondsToFFMpegFormat(milliseconds: number): string {
-  const { hours, minutes, seconds, milliseconds: remainingMilliseconds } = millisecondsToHoursMinutesSeconds(milliseconds);
+  const {
+    hours,
+    minutes,
+    seconds,
+    milliseconds: remainingMilliseconds,
+  } = millisecondsToHoursMinutesSeconds(milliseconds);
 
   const labels: string[] = [];
 
@@ -34,10 +38,12 @@ export function millisecondsToFFMpegFormat(milliseconds: number): string {
 
   let secondsLabel = leadingZero(seconds);
   if (remainingMilliseconds !== 0) {
-    secondsLabel = `${secondsLabel}.${formatToThreeDigits(Math.floor(remainingMilliseconds))}`;
+    secondsLabel = `${secondsLabel}.${formatToThreeDigits(
+      Math.floor(remainingMilliseconds),
+    )}`;
   }
 
   labels.push(secondsLabel);
-  
+
   return labels.join(':');
 }

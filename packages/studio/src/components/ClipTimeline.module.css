@@ -16,7 +16,7 @@
   box-sizing: border-box;
   overflow: hidden;
   border-radius: 10px;
-  
+
   height: 100%;
 }
 
@@ -46,7 +46,7 @@
 
 .context-menu li:focus {
   outline: none;
-} 
+}
 
 .context-menu li:hover {
   color: #fff;

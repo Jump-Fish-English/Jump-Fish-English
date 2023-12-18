@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
-import { type VideoDocument, type AnimationSource, type Source, type Clip, insertClip } from '../lib/video-document';
+import {
+  type VideoDocument,
+  type AnimationSource,
+  type Source,
+  type Clip,
+  insertClip,
+} from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
 import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
 
-
-
 // videos
 // import src from '../../../../videos/output.mp4';
 // import other from '../../../../videos/estudiantes-de-ingles-nivel-a1-resumen-de-la-semana-10-de-futbol-americano/out.mp4';
-
 
 const counter = {
   css: `
@@ -107,7 +110,7 @@ const counter = {
       <div class="five">5</div>
     </div>
   `,
-}
+};
 
 const animationContents = {
   css: `
@@ -200,10 +203,16 @@ const animationContents = {
       </div>
   </div>
   <div class="container"></div>
-  `
+  `,
 };
 
-async function loadAnimationSource({ html, css }: { html: string, css: string }): Promise<AnimationSource> {
+async function loadAnimationSource({
+  html,
+  css,
+}: {
+  html: string;
+  css: string;
+}): Promise<AnimationSource> {
   const elm = document.createElement('jf-animation-player') as AnimationPlayer;
   const id = uuidV4();
   document.body.appendChild(elm);
@@ -211,14 +220,21 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
   elm.style.left = '-10000px';
   elm.style.visibility = 'hidden';
   const durationMilliseconds = await new Promise<number>((res) => {
-    elm.addEventListener('durationchange', () => {
-      res(elm.duration * 1000);
-    }, { once: true });
+    elm.addEventListener(
+      'durationchange',
+      () => {
+        res(elm.duration * 1000);
+      },
+      { once: true },
+    );
 
     elm.load({ html, css });
   });
 
-  const screenShot = await generateScreenshot({ contents: { html, css }, milliseconds: 1000 });
+  const screenShot = await generateScreenshot({
+    contents: { html, css },
+    milliseconds: 1000,
+  });
   document.body.removeChild(elm);
   return {
     durationMilliseconds,
@@ -228,9 +244,8 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
     type: 'animation',
     html,
     css,
-  }
+  };
 }
-
 
 // async function loadSource(arrayBuffer: ArrayBuffer): Promise<VideoSource> {
 //   const id = uuidV4();
@@ -239,7 +254,7 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
 //     buffer: new Uint8Array(arrayBuffer),
 //     type: 'video/mp4',
 //   });
-  
+
 //   const durationMilliseconds = await new Promise<number>((res) => {
 //     const videoElm = document.createElement('video');
 //     videoElm.preload = 'metadata';
@@ -300,22 +315,20 @@ export function Main() {
       // first,
       // second,
       loadAnimationSource(animationContents),
-      loadAnimationSource(counter)
+      loadAnimationSource(counter),
     ]).then((sources) => {
       setSources(
         produce((draft) => {
           sources.forEach((source) => {
             draft[source.id] = source;
           });
-        })
-      )
-    })
-    
+        }),
+      );
+    });
   }, []);
 
-
   return (
-    <Workspace 
+    <Workspace
       onSourceSelect={(source) => {
         const clip: Clip = {
           id: uuidV4(),
@@ -324,10 +337,10 @@ export function Main() {
             startMilliseconds: 0,
             durationMilliseconds: source.durationMilliseconds,
           },
-        }
-        
+        };
+
         const nextDoc = insertClip({
-          doc, 
+          doc,
           insertMillisecond: doc.durationMilliseconds,
           clip,
         });
@@ -338,5 +351,5 @@ export function Main() {
       doc={doc}
       player={player}
     />
-  )
+  );
 }

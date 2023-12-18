@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterEach} from 'vitest';
+import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import { generateScreenshot } from './screenshot';
 import { AnimationPlayer } from './AnimationPlayer';
 
@@ -7,14 +7,11 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-
-  [
-    ...document.querySelectorAll('x-foo')
-  ].forEach((el) => {
+  [...document.querySelectorAll('x-foo')].forEach((el) => {
     if (el.parentNode) {
       el.parentNode.removeChild(el);
     }
-  })
+  });
 });
 
 describe('image dimensions', () => {
@@ -40,9 +37,9 @@ describe('image dimensions', () => {
         `,
         html: `
           <div class="ball"></div>
-        `
+        `,
       },
-      milliseconds: 1000
+      milliseconds: 1000,
     });
 
     expect(originalDimensions).toEqual({
@@ -74,15 +71,15 @@ describe('image dimensions', () => {
         `,
         html: `
           <div class="ball"></div>
-        `
+        `,
       },
-      milliseconds: 1000
+      milliseconds: 1000,
     });
 
     expect(originalDevicePixelRatio).toEqual(2);
   });
 
-  it('should remove created element',  async () => {
+  it('should remove created element', async () => {
     await generateScreenshot({
       contents: {
         css: `
@@ -104,13 +101,11 @@ describe('image dimensions', () => {
         `,
         html: `
           <div class="ball"></div>
-        `
+        `,
       },
-      milliseconds: 1000
+      milliseconds: 1000,
     });
 
-    expect(
-      document.getElementsByTagName('x-foo')
-    ).toHaveLength(0);
+    expect(document.getElementsByTagName('x-foo')).toHaveLength(0);
   });
 });

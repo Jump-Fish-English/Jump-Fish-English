@@ -1,19 +1,26 @@
-import { useDrag } from "@use-gesture/react";
-import { useTimeline } from "./Timeline"
+import { useDrag } from '@use-gesture/react';
+import { useTimeline } from './Timeline';
 
 import styles from './TimelineWindow.module.css';
-import { TimelineWindowHandle } from "./TimelineWindowHandle";
+import { TimelineWindowHandle } from './TimelineWindowHandle';
 
 interface Props {
   videoDurationMilliseconds: number;
   timeRange: {
     startMilliseconds: number;
     durationMilliseconds: number;
-  },
-  onRangeChange({ startMilliseconds, durationMilliseconds }: Props['timeRange']): void;
+  };
+  onRangeChange({
+    startMilliseconds,
+    durationMilliseconds,
+  }: Props['timeRange']): void;
 }
 
-export function TimelineWindow({ videoDurationMilliseconds, onRangeChange, timeRange }: Props) {
+export function TimelineWindow({
+  videoDurationMilliseconds,
+  onRangeChange,
+  timeRange,
+}: Props) {
   const { startMilliseconds, durationMilliseconds } = timeRange;
   const { getTranslateX, pixelToDurationMilliseconds } = useTimeline();
   const startTranslateX = getTranslateX(startMilliseconds);
@@ -32,41 +39,42 @@ export function TimelineWindow({ videoDurationMilliseconds, onRangeChange, timeR
     onRangeChange({
       startMilliseconds: next,
       durationMilliseconds,
-    })
+    });
   });
-  
+
   return (
-    <div 
+    <div
       className={styles.container}
-      style={{ 
+      style={{
         transform: `translateX(${startTranslateX}px)`,
-        width: `${endTranslateX - startTranslateX}px`
+        width: `${endTranslateX - startTranslateX}px`,
       }}
     >
-      <div 
-        {...dragHandlers()}
-        className={styles.draggable}
-      />
-      <TimelineWindowHandle 
+      <div {...dragHandlers()} className={styles.draggable} />
+      <TimelineWindowHandle
         onDrag={(deltaPixels) => {
-          const durationDeltaMilliseconds = pixelToDurationMilliseconds(deltaPixels);
+          const durationDeltaMilliseconds =
+            pixelToDurationMilliseconds(deltaPixels);
           onRangeChange({
             startMilliseconds: startMilliseconds + durationDeltaMilliseconds,
-            durationMilliseconds: durationMilliseconds - durationDeltaMilliseconds,
-          })
+            durationMilliseconds:
+              durationMilliseconds - durationDeltaMilliseconds,
+          });
         }}
-        className={styles['handle-start']} 
+        className={styles['handle-start']}
       />
-      <TimelineWindowHandle 
+      <TimelineWindowHandle
         onDrag={(deltaPixels) => {
-          const durationDeltaMilliseconds = pixelToDurationMilliseconds(deltaPixels);
+          const durationDeltaMilliseconds =
+            pixelToDurationMilliseconds(deltaPixels);
           onRangeChange({
             startMilliseconds,
-            durationMilliseconds: durationMilliseconds + durationDeltaMilliseconds,
-          })
+            durationMilliseconds:
+              durationMilliseconds + durationDeltaMilliseconds,
+          });
         }}
-        className={styles['handle-end']} 
+        className={styles['handle-end']}
       />
     </div>
-  )
+  );
 }

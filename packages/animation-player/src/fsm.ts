@@ -7,7 +7,7 @@ type AnimationState = {
   shadowRoot: ShadowRoot;
   element: HTMLElement;
   enterState(state: AnimationPlayerState): void;
-}
+};
 
 type AnimationStateReady = {
   longestAnimation: Animation;
@@ -17,8 +17,7 @@ type AnimationStateReady = {
   containerElement: HTMLElement;
 } & AnimationState;
 
-type AnimationStateEmpty = AnimationState
-
+type AnimationStateEmpty = AnimationState;
 
 function coerceEffectTiming(timing: string | number | CSSNumericValue | null) {
   if (typeof timing === 'number') {
@@ -28,7 +27,7 @@ function coerceEffectTiming(timing: string | number | CSSNumericValue | null) {
   if (timing === null) {
     return 0;
   }
-  
+
   if (typeof timing === 'string') {
     return parseFloat(timing);
   }
@@ -36,35 +35,37 @@ function coerceEffectTiming(timing: string | number | CSSNumericValue | null) {
   return parseFloat(timing.toString());
 }
 
-
 function getDuration(animations: Animation[]): {
   duration: number;
   longestAnimation?: Animation;
 } {
-  return animations.reduce((acc, animation) => {
-    const { effect } = animation;
-    if (effect === null) {
-      return acc;
-    }
+  return animations.reduce(
+    (acc, animation) => {
+      const { effect } = animation;
+      if (effect === null) {
+        return acc;
+      }
 
-    const { duration: effectDuration, delay = 0 } = effect.getTiming();
-    
-    if (effectDuration === undefined) {
-      return acc;
-    }
-    
-    const milliseconds = coerceEffectTiming(effectDuration) + delay;
+      const { duration: effectDuration, delay = 0 } = effect.getTiming();
 
-    if (milliseconds > acc.duration) {
-      return {
-        duration: milliseconds,
-        longestAnimation: animation,
-      };
-    }
-    return acc;
-  }, {
-    duration: 0,
-  });
+      if (effectDuration === undefined) {
+        return acc;
+      }
+
+      const milliseconds = coerceEffectTiming(effectDuration) + delay;
+
+      if (milliseconds > acc.duration) {
+        return {
+          duration: milliseconds,
+          longestAnimation: animation,
+        };
+      }
+      return acc;
+    },
+    {
+      duration: 0,
+    },
+  );
 }
 
 export interface AnimationPlayerState {
@@ -81,7 +82,14 @@ export interface AnimationPlayerState {
 }
 
 function playState(animationState: AnimationStateReady): AnimationPlayerState {
-  const { element, longestAnimation, currentTimeMilliseconds, enterState, durationMilliseconds, animations } = animationState;
+  const {
+    element,
+    longestAnimation,
+    currentTimeMilliseconds,
+    enterState,
+    durationMilliseconds,
+    animations,
+  } = animationState;
 
   let raf: number | undefined;
   let nextCurrentTimeMilliseconds: number = currentTimeMilliseconds;
@@ -91,19 +99,22 @@ function playState(animationState: AnimationStateReady): AnimationPlayerState {
     enterState(
       pausedState({
         ...animationState,
-        currentTimeMilliseconds: coerceEffectTiming(longestAnimation.currentTime),
-      })
+        currentTimeMilliseconds: coerceEffectTiming(
+          longestAnimation.currentTime,
+        ),
+      }),
     );
   }
 
   function timeUpdateLoop() {
     raf = requestAnimationFrame(() => {
-      nextCurrentTimeMilliseconds = coerceEffectTiming(longestAnimation?.currentTime || 0);
+      nextCurrentTimeMilliseconds = coerceEffectTiming(
+        longestAnimation?.currentTime || 0,
+      );
       const customEvent = new CustomEvent('timeupdate');
       element.dispatchEvent(customEvent);
       timeUpdateLoop();
     });
-    
   }
 
   return {
@@ -128,21 +139,26 @@ function playState(animationState: AnimationStateReady): AnimationPlayerState {
       longestAnimation.removeEventListener('finish', onFinished);
     },
     seek(seconds) {
-      enterState(
-        seekingState(seconds * 1000, animationState)
-      );
+      enterState(seekingState(seconds * 1000, animationState));
     },
     pause() {
-      enterState(
-        pausedState(animationState)
-      )
+      enterState(pausedState(animationState));
     },
-  }
+  };
 }
 
-function seekingState(milliseconds: number, animationState: AnimationStateReady): AnimationPlayerState {
-  const { enterState, durationMilliseconds, animations, element, longestAnimation } = animationState;
-  
+function seekingState(
+  milliseconds: number,
+  animationState: AnimationStateReady,
+): AnimationPlayerState {
+  const {
+    enterState,
+    durationMilliseconds,
+    animations,
+    element,
+    longestAnimation,
+  } = animationState;
+
   return {
     state: 'seeking',
     durationMilliseconds,
@@ -150,100 +166,106 @@ function seekingState(milliseconds: number, animationState: AnimationStateReady)
       return coerceEffectTiming(longestAnimation.currentTime);
     },
     exit() {
-      element.dispatchEvent(
-        new CustomEvent('seeked')
-      );
+      element.dispatchEvent(new CustomEvent('seeked'));
     },
     enter() {
       const { playState: animationPlayState } = longestAnimation;
-      element.dispatchEvent(
-        new CustomEvent('seeking')
-      );
+      element.dispatchEvent(new CustomEvent('seeking'));
 
       animations.forEach((animation) => {
         animation.currentTime = milliseconds;
         animation.commitStyles();
       });
-      
 
       if (animationPlayState === 'paused') {
         enterState(
           pausedState({
             ...animationState,
-            currentTimeMilliseconds: coerceEffectTiming(longestAnimation.currentTime),
-          })
+            currentTimeMilliseconds: coerceEffectTiming(
+              longestAnimation.currentTime,
+            ),
+          }),
         );
         return;
       }
-      
+
       enterState(
         playState({
           ...animationState,
-          currentTimeMilliseconds: coerceEffectTiming(longestAnimation.currentTime),
-        })
+          currentTimeMilliseconds: coerceEffectTiming(
+            longestAnimation.currentTime,
+          ),
+        }),
       );
-      
-    }
-  }
+    },
+  };
 }
 
-function pausedState(animationState: AnimationStateReady): AnimationPlayerState {
-  const { containerElement, durationMilliseconds, animations, currentTimeMilliseconds, enterState, element } = animationState;
+function pausedState(
+  animationState: AnimationStateReady,
+): AnimationPlayerState {
+  const {
+    containerElement,
+    durationMilliseconds,
+    animations,
+    currentTimeMilliseconds,
+    enterState,
+    element,
+  } = animationState;
 
   return {
     state: 'paused',
     durationMilliseconds,
     currentTimeMilliseconds,
     enter() {
-      element.dispatchEvent(
-        new CustomEvent('pause')
-      );
+      element.dispatchEvent(new CustomEvent('pause'));
 
       animations.forEach((animation) => {
         animation.pause();
       });
     },
     seek(seconds) {
-      enterState(
-        seekingState(seconds * 1000, animationState)
-      );
+      enterState(seekingState(seconds * 1000, animationState));
     },
     play() {
-      enterState(
-        playState(animationState),
-      );
+      enterState(playState(animationState));
     },
     container() {
       return containerElement;
-    }
-  }
+    },
+  };
 }
 
 function readyState(animationState: AnimationStateReady): AnimationPlayerState {
-  const { containerElement, currentTimeMilliseconds, durationMilliseconds, enterState, element } = animationState;
+  const {
+    containerElement,
+    currentTimeMilliseconds,
+    durationMilliseconds,
+    enterState,
+    element,
+  } = animationState;
   return {
     state: 'ready',
     currentTimeMilliseconds,
     durationMilliseconds,
     enter() {
-      element.dispatchEvent(
-        new CustomEvent('canplaythrough')
-      );
+      element.dispatchEvent(new CustomEvent('canplaythrough'));
 
-      enterState(
-        pausedState(animationState)
-      )
+      enterState(pausedState(animationState));
     },
     container() {
       return containerElement;
-    }
-  }
+    },
+  };
 }
 
-function loadingState({ css, html }: AnimationContents, animationState: AnimationStateEmpty): AnimationPlayerState {
+function loadingState(
+  { css, html }: AnimationContents,
+  animationState: AnimationStateEmpty,
+): AnimationPlayerState {
   const { shadowRoot, enterState, element } = animationState;
   let durationMilliseconds = 0;
-  
+
   return {
     state: 'loading',
     currentTimeMilliseconds: 0,
@@ -251,13 +273,13 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
       return durationMilliseconds;
     },
     exit() {
-      element.dispatchEvent(
-        new CustomEvent('durationchange')
-      );
+      element.dispatchEvent(new CustomEvent('durationchange'));
     },
     async enter() {
       if (element.isConnected === false) {
-        console.log('Attempting to load animations for an element that is not connected to DOM. This will not work as expected');
+        console.log(
+          'Attempting to load animations for an element that is not connected to DOM. This will not work as expected',
+        );
       }
       const event = new CustomEvent('loadstart');
       element.dispatchEvent(event);
@@ -271,7 +293,6 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
         ${html}
       `;
 
-      
       shadowRoot.appendChild(containerElement);
       const animations = shadowRoot.getAnimations();
       animations.forEach((animation) => {
@@ -279,14 +300,12 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
         animation.currentTime = 0;
       });
       const { duration, longestAnimation } = getDuration(animations);
-  
+
       if (longestAnimation === undefined) {
-        enterState(
-          emptyState(animationState)
-        );
+        enterState(emptyState(animationState));
         return;
       }
-      
+
       durationMilliseconds = duration;
       try {
         await longestAnimation.ready;
@@ -298,25 +317,25 @@ function loadingState({ css, html }: AnimationContents, animationState: Animatio
             animations,
             longestAnimation,
             containerElement,
-          })
-        )
+          }),
+        );
       } catch (e) {
         // noop
       }
-    }
-  }
+    },
+  };
 }
 
-export function emptyState(animationState: AnimationStateEmpty): AnimationPlayerState {
+export function emptyState(
+  animationState: AnimationStateEmpty,
+): AnimationPlayerState {
   const { enterState } = animationState;
   return {
     state: 'empty',
     durationMilliseconds: 0,
     currentTimeMilliseconds: 0,
     load(content) {
-      enterState(
-        loadingState(content, animationState)
-      )
+      enterState(loadingState(content, animationState));
     },
-  }
+  };
 }

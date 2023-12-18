@@ -3,125 +3,125 @@ title: "Mr. Oak's New Name: A Beginner's Tale of Friendship"
 slug: a-boy-and-his-tree-friendship-story-for-a1-english-learners
 level: A1
 questions:
-  - text: "Once there was a big _____ in a small park."
+  - text: 'Once there was a big _____ in a small park.'
     answer: B
     answers:
       - value: A
-        text: "river"
+        text: 'river'
       - value: B
-        text: "tree"
+        text: 'tree'
       - value: C
-        text: "bench"
+        text: 'bench'
       - value: D
-        text: "house"
+        text: 'house'
 
-  - text: "Every day, children played under the _____."
+  - text: 'Every day, children played under the _____.'
     answer: B
     answers:
       - value: A
-        text: "bridge"
+        text: 'bridge'
       - value: B
-        text: "tree"
+        text: 'tree'
       - value: C
-        text: "swings"
+        text: 'swings'
       - value: D
-        text: "fountain"
+        text: 'fountain'
 
-  - text: "The tree was sad because it had no _____."
+  - text: 'The tree was sad because it had no _____.'
     answer: C
     answers:
       - value: A
-        text: "leaves"
+        text: 'leaves'
       - value: B
-        text: "friends"
+        text: 'friends'
       - value: C
-        text: "name"
+        text: 'name'
       - value: D
-        text: "flowers"
+        text: 'flowers'
 
-  - text: "A little boy named _____ came to the park."
+  - text: 'A little boy named _____ came to the park.'
     answer: C
     answers:
       - value: A
-        text: "Jack"
+        text: 'Jack'
       - value: B
-        text: "Tom"
+        text: 'Tom'
       - value: C
-        text: "Ben"
+        text: 'Ben'
       - value: D
-        text: "Alex"
+        text: 'Alex'
 
-  - text: "Ben called the tree Mr. _____."
+  - text: 'Ben called the tree Mr. _____.'
     answer: B
     answers:
       - value: A
-        text: "Pine"
+        text: 'Pine'
       - value: B
-        text: "Oak"
+        text: 'Oak'
       - value: C
-        text: "Maple"
+        text: 'Maple'
       - value: D
-        text: "Elm"
+        text: 'Elm'
 
-  - text: "Ben and Mr. Oak became good _____."
+  - text: 'Ben and Mr. Oak became good _____.'
     answer: B
     answers:
       - value: A
-        text: "enemies"
+        text: 'enemies'
       - value: B
-        text: "friends"
+        text: 'friends'
       - value: C
-        text: "neighbors"
+        text: 'neighbors'
       - value: D
-        text: "strangers"
+        text: 'strangers'
 
-  - text: "The seasons changed and _____ fell."
+  - text: 'The seasons changed and _____ fell.'
     answer: B
     answers:
       - value: A
-        text: "rain"
+        text: 'rain'
       - value: B
-        text: "leaves"
+        text: 'leaves'
       - value: C
-        text: "snow"
+        text: 'snow'
       - value: D
-        text: "fruit"
+        text: 'fruit'
 
-  - text: "Ben did not come one day because he had a _____."
+  - text: 'Ben did not come one day because he had a _____.'
     answer: C
     answers:
       - value: A
-        text: "cold"
+        text: 'cold'
       - value: B
-        text: "test"
+        text: 'test'
       - value: C
-        text: "surprise"
+        text: 'surprise'
       - value: D
-        text: "game"
+        text: 'game'
 
-  - text: "Ben brought a small _____ with him."
+  - text: 'Ben brought a small _____ with him.'
     answer: C
     answers:
       - value: A
-        text: "Oak"
+        text: 'Oak'
       - value: B
-        text: "Maple"
+        text: 'Maple'
       - value: C
-        text: "Pine"
+        text: 'Pine'
       - value: D
-        text: "Birch"
+        text: 'Birch'
 
-  - text: "Mr. Oak and Little Pine made the park full of _____ again."
+  - text: 'Mr. Oak and Little Pine made the park full of _____ again.'
     answer: C
     answers:
       - value: A
-        text: "noise"
+        text: 'noise'
       - value: B
-        text: "water"
+        text: 'water'
       - value: C
-        text: "life"
+        text: 'life'
       - value: D
-        text: "flowers"
+        text: 'flowers'
 ---
 
 Once there was a big tree in a small park. Every day, children played under the tree. The tree liked to watch them. But the tree was sad because it had no name.

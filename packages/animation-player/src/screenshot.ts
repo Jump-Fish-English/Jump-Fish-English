@@ -1,5 +1,5 @@
 import generate from 'html2canvas';
-import { type AnimationContents, AnimationPlayer } from "./AnimationPlayer";
+import { type AnimationContents, AnimationPlayer } from './AnimationPlayer';
 import { v4 as uuidV4 } from 'uuid';
 
 interface Params {
@@ -18,11 +18,14 @@ export interface AnimationScreenshot {
   originalDimensions: {
     height: number;
     width: number;
-  },
+  };
   originalDevicePixelRatio: number;
 }
 
-export async function generateScreenshot({ contents, milliseconds }: Params, options: Options = {}): Promise<AnimationScreenshot> {
+export async function generateScreenshot(
+  { contents, milliseconds }: Params,
+  options: Options = {},
+): Promise<AnimationScreenshot> {
   const { devicePixelRatio: originalDevicePixelRatio } = window;
   const elm = new AnimationPlayer();
   const elementInstanceId = uuidV4();
@@ -30,20 +33,23 @@ export async function generateScreenshot({ contents, milliseconds }: Params, opt
   elm.style.position = 'fixed';
   elm.style.left = '-100000px';
   elm.id = elementInstanceId;
-  const appendClone = options.appendClone === undefined ? (clone: HTMLElement) => {
-    document.body.appendChild(clone);
-  } : options.appendClone;
+  const appendClone =
+    options.appendClone === undefined
+      ? (clone: HTMLElement) => {
+          document.body.appendChild(clone);
+        }
+      : options.appendClone;
 
   appendClone(elm);
   if (elm.isConnected === false) {
-    throw new Error('appendClone did not append the clone to the document!')
+    throw new Error('appendClone did not append the clone to the document!');
   }
 
   const canPlayThroughPromise = new Promise((res) => {
     elm.addEventListener('canplaythrough', res, {
       once: true,
     });
-  })
+  });
 
   elm.load(contents);
 
@@ -64,10 +70,10 @@ export async function generateScreenshot({ contents, milliseconds }: Params, opt
       doc.getAnimations().forEach((animation) => {
         animation.cancel();
       });
-    }
+    },
   });
   options.onCanvas?.(canvasElement);
-  
+
   const blob = await new Promise<Blob>((res) => {
     canvasElement.toBlob((blob) => {
       if (blob === null) {
@@ -85,6 +91,6 @@ export async function generateScreenshot({ contents, milliseconds }: Params, opt
       width: rect.width,
       height: rect.height,
     },
-    originalDevicePixelRatio
+    originalDevicePixelRatio,
   };
 }

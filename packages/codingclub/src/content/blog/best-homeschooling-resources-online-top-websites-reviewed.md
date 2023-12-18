@@ -1,5 +1,5 @@
 ---
-title: "Best Homeschooling Resources Online: Top Websites Reviewed"
+title: 'Best Homeschooling Resources Online: Top Websites Reviewed'
 slug: best-homeschooling-resources-online-top-websites-reviewed
 description: "Detailed reviews of three distinct homeschooling curriculum websites: MiAcademy, Lonestar Homeschool Academy, and Beast Academy. Each review explores the unique features and educational approaches of these platforms. MiAcademy is lauded for its interactive learning and personalized paths, appealing to a range of learning styles. Lonestar Homeschool Academy is noted for its combination of live teaching sessions, innovative grading system, and the motivational BullBucks reward system. Beast Academy stands out for its advanced math curriculum, engaging students with comic-based storylines and an emphasis on critical thinking and problem-solving. The article concludes by emphasizing the importance of selecting a homeschooling curriculum that aligns with a student's individual learning preferences and educational needs, highlighting the diverse options available to enhance the homeschooling experience"
 ---

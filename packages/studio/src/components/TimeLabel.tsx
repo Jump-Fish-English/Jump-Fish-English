@@ -27,9 +27,13 @@ function formatToThreeDigits(number: number, digits: number = 3) {
   return String(number).padStart(digits, '0');
 }
 
-
 export function TimeLabel({ milliseconds }: Props) {
-  const { hours, minutes, seconds, milliseconds: remainingMilliseconds } = millisecondsToHoursMinutesSeconds(milliseconds);
+  const {
+    hours,
+    minutes,
+    seconds,
+    milliseconds: remainingMilliseconds,
+  } = millisecondsToHoursMinutesSeconds(milliseconds);
 
   const labels: string[] = [];
 
@@ -39,12 +43,10 @@ export function TimeLabel({ milliseconds }: Props) {
 
   labels.push(leadingZero(minutes));
   labels.push(
-    `${leadingZero(seconds)}.${formatToThreeDigits(Math.floor(remainingMilliseconds))}`
+    `${leadingZero(seconds)}.${formatToThreeDigits(
+      Math.floor(remainingMilliseconds),
+    )}`,
   );
-  
-  return (
-    <span>
-      {labels.join(':')}
-    </span>
-  )
+
+  return <span>{labels.join(':')}</span>;
 }

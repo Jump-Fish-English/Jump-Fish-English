@@ -1,12 +1,12 @@
-import { z, defineCollection } from "astro:content";
+import { z, defineCollection } from 'astro:content';
 
-const selectionEnum = z.enum(["A", "B", "C", "D"]);
+const selectionEnum = z.enum(['A', 'B', 'C', 'D']);
 
 const quizzesCollection = defineCollection({
-  type: "content",
+  type: 'content',
   schema: z.object({
     title: z.string(),
-    level: z.enum(["A1", "A2", "B1", "B2", "B3", "C1", "C2"]),
+    level: z.enum(['A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2']),
     questions: z.array(
       z.object({
         text: z.string(),

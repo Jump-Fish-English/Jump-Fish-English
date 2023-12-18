@@ -5,7 +5,5 @@ interface Props {
 }
 
 export function Preview({ videoSrc }: Props) {
-  return (
-    <video className={styles.video} src={videoSrc} controls />
-  )
+  return <video className={styles.video} src={videoSrc} controls />;
 }

@@ -1,4 +1,4 @@
-import { useDrag } from "@use-gesture/react";
+import { useDrag } from '@use-gesture/react';
 
 interface Props {
   className: string;
@@ -10,10 +10,5 @@ export function TimelineWindowHandle({ onDrag, className }: Props) {
     onDrag(delta[0]);
   });
 
-  return (
-    <div 
-      {...dragHandlers()}
-      className={className}
-    />
-  )
+  return <div {...dragHandlers()} className={className} />;
 }

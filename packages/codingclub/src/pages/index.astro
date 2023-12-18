@@ -1,9 +1,9 @@
 ---
-import BaseLayout from "../layouts/base.astro";
-import Row from "../components/Row.astro";
-import { getCollection } from "astro:content";
+import BaseLayout from '../layouts/base.astro';
+import Row from '../components/Row.astro';
+import { getCollection } from 'astro:content';
 
-const blogs = (await getCollection("blog"));
+const blogs = await getCollection('blog');
 ---
 
 <style>
@@ -33,7 +33,7 @@ const blogs = (await getCollection("blog"));
     transform: translateX(-50%);
     bottom: 100%;
     margin-bottom: 30px;
-    content: "";
+    content: '';
     display: block;
     height: 100px;
     width: 100px;

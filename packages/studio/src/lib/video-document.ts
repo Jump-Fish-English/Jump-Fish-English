@@ -1,8 +1,11 @@
-import { type VideoFile, type MillisecondRange } from '@jumpfish/video-processor';
+import {
+  type VideoFile,
+  type MillisecondRange,
+} from '@jumpfish/video-processor';
 import type { AnimationScreenshot } from 'animation-player';
 
 export interface VideoSource {
-  type: 'video',
+  type: 'video';
   title: string;
   id: string;
   durationMilliseconds: number;
@@ -25,18 +28,26 @@ export type Clip = {
   id: string;
   source: string;
   win: MillisecondRange;
-}
+};
 
 export interface VideoDocument {
   dimensions: {
     height: number;
     width: number;
-  }
+  };
   timeline: Clip[];
   durationMilliseconds: number;
 }
 
-export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond: number, clip: Clip, doc: VideoDocument }): VideoDocument {
+export function insertClip({
+  doc,
+  clip,
+  insertMillisecond,
+}: {
+  insertMillisecond: number;
+  clip: Clip;
+  doc: VideoDocument;
+}): VideoDocument {
   const { win: clipWindow } = clip;
   const newTimeline = [];
   const clipStart = insertMillisecond;
@@ -54,7 +65,13 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
     } else {
       // If the clip has not been inserted and the existing clip starts after the insert point
       if (!clipInserted && existingStart >= clipStart) {
-        newTimeline.push({ ...clip, trim: { startMilliseconds: clipStart, durationMilliseconds: clipWindow.durationMilliseconds } });
+        newTimeline.push({
+          ...clip,
+          trim: {
+            startMilliseconds: clipStart,
+            durationMilliseconds: clipWindow.durationMilliseconds,
+          },
+        });
         clipInserted = true;
       }
 
@@ -62,7 +79,13 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
       if (existingStart < clipEnd) {
         if (existingEnd > clipEnd) {
           // Split the existing clip if it extends beyond the new clip
-          newTimeline.push({ ...existingClip, trim: { startMilliseconds: clipEnd, durationMilliseconds: existingEnd - clipEnd } });
+          newTimeline.push({
+            ...existingClip,
+            trim: {
+              startMilliseconds: clipEnd,
+              durationMilliseconds: existingEnd - clipEnd,
+            },
+          });
         }
       } else {
         // Add the existing clip if it starts after the new clip
@@ -75,12 +98,12 @@ export function insertClip({ doc, clip, insertMillisecond }: { insertMillisecond
   if (!clipInserted) {
     newTimeline.push({ ...clip });
   }
-  
+
   return {
     ...doc,
     timeline: newTimeline,
     durationMilliseconds: newTimeline.reduce((max) => {
       return max + clipWindow.durationMilliseconds;
     }, 0),
-  }
+  };
 }

@@ -1,5 +1,3 @@
 import packageJson from './package.json';
 
-export default [
-  ...packageJson.workspaces
-]
+export default [...packageJson.workspaces];

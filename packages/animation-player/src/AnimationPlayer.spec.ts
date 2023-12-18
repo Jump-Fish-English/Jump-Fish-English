@@ -6,8 +6,8 @@ async function waitForCanPlayThrough(elm: HTMLElement) {
   return new Promise((res) => {
     elm.addEventListener('canplaythrough', res, {
       once: true,
-    })
-  })
+    });
+  });
 }
 
 beforeAll(() => {
@@ -15,13 +15,11 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  [
-    ...document.querySelectorAll('x-foo')
-  ].forEach((el) => {
+  [...document.querySelectorAll('x-foo')].forEach((el) => {
     if (el.parentNode) {
       el.parentNode.removeChild(el);
     }
-  })
+  });
 });
 
 describe('AnimationPlayer', () => {
@@ -47,8 +45,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="ball"></div>
-        `
-      }
+        `,
+      };
 
       const spy = vi.fn();
       elm.addEventListener('canplaythrough', spy);
@@ -81,8 +79,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="ball"></div>
-        `
-      }
+        `,
+      };
 
       const spy = vi.fn();
       elm.addEventListener('loadstart', spy);
@@ -92,7 +90,6 @@ describe('AnimationPlayer', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalled();
       });
-
     });
 
     it('should fire a durationchange event', async () => {
@@ -116,8 +113,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="ball"></div>
-        `
-      }
+        `,
+      };
 
       const spy = vi.fn();
       elm.addEventListener('durationchange', spy);
@@ -154,13 +151,17 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="ball"></div>
-        `
-      }
+        `,
+      };
 
       let elmDuration = 0;
-      elm.addEventListener('durationchange', () => {
-        elmDuration = elm.duration;
-      }, { once: true });
+      elm.addEventListener(
+        'durationchange',
+        () => {
+          elmDuration = elm.duration;
+        },
+        { once: true },
+      );
 
       elm.load(contents);
 
@@ -197,8 +198,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="ball"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -231,8 +232,8 @@ describe('AnimationPlayer', () => {
       html: `
         <div id="first"></div>
         <div id="second"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -266,8 +267,8 @@ describe('AnimationPlayer', () => {
       html: `
         <div id="first"></div>
         <div id="second"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -295,8 +296,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -332,8 +333,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -369,8 +370,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -421,8 +422,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
       await waitForCanPlayThrough(elm);
 
@@ -450,17 +451,21 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
       await waitForCanPlayThrough(elm);
 
       let currentTime = NaN;
-      elm.addEventListener('timeupdate', () => {
-        currentTime = elm.currentTime;
-      }, {
-        once: true,
-      });
+      elm.addEventListener(
+        'timeupdate',
+        () => {
+          currentTime = elm.currentTime;
+        },
+        {
+          once: true,
+        },
+      );
 
       elm.play();
 
@@ -471,7 +476,6 @@ describe('AnimationPlayer', () => {
       await waitFor(() => {
         expect(currentTime).not.toBe(0);
       });
-
     });
   });
 
@@ -497,8 +501,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
 
       const spy = vi.fn();
@@ -506,11 +510,15 @@ describe('AnimationPlayer', () => {
         once: true,
       });
 
-      elm.addEventListener('timeupdate', () => {
-        elm.pause();
-      }, {
-        once: true,
-      });
+      elm.addEventListener(
+        'timeupdate',
+        () => {
+          elm.pause();
+        },
+        {
+          once: true,
+        },
+      );
 
       elm.play();
 
@@ -540,8 +548,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
 
       let currentTime = 0;
@@ -550,12 +558,16 @@ describe('AnimationPlayer', () => {
         once: true,
       });
 
-      elm.addEventListener('timeupdate', () => {
-        currentTime = elm.currentTime;
-        elm.pause();
-      }, {
-        once: true,
-      });
+      elm.addEventListener(
+        'timeupdate',
+        () => {
+          currentTime = elm.currentTime;
+          elm.pause();
+        },
+        {
+          once: true,
+        },
+      );
 
       elm.play();
 
@@ -589,8 +601,8 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
       await waitForCanPlayThrough(elm);
       elm.currentTime = 0.2;
@@ -620,13 +632,15 @@ describe('AnimationPlayer', () => {
         `,
         html: `
           <div id="first"></div>
-        `
-      }
+        `,
+      };
       elm.load(contents);
       await waitForCanPlayThrough(elm);
       elm.currentTime = 1;
       await waitFor(() => {
-        expect(elm.shadowRoot?.querySelector('#first')?.getAttribute('style')).toBe('opacity: 1;');
+        expect(
+          elm.shadowRoot?.querySelector('#first')?.getAttribute('style'),
+        ).toBe('opacity: 1;');
       });
     });
   });
@@ -652,8 +666,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -689,8 +703,8 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
@@ -726,16 +740,20 @@ describe('AnimationPlayer', () => {
       `,
       html: `
         <div id="first"></div>
-      `
-    }
+      `,
+    };
     elm.load(contents);
     await waitForCanPlayThrough(elm);
 
     const endedSpy = vi.fn();
 
-    elm.addEventListener('timeupdate', () => {
-      elm.currentTime = 0;
-    }, { once: true });
+    elm.addEventListener(
+      'timeupdate',
+      () => {
+        elm.currentTime = 0;
+      },
+      { once: true },
+    );
 
     elm.addEventListener('ended', endedSpy, { once: true });
 
@@ -748,9 +766,9 @@ describe('AnimationPlayer', () => {
 
   it('should have a container when canplaythrough event is fired', async () => {
     const elm = document.createElement('x-foo') as AnimationPlayer;
-      document.body.appendChild(elm);
-      const contents = {
-        css: `
+    document.body.appendChild(elm);
+    const contents = {
+      css: `
           #first {
             animation: show-ball 1s;
           }
@@ -765,20 +783,24 @@ describe('AnimationPlayer', () => {
             }
           }
         `,
-        html: `
+      html: `
           <div id="first"></div>
-        `
-      }
+        `,
+    };
 
-      let container: HTMLElement | undefined = undefined;
-      elm.addEventListener('canplaythrough', () => {
+    let container: HTMLElement | undefined = undefined;
+    elm.addEventListener(
+      'canplaythrough',
+      () => {
         container = elm.container();
-      }, { once: true });
+      },
+      { once: true },
+    );
 
-      elm.load(contents);
-      
-      await waitFor(() => {
-        expect(container).toBeDefined();
-      });
+    elm.load(contents);
+
+    await waitFor(() => {
+      expect(container).toBeDefined();
+    });
   });
 });

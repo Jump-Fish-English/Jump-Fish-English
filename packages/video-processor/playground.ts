@@ -28,37 +28,36 @@ async function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
       }
 
       res(blob);
-    })
+    });
   });
 }
 
-Promise.all([
-  toBlob(canvas),
-  toBlob(secondCanvas)
-])
-.then(([first, second]) => {
+Promise.all([toBlob(canvas), toBlob(secondCanvas)]).then(([first, second]) => {
   generateVideo({
     dimensions: {
       width: WIDTH,
       height: HEIGHT,
     },
-    images: [{
-      data: first,
-      range: {
-        startMilliseconds: 0,
-        endMilliseconds: 2000,
-      }
-    }, {
-      data: second,
-      range: {
-        startMilliseconds: 2000,
-        endMilliseconds: 5000,
-      }
-    }],
+    images: [
+      {
+        data: first,
+        range: {
+          startMilliseconds: 0,
+          endMilliseconds: 2000,
+        },
+      },
+      {
+        data: second,
+        range: {
+          startMilliseconds: 2000,
+          endMilliseconds: 5000,
+        },
+      },
+    ],
     frameRate: 30,
   }).then((vid) => {
     const elm = document.createElement('video');
     elm.src = vid.url;
     document.body.appendChild(elm);
-  })
+  });
 });

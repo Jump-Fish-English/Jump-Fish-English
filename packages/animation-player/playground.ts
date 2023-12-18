@@ -8,20 +8,23 @@ function playground({ css, html }: AnimationContents) {
   ballContainer.style.marginBottom = '20px';
   document.body.appendChild(ballContainer);
 
-  generateScreenshot({
-    contents: {
-      css,
-      html,
+  generateScreenshot(
+    {
+      contents: {
+        css,
+        html,
+      },
+      milliseconds: 1000,
     },
-    milliseconds: 1000,
-  }, {
-    appendClone(clone) {
-      ballContainer.appendChild(clone);
+    {
+      appendClone(clone) {
+        ballContainer.appendChild(clone);
+      },
+      onCanvas(canvas) {
+        ballContainer.appendChild(canvas);
+      },
     },
-    onCanvas(canvas) {
-      ballContainer.appendChild(canvas);
-    }
-  }).then(({ url }) => {
+  ).then(({ url }) => {
     const img = document.createElement('img');
     img.src = url;
     ballContainer.appendChild(img);
@@ -50,7 +53,7 @@ playground({
   `,
   html: `
     <div class="ball"></div>
-  `
+  `,
 });
 
 playground({
@@ -140,5 +143,5 @@ playground({
         <div class="subscribe-text">Subscribe</div>
       </div>
   </div>
-  `
+  `,
 });

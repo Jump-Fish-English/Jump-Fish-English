@@ -1,37 +1,35 @@
 import { describe, it, expect, vi } from 'vitest';
 import 'vitest-dom/extend-expect';
 import { Workspace } from './Workspace';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
 describe('Tabs', () => {
   it('should render correct tabs', () => {
     render(
       <Workspace
         onSourceSelect={vi.fn()}
-        sources={{
-
-        }}
+        sources={{}}
         doc={{
           timeline: [],
           durationMilliseconds: 0,
         }}
         player={{
-          el: (
-            <div>Player</div>
-          ),
+          el: <div>Player</div>,
           play: vi.fn(),
           seek: vi.fn(),
           durationMilliseconds: 0,
         }}
-      />
+      />,
     );
-    expect(
-      screen.getByRole('tab', { name: 'Videos' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Videos' })).toBeInTheDocument();
 
-    expect(
-      screen.getByRole('tab', { name: 'Animations' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Animations' })).toBeInTheDocument();
   });
 });
 
@@ -49,7 +47,7 @@ describe('Sources', () => {
             videoFile: {
               fileName: 'hello.mp4',
               data: new Blob(),
-              url: 'blob://url'
+              url: 'blob://url',
             },
             thumbnailUrl: 'video-thumbnail',
           },
@@ -67,35 +65,29 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob()
+              data: new Blob(),
             },
-          }
+          },
         }}
         doc={{
           timeline: [],
           durationMilliseconds: 0,
         }}
         player={{
-          el: (
-            <div>Player</div>
-          ),
+          el: <div>Player</div>,
           play: vi.fn(),
           seek: vi.fn(),
           durationMilliseconds: 0,
         }}
-      />
+      />,
     );
-    
+
     expect(
-      within(
-        screen.getByLabelText('Videos')
-      ).getByText('Video clip')
+      within(screen.getByLabelText('Videos')).getByText('Video clip'),
     ).toBeInTheDocument();
 
     expect(
-      within(
-        screen.getByLabelText('Videos')
-      ).queryByText('Animation clip')
+      within(screen.getByLabelText('Videos')).queryByText('Animation clip'),
     ).not.toBeInTheDocument();
   });
 
@@ -112,7 +104,7 @@ describe('Sources', () => {
             videoFile: {
               fileName: 'hello.mp4',
               data: new Blob(),
-              url: 'blob://url'
+              url: 'blob://url',
             },
             thumbnailUrl: 'video-thumbnail',
           },
@@ -130,40 +122,38 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob()
+              data: new Blob(),
             },
-          }
+          },
         }}
         doc={{
           timeline: [],
           durationMilliseconds: 0,
         }}
         player={{
-          el: (
-            <div>Player</div>
-          ),
+          el: <div>Player</div>,
           play: vi.fn(),
           seek: vi.fn(),
           durationMilliseconds: 0,
         }}
-      />
+      />,
     );
 
-    fireEvent.click(
-      screen.getByRole('tab', { name: 'Animations' })
-    )
+    fireEvent.click(screen.getByRole('tab', { name: 'Animations' }));
 
     expect(
-      screen.getByRole('tab', { selected: true, name: 'Animations' })
+      screen.getByRole('tab', { selected: true, name: 'Animations' }),
     ).toBeInTheDocument();
-    
+
     const animationsTab = within(
-      screen.getByRole('tabpanel', { name: 'Animations' })
+      screen.getByRole('tabpanel', { name: 'Animations' }),
     );
 
     expect(animationsTab.getByText('Animation clip')).toBeInTheDocument();
-    expect(animationsTab.getByRole('img')).toHaveAttribute('src', 'animation-thumbnail');
-
+    expect(animationsTab.getByRole('img')).toHaveAttribute(
+      'src',
+      'animation-thumbnail',
+    );
   });
 
   it('should render animation image with correct dimensions', () => {
@@ -179,7 +169,7 @@ describe('Sources', () => {
             videoFile: {
               fileName: 'hello.mp4',
               data: new Blob(),
-              url: 'blob://url'
+              url: 'blob://url',
             },
             thumbnailUrl: 'video-thumbnail',
           },
@@ -197,33 +187,29 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob()
+              data: new Blob(),
             },
-          }
+          },
         }}
         doc={{
           timeline: [],
           durationMilliseconds: 0,
         }}
         player={{
-          el: (
-            <div>Player</div>
-          ),
+          el: <div>Player</div>,
           play: vi.fn(),
           seek: vi.fn(),
           durationMilliseconds: 0,
         }}
-      />
+      />,
     );
 
-    fireEvent.click(
-      screen.getByRole('tab', { name: 'Animations' })
-    )
+    fireEvent.click(screen.getByRole('tab', { name: 'Animations' }));
 
     const animationsTab = within(
-      screen.getByRole('tabpanel', { name: 'Animations' })
+      screen.getByRole('tabpanel', { name: 'Animations' }),
     );
-    
+
     expect(animationsTab.getByRole('img')).toHaveAttribute('width', '100');
     expect(animationsTab.getByRole('img')).toHaveAttribute('height', '100');
   });
@@ -242,7 +228,7 @@ describe('Sources', () => {
             videoFile: {
               fileName: 'hello.mp4',
               data: new Blob(),
-              url: 'blob://url'
+              url: 'blob://url',
             },
             thumbnailUrl: 'video-thumbnail',
           },
@@ -260,32 +246,26 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob()
+              data: new Blob(),
             },
-          }
+          },
         }}
         doc={{
           timeline: [],
           durationMilliseconds: 0,
         }}
         player={{
-          el: (
-            <div>Player</div>
-          ),
+          el: <div>Player</div>,
           play: vi.fn(),
           seek: vi.fn(),
           durationMilliseconds: 0,
         }}
-      />
+      />,
     );
 
-    fireEvent.click(
-      screen.getByRole('tab', { name: 'Animations' })
-    );
+    fireEvent.click(screen.getByRole('tab', { name: 'Animations' }));
 
-    fireEvent.click(
-      screen.getByText('Animation clip')
-    );
+    fireEvent.click(screen.getByText('Animation clip'));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith({
@@ -302,7 +282,7 @@ describe('Sources', () => {
             width: 100,
             height: 100,
           },
-          data: new Blob()
+          data: new Blob(),
         },
       });
     });
