@@ -39,7 +39,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "knip": "knip",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "types": "tsc"
   },
   "workspaces": [
     "packages/**"

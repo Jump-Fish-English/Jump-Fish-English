@@ -15,7 +15,7 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  [...document.querySelectorAll('x-foo')].forEach((el) => {
+  [...Array.from(document.querySelectorAll('x-foo'))].forEach((el) => {
     if (el.parentNode) {
       el.parentNode.removeChild(el);
     }

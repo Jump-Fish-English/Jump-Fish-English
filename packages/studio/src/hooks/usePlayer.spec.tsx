@@ -1,9 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, beforeAll, it, expect } from 'vitest';
 import { render, renderHook } from '@testing-library/react';
 import { usePlayer } from './usePlayer';
 import type { Clip, Source, VideoDocument } from '../lib/video-document';
 
 import styles from './usePlayer.module.css';
+
+beforeAll(() => {
+  global.ResizeObserver = class ResizeObserver {
+    observe() {
+      // do nothing
+    }
+    unobserve() {
+      // do nothing
+    }
+    disconnect() {
+      // do nothing
+    }
+  };
+});
 
 describe('Two clips with the same source', () => {
   it('should only render 1 <video>', () => {
@@ -38,6 +52,11 @@ describe('Two clips with the same source', () => {
           },
         },
         doc: {
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [
             {
               source: 'bfbbbdb3-c0e3-44a2-acdd-e23fa879f355',
@@ -123,6 +142,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [
             {
               source: '607d17f8-2974-4496-9015-a528b92eaa33',
@@ -169,6 +193,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [],
           durationMilliseconds: 0,
         }}
@@ -233,6 +262,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [
             {
               source: '607d17f8-2974-4496-9015-a528b92eaa33',
@@ -280,6 +314,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [secondClip],
           durationMilliseconds: 0,
         }}
@@ -344,6 +383,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [
             {
               source: '607d17f8-2974-4496-9015-a528b92eaa33',
@@ -390,6 +434,11 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
           timeline: [],
           durationMilliseconds: 0,
         }}
@@ -428,6 +477,11 @@ describe('Deleting a clip', () => {
             },
           }}
           doc={{
+
+          dimensions: {
+            height: 900,
+            width: 1600,
+          },
             timeline: [secondClip],
             durationMilliseconds: 0,
           }}

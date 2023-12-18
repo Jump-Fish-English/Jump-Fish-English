@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, type Mock } from 'vitest';
-import { trim, exportFrame, writeFile } from './main';
+import { describe, it, expect, vi } from 'vitest';
+import { exportFrame, writeFile } from './main';
 import { instance } from './instance';
 
 vi.stubGlobal('URL', {
@@ -43,46 +43,7 @@ describe('writeFile', () => {
     expect(result).toEqual({
       fileName: 'foo.mp4',
       data: expect.any(Blob),
-    });
-  });
-});
-
-describe('trim', () => {
-  describe('Single video', () => {
-    it('should clip video correctly', async () => {
-      const ffmpeg = await instance();
-      const readBuffer = new Uint8Array();
-      (ffmpeg.readFile as Mock).mockResolvedValue(readBuffer);
-      const result = await trim({
-        output: {
-          encodingPreset: 'veryfast',
-        },
-        source: {
-          fileName: 'first.mp4',
-          data: new Blob(),
-        },
-        range: {
-          startMilliseconds: 0,
-          durationMilliseconds: 500,
-        },
-      });
-
-      expect(ffmpeg.exec).toHaveBeenCalledWith([
-        '-i',
-        'first.mp4',
-        '-ss',
-        '00:00:00',
-        '-t',
-        '00:00:00.500',
-        '-preset',
-        'veryfast',
-        'mockuuid.mp4',
-      ]);
-
-      expect(result).toEqual({
-        fileName: 'mockuuid.mp4',
-        data: expect.any(Blob),
-      });
+      url: 'mockedurl',
     });
   });
 });

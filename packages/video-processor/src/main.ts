@@ -28,32 +28,6 @@ export interface VideoFile {
   url: string;
 }
 
-interface ClipParams {
-  output: OutputOptions;
-  source: VideoFile;
-  range: MillisecondRange;
-  progress?: () => void;
-}
-
-export async function trim({
-  output: { encodingPreset },
-  source: { fileName },
-  range: { startMilliseconds, durationMilliseconds },
-}: ClipParams): Promise<VideoFile> {
-  const ffmpeg = await instance();
-  const outputFileName = `${uuidv4()}.mp4`;
-  const command = [
-    '-i',
-    fileName,
-    '-ss',
-    millisecondsToFFMpegFormat(startMilliseconds),
-    '-t',
-    millisecondsToFFMpegFormat(durationMilliseconds),
-  ];
-  await ffmpeg.exec([...command, '-preset', encodingPreset, outputFileName]);
-  return await readFile({ fileName: outputFileName, type: 'video/mp4' });
-}
-
 async function readFile({
   fileName,
   type,
