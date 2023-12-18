@@ -9,10 +9,12 @@ interface Props {
   sources: Record<string, Source>;
   doc: VideoDocument;
   player: Player;
+  onSourceSelect(source: Source): void;
 }
 
-export function Workspace({ sources, doc, player }: Props) {
+export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
   const { el: playerElement } = player;
+  const { timeline: documentTimeline } = doc;
   return (
     <div className={styles.container}>
       <Tabs tabActiveClassName={styles['tab-active']} tabPanelClassName={styles['tab-panel']} tabClassName={styles.tab} className={styles.tabs}>
@@ -79,24 +81,7 @@ export function Workspace({ sources, doc, player }: Props) {
               const { title: sourceTitle, thumbnail: { url: thumbnailUrl, originalDimensions: { width: thumbnailWidth, height: thumbnailHeight } } } = source as AnimationSource;
               return (
                 <article className={styles.source} key={source.id} onClick={async () => {
-                  // const clip: VideoClip = {
-                  //   type: 'video',
-                  //   id: uuidV4(),
-                  //   source: source.id,
-                  //   trim: {
-                  //     startMilliseconds: 0,
-                  //     durationMilliseconds: source.durationMilliseconds,
-                  //   },
-                  //   url: source.url,
-                  // }
-                  
-                  // const nextDoc = insertClip({
-                  //   doc, 
-                  //   insertMillisecond: doc.durationMilliseconds,
-                  //   clip,
-                  // });
-
-                  // setDoc(nextDoc);
+                  onSourceSelect(source);
 
                 }}>
                   <div className={styles['source-image']}>
@@ -112,7 +97,7 @@ export function Workspace({ sources, doc, player }: Props) {
         </Tab>
       </Tabs>
       <main className={styles.main}>
-        {playerElement}
+        { documentTimeline.length > 0 && playerElement }
         <div className={styles.scroller}>
           <ClipTimeline 
             sources={sources}

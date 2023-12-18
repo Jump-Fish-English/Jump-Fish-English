@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
-import { type VideoDocument, type VideoSource, type AnimationSource, type Source } from '../lib/video-document';
+import { type VideoDocument, type VideoSource, type AnimationSource, type Source, type Clip, insertClip } from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
 import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
@@ -172,7 +172,8 @@ export function Main() {
   });
 
   const player = usePlayer({
-    doc
+    doc,
+    sources,
   });
   const { el: playerElement } = player;
 
@@ -211,6 +212,24 @@ export function Main() {
 
   return (
     <Workspace 
+      onSourceSelect={(source) => {
+        const clip: Clip = {
+          id: uuidV4(),
+          source: source.id,
+          win: {
+            startMilliseconds: 0,
+            durationMilliseconds: source.durationMilliseconds,
+          },
+        }
+        
+        const nextDoc = insertClip({
+          doc, 
+          insertMillisecond: doc.durationMilliseconds,
+          clip,
+        });
+
+        setDoc(nextDoc);
+      }}
       sources={sources}
       doc={doc}
       player={player}

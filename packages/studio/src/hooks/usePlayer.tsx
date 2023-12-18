@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import type { Clip, VideoDocument } from "../lib/video-document";
+import type { Clip, Source, VideoDocument } from "../lib/video-document";
 
 import styles from './usePlayer.module.css';
 import { AnimationPlayer } from "../components/AnimationPlayer";
@@ -7,6 +7,7 @@ import type { AnimationPlayer as AnimationPlayerElm } from "animation-player";
 
 interface Props {
   doc: VideoDocument;
+  sources: Record<string, Source>
 }
 
 function findNextClipById(id: string, doc: VideoDocument) {
@@ -25,7 +26,7 @@ function findClipAtMillisecond(millisecond: number, doc: VideoDocument): {
 } {
   let currentTime = 0;
   for(const clip of doc.timeline) {
-    const nextCurrentTime = currentTime + clip.trim.durationMilliseconds;
+    const nextCurrentTime = currentTime + clip.win.durationMilliseconds;
     if (nextCurrentTime >= millisecond) {
       return {
         clip,
@@ -38,7 +39,7 @@ function findClipAtMillisecond(millisecond: number, doc: VideoDocument): {
   throw new Error('Unable to find clip!');
  }
 
-export function usePlayer({ doc }: Props) {
+export function usePlayer({ doc, sources }: Props) {
   const videoElements = useRef<Record<string, HTMLVideoElement | AnimationPlayerElm>>({});
   const { durationMilliseconds } = doc;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,7 +100,8 @@ export function usePlayer({ doc }: Props) {
     <div ref={containerRef}>
       {
         Object.values(reducedClips).map((clip) => {
-          const { id: clipId } = clip;
+          const { id: clipId, source: sourceId } = clip;
+          const source = sources[sourceId];
           const classNames: string[] = [];
           const activeVideoElement = currentClipId === clipId;
           if (activeVideoElement !== true) {
@@ -109,7 +111,7 @@ export function usePlayer({ doc }: Props) {
           }
 
 
-          if (clip.type === 'video') {
+          if (source.type === 'video') {
             return (
               <video 
                 ref={(el) => {
@@ -120,15 +122,10 @@ export function usePlayer({ doc }: Props) {
                 }} 
                 className={classNames.join(' ')} 
                 key={clipId} 
-                src={clip.url} 
+                src={source.videoFile.url} 
                 controls 
               />
             );
-          }
-
-          const source = doc.sources[clip.source];
-          if (source.type !== 'animation') {
-            throw new Error();
           }
 
           return (
