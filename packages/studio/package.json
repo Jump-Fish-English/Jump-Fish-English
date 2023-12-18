@@ -3,20 +3,16 @@
   "type": "module",
   "version": "0.0.1",
   "dependencies": {
-    "html2canvas": "1.4.1",
-    "@use-gesture/react": "10.3.0",
-    "raf-throttle": "2.0.6",
     "immer": "10.0.3",
-    "uuid": "9.0.1",
     "react-aria": "3.30.0",
     "react-stately": "3.28.0",
+    "@react-stately/tabs": "3.6.2",
     "use-resize-observer": "9.1.0",
     "animation-player": "*"
   },
   "devDependencies": {
     "astro-rpc": "*",
-    "@jumpfish/video-processor": "*",
-    "@types/uuid": "9.0.7"
+    "@jumpfish/video-processor": "*"
   },
   "scripts": {
     "dev": "astro dev",
