@@ -1,5 +1,5 @@
 import type { Player } from "../hooks/usePlayer";
-import type { Source, VideoDocument } from "../lib/video-document";
+import type { AnimationSource, Source, VideoDocument, VideoSource } from "../lib/video-document";
 import { ClipTimeline } from "./ClipTimeline";
 import { Tab, Tabs } from "./Tabs";
 
@@ -29,7 +29,7 @@ export function Workspace({ sources, doc, player }: Props) {
             Object.values(sources).filter((source) => {
               return source.type === 'video';
             }).map((source) => {
-              const { title: sourceTitle, thumbnailUrl } = source;
+              const { title: sourceTitle, thumbnailUrl } = source as VideoSource;
               return (
                 <article className={styles.source} key={source.id} onClick={async () => {
                   // const clip: VideoClip = {
@@ -74,7 +74,7 @@ export function Workspace({ sources, doc, player }: Props) {
             Object.values(sources).filter((source) => {
               return source.type === 'animation';
             }).map((source) => {
-              const { title: sourceTitle, thumbnailUrl } = source;
+              const { title: sourceTitle, thumbnail: { url: thumbnailUrl } } = source as AnimationSource;
               return (
                 <article className={styles.source} key={source.id} onClick={async () => {
                   // const clip: VideoClip = {
@@ -111,6 +111,7 @@ export function Workspace({ sources, doc, player }: Props) {
         {playerElement}
         <div className={styles.scroller}>
           <ClipTimeline 
+            sources={sources}
             onDeleteClip={(clip) => {
               const next = doc.timeline.filter((item) => {
                 return item !== clip;

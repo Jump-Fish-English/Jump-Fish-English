@@ -2,12 +2,27 @@ import generate from 'html2canvas';
 import { type AnimationContents, AnimationPlayer } from "./AnimationPlayer";
 import { v4 as uuidV4 } from 'uuid';
 
+interface Params {
+  contents: AnimationContents;
+  milliseconds: number;
+}
+
 interface Options {
   onCanvas?(canvas: HTMLCanvasElement): void;
   appendClone?(el: AnimationPlayer): void;
 }
 
-export async function generateScreenshot(contents: AnimationContents, options: Options = {}) {
+export interface AnimationScreenshot {
+  data: Blob;
+  url: string;
+  originalDimensions: {
+    height: number;
+    width: number;
+  },
+  originalDevicePixelRatio: number;
+}
+
+export async function generateScreenshot({ contents, milliseconds }: Params, options: Options = {}): Promise<AnimationScreenshot> {
   const { devicePixelRatio: originalDevicePixelRatio } = window;
   const elm = new AnimationPlayer();
   const elementInstanceId = uuidV4();
@@ -37,7 +52,7 @@ export async function generateScreenshot(contents: AnimationContents, options: O
   await new Promise(requestAnimationFrame);
   const rect = elm.getBoundingClientRect();
 
-  elm.currentTime = 1;
+  elm.currentTime = milliseconds / 1000;
   const container = elm.container();
   if (container === undefined) {
     throw new Error('Should be a container here');
@@ -61,8 +76,7 @@ export async function generateScreenshot(contents: AnimationContents, options: O
       res(blob);
     });
   });
-
-
+  elm.parentElement?.removeChild(elm);
 
   return {
     data: blob,

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { produce } from 'immer';
-import generate from 'html2canvas';
 import { v4 as uuidV4 } from 'uuid';
 import { exportFrame, writeFile as writeVideoFile } from '@jumpfish/video-processor';
 import { type VideoDocument, type VideoSource, type AnimationSource, type Source } from '../lib/video-document';
@@ -105,7 +104,6 @@ const animationContents = {
 async function loadAnimationSource({ html, css }: { html: string, css: string }): Promise<AnimationSource> {
   const elm = document.createElement('jf-animation-player') as AnimationPlayer;
   const id = uuidV4();
-  
   document.body.appendChild(elm);
   elm.style.position = 'fixed';
   elm.style.left = '-10000px';
@@ -118,12 +116,13 @@ async function loadAnimationSource({ html, css }: { html: string, css: string })
     elm.load(animationContents);
   });
 
-  const { url: thumbnailUrl } = await generateScreenshot({ html, css });
+  const screenShot = await generateScreenshot({ contents: { html, css }, milliseconds: 1000 });
+  document.body.removeChild(elm);
   return {
     durationMilliseconds,
     id,
     title: id,
-    thumbnailUrl,
+    thumbnail: screenShot,
     type: 'animation',
     html,
     css,

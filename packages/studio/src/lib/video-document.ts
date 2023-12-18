@@ -1,4 +1,5 @@
 import { type VideoFile, type MillisecondRange, concatVideoFiles } from '@jumpfish/video-processor';
+import type { AnimationScreenshot } from 'animation-player';
 
 export interface VideoSource {
   type: 'video',
@@ -16,7 +17,7 @@ export interface AnimationSource {
   html: string;
   css: string;
   durationMilliseconds: number;
-  thumbnailUrl: string;
+  thumbnail: AnimationScreenshot;
 }
 
 export type Source = VideoSource | AnimationSource;

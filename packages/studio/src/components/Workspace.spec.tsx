@@ -58,7 +58,15 @@ describe('Sources', () => {
             type: 'animation',
             html: '<div>hi</div>',
             css: '',
-            thumbnailUrl: 'animation-thumbnail',
+            thumbnail: {
+              url: 'animation-thumbnail',
+              originalDevicePixelRatio: 1,
+              originalDimensions: {
+                width: 100,
+                height: 100,
+              },
+              data: new Blob()
+            },
           }
         }}
         doc={{
@@ -112,7 +120,15 @@ describe('Sources', () => {
             type: 'animation',
             html: '<div>hi</div>',
             css: '',
-            thumbnailUrl: 'animation-thumbnail',
+            thumbnail: {
+              url: 'animation-thumbnail',
+              originalDevicePixelRatio: 1,
+              originalDimensions: {
+                width: 100,
+                height: 100,
+              },
+              data: new Blob()
+            },
           }
         }}
         doc={{

@@ -2,6 +2,9 @@
   "name": "animation-player",
   "version": "0.1.0",
   "main": "src/main.ts",
+  "devDependencies": {
+    "html2canvas": "1.4.1"
+  },
   "scripts": {
     "dev": "vite dev"
   }

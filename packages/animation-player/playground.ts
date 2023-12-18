@@ -9,8 +9,11 @@ function playground({ css, html }: AnimationContents) {
   document.body.appendChild(ballContainer);
 
   generateScreenshot({
-    css,
-    html,
+    contents: {
+      css,
+      html,
+    },
+    milliseconds: 1000,
   }, {
     appendClone(clone) {
       ballContainer.appendChild(clone);

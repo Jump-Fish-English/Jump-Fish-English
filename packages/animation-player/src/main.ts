@@ -1,2 +1,2 @@
 export { AnimationPlayer } from './AnimationPlayer';
-export { generateScreenshot } from './screenshot';
+export { generateScreenshot, type AnimationScreenshot } from './screenshot';
