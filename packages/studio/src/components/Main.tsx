@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { produce } from 'immer';
 import { v4 as uuidV4 } from 'uuid';
-import {
-  type VideoDocument,
-  type AnimationSource,
-  type Source,
-  type Clip,
-  insertClip,
-} from '../lib/video-document';
 import { usePlayer } from '../hooks/usePlayer';
 import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
+import { 
+  type AnimationSource,
+  type VideoDocument,
+  type Source,
+  type Clip,
+  insertClip,
+  createVideoDocument,
+} from '@jumpfish/video-processor';
 
 // videos
 // import src from '../../../../videos/output.mp4';
@@ -283,14 +284,12 @@ async function loadAnimationSource({
 
 export function Main() {
   const [sources, setSources] = useState<Record<string, Source>>({});
-  const [doc, setDoc] = useState<VideoDocument>({
-    dimensions: {
+  const [doc, setDoc] = useState<VideoDocument>(
+    createVideoDocument({
       width: 1600,
       height: 900,
-    },
-    timeline: [],
-    durationMilliseconds: 0,
-  });
+    })
+  );
 
   const player = usePlayer({
     doc,

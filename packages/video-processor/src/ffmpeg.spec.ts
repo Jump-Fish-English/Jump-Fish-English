@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { exportFrame, writeFile } from './main';
+import { exportFrame, writeFile } from './ffmpeg';
 import { instance } from './instance';
 
 vi.stubGlobal('URL', {

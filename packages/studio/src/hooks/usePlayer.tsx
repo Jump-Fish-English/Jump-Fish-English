@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import type { Clip, Source, VideoDocument } from '../lib/video-document';
+import type { Clip, Source, VideoDocument } from '@jumpfish/video-processor';
 import useResizeObserver from 'use-resize-observer';
 import { AnimationPlayer } from '../components/AnimationPlayer';
 import type { AnimationPlayer as AnimationPlayerElm } from 'animation-player';

@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react";
-import type { Clip, Source, VideoDocument } from "../lib/video-document";
+import type { Clip, Source, VideoDocument } from '@jumpfish/video-processor';
 
 import styles from './ClipPreview.module.css';
 import { generateScreenshot } from "animation-player";

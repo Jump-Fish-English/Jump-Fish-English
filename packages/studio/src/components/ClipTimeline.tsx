@@ -1,6 +1,6 @@
 import type { Player } from '../hooks/usePlayer';
 import type { ReactElement } from 'react';
-import type { Clip, Source, VideoDocument } from '../lib/video-document';
+import type { Clip, Source, VideoDocument } from '@jumpfish/video-processor';
 import { ClipPreview } from './ClipPreview';
 import { Timeline } from './Timeline';
 

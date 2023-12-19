@@ -1,8 +1,5 @@
-import {
-  type VideoFile,
-  type MillisecondRange,
-} from '@jumpfish/video-processor';
 import type { AnimationScreenshot } from 'animation-player';
+import { MillisecondRange, VideoFile } from './ffmpeg';
 
 export interface VideoSource {
   type: 'video';
@@ -30,14 +27,20 @@ export type Clip = {
   win: MillisecondRange;
 };
 
-export interface VideoDocument {
-  dimensions: {
-    height: number;
-    width: number;
-  };
-  timeline: Clip[];
-  durationMilliseconds: number;
+
+export function createVideoDocument({ height, width }: { height: number, width: number }) {
+  const timeline: Clip[] = [];
+  return {
+    dimensions: {
+      width,
+      height,
+    },
+    timeline,
+    durationMilliseconds: 0,
+  }
 }
+
+export type VideoDocument = ReturnType<typeof createVideoDocument>;
 
 export function insertClip({
   doc,

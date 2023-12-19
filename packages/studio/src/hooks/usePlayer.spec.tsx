@@ -1,7 +1,7 @@
 import { describe, beforeAll, it, expect } from 'vitest';
 import { render, renderHook } from '@testing-library/react';
 import { usePlayer } from './usePlayer';
-import type { Clip, Source, VideoDocument } from '../lib/video-document';
+import type { Clip, Source, VideoDocument } from '@jumpfish/video-processor';
 
 import styles from './usePlayer.module.css';
 

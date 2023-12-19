@@ -1,13 +1,13 @@
 import type { Player } from '../hooks/usePlayer';
-import type {
-  AnimationSource,
-  Source,
-  VideoDocument,
-  VideoSource,
-} from '../lib/video-document';
+import {
+  type AnimationSource,
+  type Source,
+  type VideoDocument,
+  type VideoSource,
+  rasterizeDocument,
+} from '@jumpfish/video-processor';
 import { ClipTimeline } from './ClipTimeline';
 import { Tab, Tabs } from './Tabs';
-import { rasterizeDocument } from '../lib/rasterize-document';
 
 import styles from './Workspace.module.css';
 

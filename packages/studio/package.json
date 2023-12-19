@@ -20,6 +20,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "playwright": "playwright test"
+    "playwright": "playwright test",
+    "start-wasm-test-server": "vite ./src/lib"
   }
 }

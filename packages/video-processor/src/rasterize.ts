@@ -1,6 +1,6 @@
 import { generateScreenshot } from "animation-player";
 import type { AnimationSource, Source, VideoDocument } from "./video-document";
-import { generateVideo } from "@jumpfish/video-processor";
+import { generateVideo } from './ffmpeg';
 
 interface Params {
   sources: Record<string, Source>,

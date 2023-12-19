@@ -1,6 +1,13 @@
 <html>
-  <head></head>
+  <head>
+
+  </head>
   <body>
-    <script src="./playground.ts" type="module"></script>
+    <script type="module">
+      import { AnimationPlayer } from 'animation-player';
+      import { rasterizeDocument } from './rasterize-document';
+      window.rasterizeDocument = rasterizeDocument;
+      customElements.define('x-animation-player', AnimationPlayer);
+    </script>
   </body>
 </html>
