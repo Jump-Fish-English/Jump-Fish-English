@@ -16,7 +16,6 @@ describe('Tabs', () => {
         onSourceSelect={vi.fn()}
         sources={{}}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -75,7 +74,6 @@ describe('Sources', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -137,7 +135,6 @@ describe('Sources', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -207,7 +204,6 @@ describe('Sources', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -271,7 +267,6 @@ describe('Sources', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,

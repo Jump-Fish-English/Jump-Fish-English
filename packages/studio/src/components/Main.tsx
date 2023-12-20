@@ -4,7 +4,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { usePlayer } from '../hooks/usePlayer';
 import { generateScreenshot, type AnimationPlayer } from 'animation-player';
 import { Workspace } from './Workspace';
-import { 
+import {
   type AnimationSource,
   type VideoDocument,
   type Source,
@@ -288,7 +288,7 @@ export function Main() {
     createVideoDocument({
       width: 1600,
       height: 900,
-    })
+    }),
   );
 
   const player = usePlayer({

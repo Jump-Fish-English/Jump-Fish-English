@@ -1,11 +1,7 @@
-import {
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import { usePopover, Overlay } from "react-aria";
-import { useOverlayTriggerState } from "react-stately";
-import useResizeObserver from "use-resize-observer";
+import { useRef, useState, type ReactNode } from 'react';
+import { usePopover, Overlay } from 'react-aria';
+import { useOverlayTriggerState } from 'react-stately';
+import useResizeObserver from 'use-resize-observer';
 
 interface TimeRange {
   startMilliseconds: number;
@@ -65,7 +61,7 @@ export function Timeline({
   });
   const { popoverProps } = usePopover(
     {
-      placement: "top start",
+      placement: 'top start',
       triggerRef: containerRef,
       popoverRef,
       offset: contextMenu?.offset,

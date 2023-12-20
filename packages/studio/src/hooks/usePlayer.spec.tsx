@@ -52,7 +52,6 @@ describe('Two clips with the same source', () => {
           },
         },
         doc: {
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -142,7 +141,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -193,7 +191,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -262,7 +259,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -314,7 +310,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -383,7 +378,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -434,7 +428,6 @@ describe('Deleting a clip', () => {
           },
         }}
         doc={{
-
           dimensions: {
             height: 900,
             width: 1600,
@@ -477,11 +470,10 @@ describe('Deleting a clip', () => {
             },
           }}
           doc={{
-
-          dimensions: {
-            height: 900,
-            width: 1600,
-          },
+            dimensions: {
+              height: 900,
+              width: 1600,
+            },
             timeline: [secondClip],
             durationMilliseconds: 0,
           }}

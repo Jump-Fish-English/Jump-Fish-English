@@ -1,8 +1,8 @@
 export { rasterizeDocument } from './rasterize';
-export { 
+export {
   type AnimationSource,
-  type VideoDocument, 
-  type Source, 
+  type VideoDocument,
+  type Source,
   type Clip,
   type VideoSource,
   insertClip,

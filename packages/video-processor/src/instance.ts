@@ -23,7 +23,6 @@ export async function destroy() {
   // if (ffmpeg === undefined) {
   //   return;
   // }
-
   // ffmpeg.terminate();
   // ffmpeg = undefined;
 }

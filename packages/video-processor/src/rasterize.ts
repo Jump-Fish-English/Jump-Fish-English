@@ -1,9 +1,9 @@
-import { generateScreenshot } from "animation-player";
-import type { AnimationSource, Source, VideoDocument } from "./video-document";
+import { generateScreenshot } from 'animation-player';
+import type { AnimationSource, Source, VideoDocument } from './video-document';
 import { type Logger, generateVideo } from './ffmpeg';
 
 interface Params {
-  sources: Record<string, Source>,
+  sources: Record<string, Source>;
   doc: VideoDocument;
   log?: Logger;
 }
@@ -12,7 +12,7 @@ export async function rasterizeDocument({ log, doc, sources }: Params) {
   const clip = doc.timeline[0];
   const source = sources[clip.source] as AnimationSource;
   const frameRate = 30;
-  const milliseconds = 1000 / 60
+  const milliseconds = 1000 / 60;
 
   let currentTime = 0;
   const images: Array<{
@@ -29,7 +29,7 @@ export async function rasterizeDocument({ log, doc, sources }: Params) {
     }
 
     log?.({
-      message: `Generating screenshot at time ${currentTime}`
+      message: `Generating screenshot at time ${currentTime}`,
     });
     const { data } = await generateScreenshot({
       contents: {
@@ -50,7 +50,7 @@ export async function rasterizeDocument({ log, doc, sources }: Params) {
   }
 
   log?.({
-    message: `Generating video`
+    message: `Generating video`,
   });
   const video = await generateVideo({
     log,

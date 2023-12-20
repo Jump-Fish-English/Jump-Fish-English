@@ -1,17 +1,13 @@
 {
   "workspaces": {
     "packages/astro-rpc": {
-      "ignoreDependencies": [
-        "@babel/preset-typescript"
-      ]
+      "ignoreDependencies": ["@babel/preset-typescript"]
     },
     "packages/animation-player": {
       "vite": {
         "config": ["vite.config.{js,mjs,ts,cjs,mts,cts}"]
       },
-      "entry": [
-        "playground.ts"
-      ]
+      "entry": ["playground.ts"]
     },
     "packages/studio": {
       "astro": {
@@ -22,18 +18,13 @@
           "src/content/**/*.mdx"
         ]
       },
-      "entry": [
-        "src/components/Main.tsx"
-      ]
+      "entry": ["src/components/Main.tsx"]
     },
     "packages/video-processor": {
-      "entry": [
-        "playground.ts"
-      ],
+      "entry": ["playground.ts"],
       "vite": {
         "config": ["vite.config.{js,mjs,ts,cjs,mts,cts}"]
       }
     }
   }
-  
 }

@@ -3,17 +3,20 @@ import { millisecondsToFFMpegFormat } from './time';
 import { v4 as uuidv4 } from 'uuid';
 import { type FFmpeg } from '@ffmpeg/ffmpeg';
 
-type Events = {
-  name: 'base-video-generated';
-  video: VideoFile;
-} | {
-  name: 'on-ffmpeg-exec';
-  arguments: string[];
-  command: string;
-} | {
-  name?: never;
-  message: string;
-}
+type Events =
+  | {
+      name: 'base-video-generated';
+      video: VideoFile;
+    }
+  | {
+      name: 'on-ffmpeg-exec';
+      arguments: string[];
+      command: string;
+    }
+  | {
+      name?: never;
+      message: string;
+    };
 
 export type Logger = (params: Events) => void;
 
@@ -43,15 +46,23 @@ export interface VideoFile {
   url: string;
 }
 
-async function exec({ ffmpeg, command, log }: { ffmpeg: FFmpeg, command: string[], log?: Logger }) {
+async function exec({
+  ffmpeg,
+  command,
+  log,
+}: {
+  ffmpeg: FFmpeg;
+  command: string[];
+  log?: Logger;
+}) {
   if (log !== undefined) {
     log({
       name: 'on-ffmpeg-exec',
       arguments: command,
-      command: `ffmpeg ${command.join(' ')}`
-    })
+      command: `ffmpeg ${command.join(' ')}`,
+    });
   }
-  
+
   return ffmpeg.exec(command);
 }
 
@@ -144,7 +155,7 @@ async function concatVideoFiles({
   const contentsFileName = `${uuidv4()}.txt`;
   const outputFileName = `${uuidv4()}.mp4`;
   const encoder = new TextEncoder();
-  
+
   await writeFile({
     fileName: contentsFileName,
     buffer: encoder.encode(contents),
@@ -256,34 +267,33 @@ async function generateChunk({
   // create empty video
   await exec({
     log,
-    ffmpeg, 
+    ffmpeg,
     command: [
-    '-f',
-    'lavfi',
-    '-i',
-    `color=c=white:s=${dimensions.width}x${dimensions.height}`,
-    '-t',
-    `${durationMilliseconds / 1000}`,
-    '-s',
-    `${dimensions.width}x${dimensions.height}`,
-    '-c:v',
-    'libx264',
-    '-vf',
-    `format=yuv420p, fps=${frameRate}`,
-    blankVideoFileName,
-  ]
-});
+      '-f',
+      'lavfi',
+      '-i',
+      `color=c=white:s=${dimensions.width}x${dimensions.height}`,
+      '-t',
+      `${durationMilliseconds / 1000}`,
+      '-s',
+      `${dimensions.width}x${dimensions.height}`,
+      '-c:v',
+      'libx264',
+      '-vf',
+      `format=yuv420p, fps=${frameRate}`,
+      blankVideoFileName,
+    ],
+  });
 
   if (log !== undefined) {
     log({
       name: 'base-video-generated',
       video: await readFile({
         fileName: blankVideoFileName,
-        type: 'video/mp4'
+        type: 'video/mp4',
       }),
-    })
+    });
   }
-  
 
   for (const {
     chunk,
@@ -344,7 +354,6 @@ function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   return myArray;
 }
 
-
 export async function generateVideo({
   log,
   dimensions,
@@ -385,7 +394,7 @@ export async function generateVideo({
       log?.({ message: `skipping chunk ${start}-${end}` });
     }
   }
-  
+
   return await concatVideoFiles({
     log,
     output: {

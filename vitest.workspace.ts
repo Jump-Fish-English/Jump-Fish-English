@@ -7,14 +7,14 @@ export default defineWorkspace([
       name: 'jsdom',
       environment: 'jsdom',
       globals: true,
-    }
+    },
   },
   {
     test: {
       include: ['packages/video-processor/**/*.spec.{ts,tsx}'],
       name: 'video-processor',
       globals: true,
-    }
+    },
   },
   {
     test: {
@@ -26,6 +26,6 @@ export default defineWorkspace([
         name: 'chromium',
         headless: true,
       },
-    }
+    },
   },
 ]);

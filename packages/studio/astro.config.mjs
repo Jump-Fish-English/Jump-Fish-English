@@ -10,9 +10,9 @@ export default defineConfig({
       watch: {
         ignored: [
           'src/lib/index.html',
-          "src/lib/rasterize-document.spec.wasm.ts"
-        ]
-      }
+          'src/lib/rasterize-document.spec.wasm.ts',
+        ],
+      },
     },
     optimizeDeps: {
       exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],

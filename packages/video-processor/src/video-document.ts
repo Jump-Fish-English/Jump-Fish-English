@@ -27,8 +27,13 @@ export type Clip = {
   win: MillisecondRange;
 };
 
-
-export function createVideoDocument({ height, width }: { height: number, width: number }) {
+export function createVideoDocument({
+  height,
+  width,
+}: {
+  height: number;
+  width: number;
+}) {
   const timeline: Clip[] = [];
   return {
     dimensions: {
@@ -37,7 +42,7 @@ export function createVideoDocument({ height, width }: { height: number, width: 
     },
     timeline,
     durationMilliseconds: 0,
-  }
+  };
 }
 
 export type VideoDocument = ReturnType<typeof createVideoDocument>;
