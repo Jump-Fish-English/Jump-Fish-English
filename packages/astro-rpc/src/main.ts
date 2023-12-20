@@ -1,7 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import type { PluginOption } from 'vite';
 import { readFileSync } from 'fs';
-import { resolve as resolvePath, dirname } from 'path';
+import { resolve as resolvePath, extname, dirname, relative } from 'path';
 import glob from 'glob';
 import { parse } from '@babel/core';
 import { traverse } from '@babel/core';
@@ -56,8 +56,11 @@ export function rpc(): AstroIntegration {
             },
           });
 
+          const relativePath = relative(srcDir, globPath);
+          const withoutExtension = relativePath.replace(extname(relativePath), '');
           const next: RpcDefinition[] = exportNames.map((exportName) => {
-            const urlPath = '/hryyy';
+            
+            const urlPath = `/${withoutExtension}/${exportName}`;
             return {
               client: {
                 urlPath,
@@ -99,6 +102,7 @@ export function rpc(): AstroIntegration {
             }
 
             const fullImportPath = resolvePath(dirname(importer), source);
+
             const match = RPCS.find((entry) => {
               return entry.file.path === fullImportPath;
             });
@@ -119,7 +123,7 @@ export function rpc(): AstroIntegration {
             ) {
               return;
             }
-
+            
             return `virtual:client:${urlPath}`;
           },
           load(id) {
@@ -135,11 +139,12 @@ export function rpc(): AstroIntegration {
                   `Unable to resolve "${id}". No matching definition found`,
                 );
               }
+              
               return `
-              export async function test(data) {
+              export async function ${def.file.exportName}(data) {
                 return await fetch('${def.client.urlPath}', {
                   method: 'post',
-                  body: JSON.stringify(data),
+                  body: data === undefined ? JSON.stringify({}) : JSON.stringify(data),
                 }).then((resp) => {
                   return resp.json();
                 })
@@ -154,7 +159,7 @@ export function rpc(): AstroIntegration {
             if (serverDef === undefined) {
               return;
             }
-
+            
             return `
             import { ${serverDef.file.exportName} as executeLocal } from '${serverDef.file.path}';
             export async function POST({ params, request }) {

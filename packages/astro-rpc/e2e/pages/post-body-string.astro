@@ -1,0 +1,11 @@
+<html>
+  <head></head>
+  <body>
+    <div id="container"></div>
+    <script>
+      import { postBodyString } from '../rpc/post-body-string.ts';
+      const result = await postBodyString({ message: 'message' });
+      document.getElementById('container')!.innerHTML = result;
+    </script>
+  </body>
+</html>

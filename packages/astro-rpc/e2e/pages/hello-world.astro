@@ -1,0 +1,11 @@
+<html>
+  <head></head>
+  <body>
+    <div id="container"></div>
+    <script>
+      import { helloWorld } from '../rpc/hello-world.ts';
+      const result = await helloWorld();
+      document.getElementById('container')!.innerHTML = result.message;
+    </script>
+  </body>
+</html>

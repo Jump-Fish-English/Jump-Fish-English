@@ -1,7 +1,14 @@
 {
   "workspaces": {
     "packages/astro-rpc": {
-      "ignoreDependencies": ["@babel/preset-typescript"]
+      "ignoreDependencies": ["@babel/preset-typescript"],
+      "astro": {
+        "entry": [
+          "astro.config.{js,cjs,mjs,ts}",
+          "e2e/pages/**/*.{astro,mdx,js,ts}",
+          "e2e/rpc/**/*.ts"
+        ]
+      }
     },
     "packages/animation-player": {
       "vite": {
