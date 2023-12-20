@@ -5,6 +5,9 @@
       import { AnimationPlayer } from 'animation-player';
       import { rasterizeDocument } from './src/main.ts';
       window.rasterizeDocument = rasterizeDocument;
+      window.import = async function () {
+        console.log('here!')
+      }
       customElements.define('x-animation-player', AnimationPlayer);
     </script>
   </body>

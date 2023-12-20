@@ -6,9 +6,13 @@ interface Params {
   sources: Record<string, Source>;
   doc: VideoDocument;
   log?: Logger;
+  events?: {
+    onGeneratingCssScreenshotsStart?: () => void;
+    onGeneratingCssScreenshotsEnd?: () => void;
+  }
 }
 
-export async function rasterizeDocument({ log, doc, sources }: Params) {
+export async function rasterizeDocument({ events, log, doc, sources }: Params) {
   const clip = doc.timeline[0];
   const source = sources[clip.source] as AnimationSource;
   const frameRate = 30;
@@ -22,6 +26,7 @@ export async function rasterizeDocument({ log, doc, sources }: Params) {
     };
     data: Blob;
   }> = [];
+  events?.onGeneratingCssScreenshotsStart?.();
   while (currentTime < clip.win.durationMilliseconds) {
     let nextTime = currentTime + milliseconds;
     if (nextTime > clip.win.durationMilliseconds) {
@@ -48,6 +53,7 @@ export async function rasterizeDocument({ log, doc, sources }: Params) {
     images.push(def);
     currentTime = nextTime;
   }
+  events?.onGeneratingCssScreenshotsEnd?.();
 
   log?.({
     message: `Generating video`,
