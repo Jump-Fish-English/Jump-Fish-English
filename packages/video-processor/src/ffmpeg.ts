@@ -1,6 +1,21 @@
 import { destroy, instance } from './instance';
 import { millisecondsToFFMpegFormat } from './time';
 import { v4 as uuidv4 } from 'uuid';
+import { type FFmpeg } from '@ffmpeg/ffmpeg';
+
+type Events = {
+  name: 'base-video-generated';
+  video: VideoFile;
+} | {
+  name: 'on-ffmpeg-exec';
+  arguments: string[];
+  command: string;
+} | {
+  name?: never;
+  message: string;
+}
+
+export type Logger = (params: Events) => void;
 
 type EncodingPresets =
   | 'ultrafast'
@@ -26,6 +41,18 @@ export interface VideoFile {
   fileName: string;
   data: Blob;
   url: string;
+}
+
+async function exec({ ffmpeg, command, log }: { ffmpeg: FFmpeg, command: string[], log?: Logger }) {
+  if (log !== undefined) {
+    log({
+      name: 'on-ffmpeg-exec',
+      arguments: command,
+      command: `ffmpeg ${command.join(' ')}`
+    })
+  }
+  
+  return ffmpeg.exec(command);
 }
 
 async function readFile({
@@ -89,32 +116,28 @@ export async function exportFrame({
 }
 
 interface ConcatParams {
+  log?: Logger;
   output: OutputOptions;
   files: Array<{
     file: VideoFile;
-    inpointMilliseconds: number;
-    outpointMilliseconds: number;
   }>;
 }
 
 async function concatVideoFiles({
+  log,
   output: { encodingPreset },
   files,
 }: ConcatParams): Promise<VideoFile> {
   const ffmpeg = await instance();
   const inFile: string[] = [];
   for (const file of files) {
-    const { file: data, outpointMilliseconds, inpointMilliseconds } = file;
+    const { file: data } = file;
     await writeFile({
       fileName: data.fileName,
       buffer: new Uint8Array(await data.data.arrayBuffer()),
       type: 'video/mp4',
     });
     inFile.push(`file '${data.fileName}'`);
-    const formattedInpoint = millisecondsToFFMpegFormat(inpointMilliseconds);
-    inFile.push(`inpoint ${formattedInpoint}`);
-    const formattedOutpoint = millisecondsToFFMpegFormat(outpointMilliseconds);
-    inFile.push(`outpoint ${formattedOutpoint}`);
   }
 
   const contents = inFile.join('\n');
@@ -127,6 +150,8 @@ async function concatVideoFiles({
     buffer: encoder.encode(contents),
     type: 'video/mp4',
   });
+
+  log?.({ message: `Generating video` });
   await ffmpeg.exec([
     '-f',
     'concat',
@@ -152,6 +177,7 @@ async function concatVideoFiles({
 }
 
 interface GenerationParams {
+  log?: Logger;
   dimensions: {
     width: number;
     height: number;
@@ -168,6 +194,7 @@ interface GenerationParams {
 }
 
 async function generateChunk({
+  log,
   durationMilliseconds,
   dimensions,
   images,
@@ -227,7 +254,10 @@ async function generateChunk({
   );
 
   // create empty video
-  await ffmpeg.exec([
+  await exec({
+    log,
+    ffmpeg, 
+    command: [
     '-f',
     'lavfi',
     '-i',
@@ -241,7 +271,19 @@ async function generateChunk({
     '-vf',
     `format=yuv420p, fps=${frameRate}`,
     blankVideoFileName,
-  ]);
+  ]
+});
+
+  if (log !== undefined) {
+    log({
+      name: 'base-video-generated',
+      video: await readFile({
+        fileName: blankVideoFileName,
+        type: 'video/mp4'
+      }),
+    })
+  }
+  
 
   for (const {
     chunk,
@@ -302,7 +344,9 @@ function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   return myArray;
 }
 
+
 export async function generateVideo({
+  log,
   dimensions,
   images,
   frameRate,
@@ -310,16 +354,17 @@ export async function generateVideo({
   const chunks = chunkArray(images, 50);
   const results: Array<{
     file: VideoFile;
-    inpointMilliseconds: ConcatParams['files'][number]['inpointMilliseconds'];
-    outpointMilliseconds: ConcatParams['files'][number]['outpointMilliseconds'];
   }> = [];
 
+  log?.({ message: `Chunks generated ${chunks.length}` });
   for (const chunk of chunks) {
     const start = chunk[0].range.startMilliseconds;
     const end = chunk[chunk.length - 1].range.endMilliseconds;
     const durationMilliseconds = end - start;
     if (chunk.length > 1) {
+      log?.({ message: `Generating chunk ${start}-${end}` });
       const result = await generateChunk({
+        log,
         durationMilliseconds,
         images: chunk.map((item) => {
           return {
@@ -335,13 +380,14 @@ export async function generateVideo({
       });
       results.push({
         file: result,
-        inpointMilliseconds: 0,
-        outpointMilliseconds: durationMilliseconds,
       });
+    } else {
+      log?.({ message: `skipping chunk ${start}-${end}` });
     }
   }
-
+  
   return await concatVideoFiles({
+    log,
     output: {
       encodingPreset: 'medium',
     },

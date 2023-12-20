@@ -20,10 +20,10 @@ export async function instance() {
 }
 
 export async function destroy() {
-  if (ffmpeg === undefined) {
-    return;
-  }
+  // if (ffmpeg === undefined) {
+  //   return;
+  // }
 
-  ffmpeg.terminate();
-  ffmpeg = undefined;
+  // ffmpeg.terminate();
+  // ffmpeg = undefined;
 }
