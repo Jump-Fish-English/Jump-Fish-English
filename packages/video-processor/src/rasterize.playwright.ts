@@ -1,10 +1,11 @@
 import { test, expect, Locator, Page, ElementHandle } from '@playwright/test';
-import { rasterizeDocument } from './rasterize';
-import { VideoFile } from './ffmpeg';
+import { animationClipToImageSequence, concatVideoClips } from './rasterize';
+import { VideoSource } from './video-document';
 
 declare global {
   interface Window { 
-    rasterizeDocument: typeof rasterizeDocument
+    concatVideoClips: typeof concatVideoClips,
+    animationClipToImageSequence: typeof animationClipToImageSequence
    }
 }
 
@@ -54,44 +55,50 @@ test.describe('rasterizeDocument', () => {
       test('should rasterize with correct duration', async ({ page }) => {
         await page.goto('/');
         await page.evaluate(async () => {
-          const result = await window.rasterizeDocument({
-            sources: {
-              css: {
+          const result = await window.animationClipToImageSequence({
+            clip: {
+              source: 'css',
+              id: 'clip',
+              win: {
+                startMilliseconds: 0,
                 durationMilliseconds: 1000,
-                thumbnail: {
-                  url: 'thumbnail',
-                  data: new Blob(),
-                  originalDevicePixelRatio: 1,
-                  originalDimensions: {
-                    width: 10,
-                    height: 10,
-                  },
-                },
-                id: 'css',
-                type: 'animation',
-                title: 'Untitled',
-                html: `
-                <div class="ball"><div>
-              `,
-                css: `
-                .ball {
-                  height: 900px;
-                  width: 1600px;
-                  background: red;
-                  animation: move-ball 1s;
-                }
-  
-                @keyframes move-ball {
-                  0% {
-                    opacity: 0;
-                  }
-  
-                  100% {
-                    opacity: 1;
-                  }
-                }
-              `,
               },
+            },
+            source: {
+              durationMilliseconds: 1000,
+              thumbnail: {
+                url: 'thumbnail',
+                data: new Blob(),
+                originalDevicePixelRatio: 1,
+                originalDimensions: {
+                  width: 10,
+                  height: 10,
+                },
+              },
+              id: 'css',
+              type: 'animation',
+              title: 'Untitled',
+              html: `
+              <div class="ball"><div>
+            `,
+              css: `
+              .ball {
+                height: 900px;
+                width: 1600px;
+                background: red;
+                animation: move-ball 1s;
+              }
+
+              @keyframes move-ball {
+                0% {
+                  opacity: 0;
+                }
+
+                100% {
+                  opacity: 1;
+                }
+              }
+            `,
             },
             doc: {
               frameRate: 30,
@@ -113,7 +120,7 @@ test.describe('rasterizeDocument', () => {
             },
           });
 
-          async function renderVideFile({ url }: VideoFile) {
+          async function renderVideFile({ url }: VideoSource) {
             const vid = document.createElement('video');
             vid.title = 'output-video';
             const durationPromise = new Promise<void>((res) => {
@@ -145,86 +152,92 @@ test.describe('rasterizeDocument', () => {
     test('basic counting video', async ({ page }) => {
       await page.goto('/');
       await page.evaluate(async () => {
-        const result = await window.rasterizeDocument({
-          sources: {
-            css: {
-              durationMilliseconds: 5000,
-              thumbnail: {
-                url: 'thumbnail',
-                data: new Blob(),
-                originalDevicePixelRatio: 1,
-                originalDimensions: {
-                  width: 10,
-                  height: 10,
-                },
+        const result = await window.animationClipToImageSequence({
+          source: {
+            durationMilliseconds: 5000,
+            thumbnail: {
+              url: 'thumbnail',
+              data: new Blob(),
+              originalDevicePixelRatio: 1,
+              originalDimensions: {
+                width: 10,
+                height: 10,
               },
-              id: 'css',
-              type: 'animation',
-              title: 'Untitled',
-              css: `
-                .container {
-                  font-size: 128px;
-                  width: 400px;
-                  height: 300px;
-                  position: relative;
-                  color: #000;
+            },
+            id: 'css',
+            type: 'animation',
+            title: 'Untitled',
+            css: `
+              .container {
+                font-size: 128px;
+                width: 400px;
+                height: 300px;
+                position: relative;
+                color: #000;
+              }
+
+              .number {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+              }
+
+              .one {
+                background: #fff;
+                animation: fade-in 1s both;
+              }
+
+              .two {
+                background: #fff;
+                animation: fade-in 1s both;
+                animation-delay: 1s;
+              }
+
+              .three {
+                background: #fff;
+                animation: fade-in 1s both;
+                animation-delay: 2s;
+              }
+
+              .four {
+                background: #fff;
+                animation: fade-in 1s both;
+                animation-delay: 3s;
+              }
+
+              .five {
+                background: #fff;
+                animation: fade-in 1s both;
+                animation-delay: 4s;
+              }
+
+              @keyframes fade-in {
+                0% {
+                  opacity: 0;
                 }
 
-                .number {
-                  position: absolute;
-                  left: 50%;
-                  top: 50%;
-                  transform: translate(-50%, -50%);
+                100% {
+                  opacity: 1;
                 }
-
-                .one {
-                  background: #fff;
-                  animation: fade-in 1s both;
-                }
-
-                .two {
-                  background: #fff;
-                  animation: fade-in 1s both;
-                  animation-delay: 1s;
-                }
-
-                .three {
-                  background: #fff;
-                  animation: fade-in 1s both;
-                  animation-delay: 2s;
-                }
-
-                .four {
-                  background: #fff;
-                  animation: fade-in 1s both;
-                  animation-delay: 3s;
-                }
-
-                .five {
-                  background: #fff;
-                  animation: fade-in 1s both;
-                  animation-delay: 4s;
-                }
-
-                @keyframes fade-in {
-                  0% {
-                    opacity: 0;
-                  }
-
-                  100% {
-                    opacity: 1;
-                  }
-                }
-              `,
-              html: `
-                <div class="container">
-                  <div class="number one">1</div>
-                  <div class="number two">2</div>
-                  <div class="number three">3</div>
-                  <div class="number four">4</div>
-                  <div class="number five">5</div>
-                </div>
-              `,
+              }
+            `,
+            html: `
+              <div class="container">
+                <div class="number one">1</div>
+                <div class="number two">2</div>
+                <div class="number three">3</div>
+                <div class="number four">4</div>
+                <div class="number five">5</div>
+              </div>
+            `,
+          },
+          clip: {
+            source: 'css',
+            id: 'clip',
+            win: {
+              startMilliseconds: 0,
+              durationMilliseconds: 5000,
             },
           },
           doc: {
@@ -247,7 +260,7 @@ test.describe('rasterizeDocument', () => {
           },
         });
 
-        async function renderVideFile({ url }: VideoFile) {
+        async function renderVideFile({ url }: VideoSource) {
           const vid = document.createElement('video');
           vid.title = 'output-video';
           vid.id = 'vid';
@@ -307,7 +320,7 @@ test.describe('rasterizeDocument', () => {
     test('simple video', async ({ page }) => {
       await page.goto('/');
       await page.evaluate(async () => {
-        const result = await window.rasterizeDocument({
+        const result = await window.concatVideoClips({
           sources: {
             video: {
               type: 'video',
@@ -318,27 +331,19 @@ test.describe('rasterizeDocument', () => {
               thumbnailUrl: 'thumbnailUrl',
             }
           },
-          doc: {
-            frameRate: 30,
-            dimensions: {
-              width: 400,
-              height: 300,
-            },
-            durationMilliseconds: 5000,
-            timeline: [
-              {
-                source: 'video',
-                id: 'clip',
-                win: {
-                  startMilliseconds: 0,
-                  durationMilliseconds: 5000,
-                },
+          clips: [
+            {
+              source: 'video',
+              id: 'clip',
+              win: {
+                startMilliseconds: 0,
+                durationMilliseconds: 5000,
               },
-            ],
-          },
+            },
+          ],
         });
 
-        async function renderVideFile({ url }: VideoFile) {
+        async function renderVideFile({ url }: VideoSource) {
           const vid = document.createElement('video');
           vid.title = 'output-video';
           vid.id = 'vid';
@@ -384,7 +389,7 @@ test.describe('rasterizeDocument', () => {
     test('two videos', async ({ page }) => {
       await page.goto('/');
       await page.evaluate(async () => {
-        const result = await window.rasterizeDocument({
+        const result = await window.concatVideoClips({
           sources: {
             video: {
               type: 'video',
@@ -395,35 +400,27 @@ test.describe('rasterizeDocument', () => {
               thumbnailUrl: 'thumbnailUrl',
             }
           },
-          doc: {
-            frameRate: 30,
-            dimensions: {
-              width: 400,
-              height: 300,
+          clips: [
+            {
+              source: 'video',
+              id: 'clip',
+              win: {
+                startMilliseconds: 0,
+                durationMilliseconds: 5000,
+              },
             },
-            durationMilliseconds: 5000,
-            timeline: [
-              {
-                source: 'video',
-                id: 'clip',
-                win: {
-                  startMilliseconds: 0,
-                  durationMilliseconds: 5000,
-                },
+            {
+              source: 'video',
+              id: 'clip',
+              win: {
+                startMilliseconds: 0,
+                durationMilliseconds: 5000,
               },
-              {
-                source: 'video',
-                id: 'clip',
-                win: {
-                  startMilliseconds: 0,
-                  durationMilliseconds: 5000,
-                },
-              },
-            ],
-          },
+            },
+          ],
         });
 
-        async function renderVideFile({ url }: VideoFile) {
+        async function renderVideFile({ url }: VideoSource) {
           const vid = document.createElement('video');
           vid.title = 'output-video';
           vid.id = 'vid';

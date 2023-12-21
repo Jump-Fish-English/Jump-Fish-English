@@ -4,7 +4,6 @@ import {
   type Source,
   type VideoDocument,
   type VideoSource,
-  rasterizeDocument,
 } from '@jumpfish/video-processor';
 import { ClipTimeline } from './ClipTimeline';
 import { Tab, Tabs } from './Tabs';
@@ -148,21 +147,7 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
         </Tab>
       </Tabs>
       <main className={styles.main}>
-        <button
-          onClick={async () => {
-            const { url } = await rasterizeDocument({ doc, sources });
-
-            const vid = document.createElement('video');
-            vid.style.width = '100%';
-            vid.src = url;
-            document.body.insertBefore(vid, document.body.firstChild!);
-            const a = document.createElement('a');
-            a.href = url;
-            a.innerHTML = 'download video';
-            a.download = 'true';
-            document.body.insertBefore(a, vid);
-          }}
-        >
+        <button>
           Generate
         </button>
         {documentTimeline.length > 0 && playerElement}

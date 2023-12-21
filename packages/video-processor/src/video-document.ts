@@ -20,12 +20,32 @@ export interface AnimationSource {
   thumbnail: AnimationScreenshot;
 }
 
+
+export type ImageSequence = Array<{
+  range: {
+    startMilliseconds: number;
+    endMilliseconds: number;
+  };
+  data: Blob;
+}>
+
+
 export type Source = VideoSource | AnimationSource;
 export type Clip = {
   id: string;
   source: string;
   win: MillisecondRange;
 };
+
+export interface VideoDocument {
+  dimensions: {
+    height: number;
+    width: number; 
+  };
+  frameRate: number;
+  timeline: Clip[];
+  durationMilliseconds: number;
+}
 
 export function createVideoDocument({
   dimensions: {
@@ -39,20 +59,17 @@ export function createVideoDocument({
     width: number;
   };
   frameRate?: number;
-}) {
-  const timeline: Clip[] = [];
+}): VideoDocument {
   return {
     frameRate: frameRate === undefined ? 30 : frameRate,
     dimensions: {
       width,
       height,
     },
-    timeline,
+    timeline: [],
     durationMilliseconds: 0,
   };
 }
-
-export type VideoDocument = ReturnType<typeof createVideoDocument>;
 
 export function insertClip({
   doc,

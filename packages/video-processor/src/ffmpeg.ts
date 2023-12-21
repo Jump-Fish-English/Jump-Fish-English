@@ -2,7 +2,7 @@ import { destroy, instance } from './instance';
 import { millisecondsToFFMpegFormat } from './time';
 import { v4 as uuidv4 } from 'uuid';
 import { type FFmpeg } from '@ffmpeg/ffmpeg';
-import { VideoSource } from './video-document';
+import { VideoSource, ImageSequence } from './video-document';
 
 type Events =
   | {
@@ -41,7 +41,7 @@ interface OutputOptions {
   encodingPreset: EncodingPresets;
 }
 
-export interface VideoFile {
+interface VideoFile {
   fileName: string;
   data: Blob;
   url: string;
@@ -357,26 +357,31 @@ function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   return myArray;
 }
 
-export async function generateVideo({
-  log,
+interface ImageSequenceVideoParams {
+  dimensions: {
+    width: number;
+    height: number;
+  },
+  images: ImageSequence;
+  frameRate: number;
+}
+
+export async function generateImageSequenceVideo({
   dimensions,
   images,
   frameRate,
-}: Omit<GenerationParams, 'durationMilliseconds'>): Promise<VideoFile> {
+}: ImageSequenceVideoParams): Promise<VideoSource> {
   const chunks = chunkArray(images, 50);
   const results: Array<{
     file: VideoFile;
   }> = [];
 
-  log?.({ message: `Chunks generated ${chunks.length}` });
   for (const chunk of chunks) {
     const start = chunk[0].range.startMilliseconds;
     const end = chunk[chunk.length - 1].range.endMilliseconds;
     const durationMilliseconds = end - start;
     if (chunk.length > 1) {
-      log?.({ message: `Generating chunk ${start}-${end}` });
       const result = await generateChunk({
-        log,
         durationMilliseconds,
         images: chunk.map((item) => {
           return {
@@ -393,18 +398,30 @@ export async function generateVideo({
       results.push({
         file: result,
       });
-    } else {
-      log?.({ message: `skipping chunk ${start}-${end}` });
     }
   }
 
-  return await concatVideoFiles({
-    log,
+  const file = await concatVideoFiles({
     output: {
       encodingPreset: 'medium',
     },
     files: results,
   });
+
+  const vid = document.createElement('video');
+  const durationMillisecondsPromise = new Promise<number>((res) => {
+    vid.addEventListener('durationchange', () => res(vid.duration * 1000), { once: true });
+  });
+  vid.src = file.url;
+
+  return {
+    type: 'video',
+    id: uuidv4(),
+    title: 'Untitled',
+    durationMilliseconds: await durationMillisecondsPromise,
+    url: file.url,
+    thumbnailUrl: '',
+  };
 }
 
 interface ConcatVideoSourcesParams {
@@ -422,7 +439,7 @@ async function writeVideoSource(source: VideoSource) {
   });
 }
 
-export async function concatVideoSources({ sources }: ConcatVideoSourcesParams): Promise<VideoFile | null> {
+export async function concatVideoSources({ sources }: ConcatVideoSourcesParams): Promise<VideoSource | null> {
   let videoFile: VideoFile | null = null;
   for(const source of sources) {
     const file = await writeVideoSource(source);
@@ -443,5 +460,22 @@ export async function concatVideoSources({ sources }: ConcatVideoSourcesParams):
     })
   }
 
-  return videoFile;
+  if (videoFile === null) {
+    throw new Error('Unexpected null video file');
+  }
+
+  const vid = document.createElement('video');
+  const durationMillisecondsPromise = new Promise<number>((res) => {
+    vid.addEventListener('durationchange', () => res(vid.duration * 1000), { once: true });
+  });
+  vid.src = videoFile.url;
+
+  return {
+    type: 'video',
+    id: uuidv4(),
+    title: 'Untitled',
+    url: videoFile.url,
+    thumbnailUrl: '',
+    durationMilliseconds: await durationMillisecondsPromise,
+  };
 }

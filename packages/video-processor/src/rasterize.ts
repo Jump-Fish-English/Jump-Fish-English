@@ -1,6 +1,6 @@
 import { generateScreenshot } from 'animation-player';
-import type { AnimationSource, Clip, Source, VideoDocument, VideoSource } from './video-document';
-import { type Logger, generateVideo, concatVideoSources } from './ffmpeg';
+import type { AnimationSource, Clip, ImageSequence, VideoDocument, VideoSource } from './video-document';
+import { type Logger, generateImageSequenceVideo, concatVideoSources } from './ffmpeg';
 import Queue from 'queue';
 
 interface Params {
@@ -8,26 +8,9 @@ interface Params {
   source: AnimationSource;
   doc: VideoDocument;
   log?: Logger;
-  events?: {
-    onGeneratingCssScreenshotsStart?: () => void;
-    onGeneratingCssScreenshotsEnd?: () => void;
-  }
 }
 
-interface RasterizeEvents {
-  onGeneratingCssScreenshotsStart?: () => void;
-  onGeneratingCssScreenshotsEnd?: () => void;
-}
-
-interface GeneratedScreenshot {
-  range: {
-    startMilliseconds: number;
-    endMilliseconds: number;
-  };
-  data: Blob;
-}
-
-async function rasterizeAnimationClip({ clip, source, events, doc }: Params) {
+export async function animationClipToImageSequence({ clip, source, doc }: Params) {
   const { frameRate, dimensions: documentDimensions } = doc;
   const milliseconds = 1000 / 60;
 
@@ -36,8 +19,7 @@ async function rasterizeAnimationClip({ clip, source, events, doc }: Params) {
     autostart: true,
   });
   let currentTime = 0;
-  const images: GeneratedScreenshot[] = [];
-  events?.onGeneratingCssScreenshotsStart?.();
+  const sequence: ImageSequence = [];
 
   function queueGenerateScreenshot(queue: Queue, currentTime: number, nextTime: number) {
     queue.push(async () => {
@@ -55,7 +37,7 @@ async function rasterizeAnimationClip({ clip, source, events, doc }: Params) {
           endMilliseconds: parseFloat(nextTime.toFixed(3)),
         },
       };
-      images.push(def);
+      sequence.push(def);
     });
   }
 
@@ -67,85 +49,25 @@ async function rasterizeAnimationClip({ clip, source, events, doc }: Params) {
 
     queueGenerateScreenshot(queue, currentTime, nextTime);
 
-    
-    
     currentTime = nextTime;
   }
   await new Promise((res) => {
     queue.addEventListener('end', res, { once: true});
   });
-  events?.onGeneratingCssScreenshotsEnd?.();
   
-  const video = await generateVideo({
+  return await generateImageSequenceVideo({
     dimensions: documentDimensions,
-    images,
+    images: sequence,
     frameRate,
   });
-  return video;
 }
 
-interface RasterizeClipParams {
-  clip: Clip;
-  source: Source;
-  events?: RasterizeEvents;
-  doc: VideoDocument;
-}
-
-
-async function convertToVideoClip({ doc, events, clip, source }: RasterizeClipParams): Promise<{ clip: Clip, source: VideoSource }> {
-  const { type: sourceType } = source;
-  switch(sourceType) {
-    case 'animation': {
-      const videoFile = await rasterizeAnimationClip({
-        clip,
-        source,
-        events,
-        doc,
-      });
-
-      return {
-        clip: {
-          ...clip,
-          id: `${clip.id}-rastered`,
-        },
-        source: {
-          ...source,
-          type: 'video',
-          url: videoFile.url,
-          thumbnailUrl: '',
-        }
-      }
-    }
-    case 'video': {
-      return {
-        clip,
-        source,
-      };
-    }
-  }
-}
-
-interface RasterizeParams {
-  sources: Record<string, Source>;
-  doc: VideoDocument;
-  log?: Logger;
-  events?: RasterizeEvents;
-}
-
-export async function rasterizeDocument({ events, doc, sources }: RasterizeParams) {
-  const { timeline } = doc;
-
+export async function concatVideoClips({ clips, sources }: { clips: Clip[], sources: Record<string, VideoSource> }) {
   const videoSources: VideoSource[] = [];
-  for(const clip of timeline) {
-    const source = sources[clip.source];
-    const videoClip = await convertToVideoClip({
-      doc,
-      events,
-      clip,
-      source,
-    });
-
-    videoSources.push(videoClip.source);
+  for(const clip of clips) {
+    videoSources.push(
+      sources[clip.source]
+    );
   }
 
   
