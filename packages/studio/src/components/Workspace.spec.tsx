@@ -16,6 +16,7 @@ describe('Tabs', () => {
         onSourceSelect={vi.fn()}
         sources={{}}
         doc={{
+          frameRate: 30,
           dimensions: {
             height: 900,
             width: 1600,
@@ -48,11 +49,7 @@ describe('Sources', () => {
             id: 'video',
             title: 'Video clip',
             durationMilliseconds: 100,
-            videoFile: {
-              fileName: 'hello.mp4',
-              data: new Blob(),
-              url: 'blob://url',
-            },
+            url: 'blob://url',
             thumbnailUrl: 'video-thumbnail',
           },
           animation: {
@@ -74,6 +71,7 @@ describe('Sources', () => {
           },
         }}
         doc={{
+          frameRate: 30,
           dimensions: {
             height: 900,
             width: 1600,
@@ -109,11 +107,7 @@ describe('Sources', () => {
             id: 'video',
             title: 'Video clip',
             durationMilliseconds: 100,
-            videoFile: {
-              fileName: 'hello.mp4',
-              data: new Blob(),
-              url: 'blob://url',
-            },
+            url: 'blob://url',
             thumbnailUrl: 'video-thumbnail',
           },
           animation: {
@@ -135,6 +129,7 @@ describe('Sources', () => {
           },
         }}
         doc={{
+          frameRate: 30,
           dimensions: {
             height: 900,
             width: 1600,
@@ -178,11 +173,7 @@ describe('Sources', () => {
             id: 'video',
             title: 'Video clip',
             durationMilliseconds: 100,
-            videoFile: {
-              fileName: 'hello.mp4',
-              data: new Blob(),
-              url: 'blob://url',
-            },
+            url: 'blob://url',
             thumbnailUrl: 'video-thumbnail',
           },
           animation: {
@@ -204,6 +195,7 @@ describe('Sources', () => {
           },
         }}
         doc={{
+          frameRate: 30,
           dimensions: {
             height: 900,
             width: 1600,
@@ -241,11 +233,7 @@ describe('Sources', () => {
             id: 'video',
             title: 'Video clip',
             durationMilliseconds: 100,
-            videoFile: {
-              fileName: 'hello.mp4',
-              data: new Blob(),
-              url: 'blob://url',
-            },
+            url: 'blob://url',
             thumbnailUrl: 'video-thumbnail',
           },
           animation: {
@@ -267,6 +255,7 @@ describe('Sources', () => {
           },
         }}
         doc={{
+          frameRate: 30,
           dimensions: {
             height: 900,
             width: 1600,

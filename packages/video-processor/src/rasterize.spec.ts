@@ -7,6 +7,10 @@ vi.stubGlobal('URL', {
   createObjectURL: vi.fn().mockReturnValue('mockedurl'),
 });
 
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+  blob: vi.fn().mockResolvedValue(new Blob())
+}));
+
 vi.mock('uuid', async () => {
   return {
     v4: vi.fn().mockReturnValue('mockuuid'),
@@ -80,6 +84,7 @@ describe('rasterizeDocument', () => {
         },
       },
       doc: {
+        frameRate: 30,
         dimensions: {
           height: 900,
           width: 1600,
@@ -129,6 +134,7 @@ describe('rasterizeDocument', () => {
         },
       },
       doc: {
+        frameRate: 30,
         dimensions: {
           height: 900,
           width: 1600,

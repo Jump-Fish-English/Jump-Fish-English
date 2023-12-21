@@ -1,5 +1,5 @@
 import type { AnimationScreenshot } from 'animation-player';
-import { MillisecondRange, VideoFile } from './ffmpeg';
+import { MillisecondRange } from './ffmpeg';
 
 export interface VideoSource {
   type: 'video';
@@ -7,7 +7,7 @@ export interface VideoSource {
   id: string;
   durationMilliseconds: number;
   thumbnailUrl: string;
-  videoFile: VideoFile;
+  url: string;
 }
 
 export interface AnimationSource {
@@ -28,14 +28,21 @@ export type Clip = {
 };
 
 export function createVideoDocument({
-  height,
-  width,
+  dimensions: {
+    height,
+    width,
+  },
+  frameRate,
 }: {
-  height: number;
-  width: number;
+  dimensions: {
+    height: number;
+    width: number;
+  };
+  frameRate?: number;
 }) {
   const timeline: Clip[] = [];
   return {
+    frameRate: frameRate === undefined ? 30 : frameRate,
     dimensions: {
       width,
       height,

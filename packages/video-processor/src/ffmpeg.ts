@@ -2,6 +2,7 @@ import { destroy, instance } from './instance';
 import { millisecondsToFFMpegFormat } from './time';
 import { v4 as uuidv4 } from 'uuid';
 import { type FFmpeg } from '@ffmpeg/ffmpeg';
+import { VideoSource } from './video-document';
 
 type Events =
   | {
@@ -86,15 +87,17 @@ async function readFile({
   };
 }
 
+interface WriteFileParams {
+  type: 'video/mp4' | 'image/png';
+  fileName: string;
+  buffer: Uint8Array;
+}
+
 export async function writeFile({
   fileName,
   buffer,
   type,
-}: {
-  type: 'video/mp4' | 'image/png';
-  fileName: string;
-  buffer: Uint8Array;
-}): Promise<VideoFile> {
+}: WriteFileParams): Promise<VideoFile> {
   const ffmpeg = await instance();
   await ffmpeg.writeFile(fileName, buffer);
   return await readFile({ fileName, type });
@@ -402,4 +405,43 @@ export async function generateVideo({
     },
     files: results,
   });
+}
+
+interface ConcatVideoSourcesParams {
+  sources: VideoSource[];
+}
+
+async function writeVideoSource(source: VideoSource) {
+  const fileName = `${uuidv4()}.mp4`;
+  const blob = await fetch(source.url).then((resp) => resp.blob());
+  
+  return await writeFile({
+    fileName,
+    buffer: new Uint8Array(await blob.arrayBuffer()),
+    type: 'video/mp4',
+  });
+}
+
+export async function concatVideoSources({ sources }: ConcatVideoSourcesParams): Promise<VideoFile | null> {
+  let videoFile: VideoFile | null = null;
+  for(const source of sources) {
+    const file = await writeVideoSource(source);
+    if (videoFile === null) {
+      videoFile = file;
+      continue;
+    }
+
+    videoFile = await concatVideoFiles({
+      output: {
+        encodingPreset: 'ultrafast',
+      },
+      files: [{
+        file: videoFile,
+      }, {
+        file,
+      }]
+    })
+  }
+
+  return videoFile;
 }

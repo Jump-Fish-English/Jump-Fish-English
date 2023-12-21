@@ -154,7 +154,7 @@ export function usePlayer({ doc, sources }: Props) {
                   }}
                   className={classNames.join(' ')}
                   key={clipId}
-                  src={source.videoFile.url}
+                  src={source.url}
                   controls
                 />
               );

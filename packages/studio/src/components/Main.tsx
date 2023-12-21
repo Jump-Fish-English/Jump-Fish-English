@@ -286,8 +286,10 @@ export function Main() {
   const [sources, setSources] = useState<Record<string, Source>>({});
   const [doc, setDoc] = useState<VideoDocument>(
     createVideoDocument({
-      width: 1600,
-      height: 900,
+      dimensions: {
+        width: 1600,
+        height: 900,
+      }
     }),
   );
 
