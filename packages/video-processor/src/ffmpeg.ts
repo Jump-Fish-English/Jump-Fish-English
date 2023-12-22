@@ -196,13 +196,7 @@ interface GenerationParams {
     width: number;
     height: number;
   };
-  images: Array<{
-    range: {
-      startMilliseconds: number;
-      endMilliseconds: number;
-    };
-    url: string;
-  }>;
+  images: ImageSequence;
   durationMilliseconds: number;
   frameRate: number;
 }
@@ -275,55 +269,7 @@ async function generateChunk({
   const namespace = uuidv4();
 
   await ffmpeg.createDir(namespace);
-
-  const rangeDefinitions: Array<{
-    range: {
-      startMilliseconds: number;
-      endMilliseconds: number;
-    };
-    path: string;
-  }> = [];
-  for (const { url, range } of images) {
-    const data = await fetch(url).then((resp) => resp.arrayBuffer());
-    const fileName = `${uuidv4()}.png`;
-    const unscaledFileName = `unscaled-${fileName}`;
-    const path = `${namespace}/${fileName}`;
-    const unscalledPath = `${namespace}/${unscaledFileName}`;
-    await writeFile({
-      fileName: unscalledPath,
-      buffer: new Uint8Array(data),
-      type: 'image/png',
-    });
-
-    await ffmpeg.exec([
-      '-i',
-      unscalledPath,
-      '-vf',
-      `scale=${dimensions.width}:${dimensions.height}`,
-      path,
-    ]);
-
-    await ffmpeg.deleteFile(unscalledPath);
-
-    rangeDefinitions.push({
-      range,
-      path,
-    });
-  }
-
-  const uuid = uuidv4();
   const blankVideoFileName = `blank-${uuidv4()}.mp4`;
-  const chunkedRangeDefinitions = chunkArray(rangeDefinitions, 20).map(
-    (chunk, index) => {
-      const outputFileName = `${uuid}-${index}.mp4`;
-      return {
-        outputFileName,
-        previousOutputFileName:
-          index === 0 ? blankVideoFileName : `${uuid}-${index - 1}.mp4`,
-        chunk,
-      };
-    },
-  );
 
   // create empty video
   await exec({
@@ -346,6 +292,46 @@ async function generateChunk({
     ],
   });
 
+  const vid = await readFile({
+    fileName: blankVideoFileName,
+    type: 'video/mp4',
+  });
+
+  const rangeDefinitions: ImageSequence = [];
+  for (const { url, range } of images) {
+    const data = await fetch(url).then((resp) => resp.arrayBuffer());
+    const fileName = `${uuidv4()}.png`;
+    const unscaledFileName = `unscaled-${fileName}`;
+    const path = `${namespace}/${fileName}`;
+    const unscalledPath = `${namespace}/${unscaledFileName}`;
+    await writeFile({
+      fileName: unscalledPath,
+      buffer: new Uint8Array(data),
+      type: 'image/png',
+    });
+
+    await ffmpeg.exec([
+      '-i',
+      unscalledPath,
+      '-vf',
+      `scale=${dimensions.width}:${dimensions.height}`,
+      path,
+    ]);
+
+    const img = await readFile({
+      fileName: path,
+      type: 'image/png',
+    })
+
+    await ffmpeg.deleteFile(unscalledPath);
+
+    rangeDefinitions.push({
+      range,
+      url: img.url,
+    });
+  }
+
+
   if (log !== undefined) {
     log({
       name: 'base-video-generated',
@@ -356,55 +342,22 @@ async function generateChunk({
     });
   }
 
-  for (const {
-    chunk,
-    outputFileName,
-    previousOutputFileName,
-  } of chunkedRangeDefinitions) {
-    const filters = chunk.map(({ range }, index) => {
-      return `[${index + 1}]overlay=enable='between(t,${
-        range.startMilliseconds / 1000
-      },${range.endMilliseconds / 1000})':x=0:y=0`;
-    });
-
-    const filterStr = `[0]${filters.join('[out];[out]')}`;
-
-    const inputs = chunk
-      .map(({ path }) => {
-        return ['-i', path];
-      })
-      .reduce((acc, item) => {
-        return [...acc, ...item];
-      }, []);
-
-    // overlay images
-    await ffmpeg.exec([
-      '-i',
-      previousOutputFileName,
-      ...inputs,
-      '-filter_complex',
-      filterStr,
-      outputFileName,
-    ]);
-
-    for (const item of chunk) {
-      await ffmpeg.deleteFile(item.path);
-    }
-
-    await ffmpeg.deleteFile(previousOutputFileName);
-  }
-
-  const lastFile =
-    chunkedRangeDefinitions[chunkedRangeDefinitions.length - 1].outputFileName;
-  const file = await readFile({
-    fileName: lastFile,
-    type: 'video/mp4',
-  });
-
-  await ffmpeg.deleteFile(lastFile);
   await destroy();
-
-  return file;
+  return overlayImageSequence({
+    position: {
+      x: 0,
+      y: 0,
+    },
+    base: {
+      id: vid.url,
+      title: 'Untitled',
+      durationMilliseconds,
+      url: vid.url,
+      type: 'video',
+      thumbnailUrl: '',
+    },
+    imageSequence: rangeDefinitions,
+  })
 }
 
 function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
