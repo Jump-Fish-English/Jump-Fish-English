@@ -4,23 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { type FFmpeg } from '@ffmpeg/ffmpeg';
 import { VideoSource, ImageSequence } from './video-document';
 
-type Events =
-  | {
-      name: 'base-video-generated';
-      video: VideoFile;
-    }
-  | {
-      name: 'on-ffmpeg-exec';
-      arguments: string[];
-      command: string;
-    }
-  | {
-      name?: never;
-      message: string;
-    };
-
-export type Logger = (params: Events) => void;
-
 type EncodingPresets =
   | 'ultrafast'
   | 'superfast'
@@ -50,20 +33,10 @@ interface VideoFile {
 async function exec({
   ffmpeg,
   command,
-  log,
 }: {
   ffmpeg: FFmpeg;
   command: string[];
-  log?: Logger;
 }) {
-  if (log !== undefined) {
-    log({
-      name: 'on-ffmpeg-exec',
-      arguments: command,
-      command: `ffmpeg ${command.join(' ')}`,
-    });
-  }
-
   return ffmpeg.exec(command);
 }
 
@@ -130,7 +103,6 @@ export async function exportFrame({
 }
 
 interface ConcatParams {
-  log?: Logger;
   output: OutputOptions;
   files: Array<{
     file: VideoFile;
@@ -138,7 +110,6 @@ interface ConcatParams {
 }
 
 async function concatVideoFiles({
-  log,
   output: { encodingPreset },
   files,
 }: ConcatParams): Promise<VideoFile> {
@@ -165,7 +136,6 @@ async function concatVideoFiles({
     type: 'video/mp4',
   });
 
-  log?.({ message: `Generating video` });
   await ffmpeg.exec([
     '-f',
     'concat',
@@ -191,7 +161,6 @@ async function concatVideoFiles({
 }
 
 interface GenerationParams {
-  log?: Logger;
   dimensions: {
     width: number;
     height: number;
@@ -259,7 +228,6 @@ export async function overlayImageSequence({ position, base, imageSequence }: Ov
 }
 
 async function generateChunk({
-  log,
   durationMilliseconds,
   dimensions,
   images,
@@ -273,7 +241,6 @@ async function generateChunk({
 
   // create empty video
   await exec({
-    log,
     ffmpeg,
     command: [
       '-f',
@@ -328,17 +295,6 @@ async function generateChunk({
     rangeDefinitions.push({
       range,
       url: img.url,
-    });
-  }
-
-
-  if (log !== undefined) {
-    log({
-      name: 'base-video-generated',
-      video: await readFile({
-        fileName: blankVideoFileName,
-        type: 'video/mp4',
-      }),
     });
   }
 

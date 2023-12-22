@@ -1,8 +1,7 @@
 import { generateScreenshot } from 'animation-player';
 import { v4 as uuidv4 } from 'uuid';
 import type { AnimationSource, Clip, ImageSequence, VideoDocument, VideoSource } from './video-document';
-import { 
-  type Logger, 
+import {  
   generateImageSequenceVideo, 
   concatVideoSources,
   overlayImageSequence as ffmpegOverayImageSequence,
@@ -12,7 +11,6 @@ import Queue from 'queue';
 interface Params {
   clip: Clip;
   source: AnimationSource;
-  log?: Logger;
 }
 
 export async function animationClipToImageSequence({ clip, source }: Params) {
