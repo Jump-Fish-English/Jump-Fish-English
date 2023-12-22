@@ -3,9 +3,14 @@
   <body>
     <script type="module">
       import { AnimationPlayer } from 'animation-player';
-      import { animationClipToImageSequence, concatVideoClips } from './src/main.ts';
+      import { 
+        animationClipToImageSequence, 
+        concatVideoClips,
+        imageSequenceToVideo,
+      } from './src/main.ts';
       window.concatVideoClips = concatVideoClips;
       window.animationClipToImageSequence = animationClipToImageSequence;
+      window.imageSequenceToVideo = imageSequenceToVideo;
       customElements.define('x-animation-player', AnimationPlayer);
     </script>
     

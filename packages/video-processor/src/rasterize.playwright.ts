@@ -1,11 +1,12 @@
 import { test, expect, Locator, Page, ElementHandle } from '@playwright/test';
-import { animationClipToImageSequence, concatVideoClips } from './rasterize';
+import { animationClipToImageSequence, concatVideoClips, imageSequenceToVideo} from './rasterize';
 import { VideoSource } from './video-document';
 
 declare global {
   interface Window { 
-    concatVideoClips: typeof concatVideoClips,
-    animationClipToImageSequence: typeof animationClipToImageSequence
+    concatVideoClips: typeof concatVideoClips;
+    animationClipToImageSequence: typeof animationClipToImageSequence;
+    imageSequenceToVideo: typeof imageSequenceToVideo;
    }
 }
 
@@ -52,7 +53,7 @@ test.describe('Snapshots', () => {
   test('basic counting video', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(async () => {
-      const result = await window.animationClipToImageSequence({
+      const imageSequence = await window.animationClipToImageSequence({
         source: {
           durationMilliseconds: 5000,
           thumbnail: {
@@ -140,25 +141,18 @@ test.describe('Snapshots', () => {
             durationMilliseconds: 5000,
           },
         },
+      });
+
+      const result = await window.imageSequenceToVideo({
+        sequence: imageSequence,
         doc: {
           frameRate: 30,
           dimensions: {
             width: 400,
             height: 300,
-          },
-          durationMilliseconds: 5000,
-          timeline: [
-            {
-              source: 'css',
-              id: 'clip',
-              win: {
-                startMilliseconds: 0,
-                durationMilliseconds: 5000,
-              },
-            },
-          ],
-        },
-      });
+          }
+        }
+      })
 
       async function renderVideFile({ url }: VideoSource) {
         const vid = document.createElement('video');

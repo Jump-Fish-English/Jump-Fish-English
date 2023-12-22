@@ -1,4 +1,4 @@
-export { animationClipToImageSequence, concatVideoClips } from './rasterize';
+export { animationClipToImageSequence, concatVideoClips, imageSequenceToVideo } from './rasterize';
 export {
   type AnimationSource,
   type VideoDocument,

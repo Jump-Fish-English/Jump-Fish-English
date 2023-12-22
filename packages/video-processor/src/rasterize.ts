@@ -6,12 +6,10 @@ import Queue from 'queue';
 interface Params {
   clip: Clip;
   source: AnimationSource;
-  doc: VideoDocument;
   log?: Logger;
 }
 
-export async function animationClipToImageSequence({ clip, source, doc }: Params) {
-  const { frameRate, dimensions: documentDimensions } = doc;
+export async function animationClipToImageSequence({ clip, source }: Params) {
   const milliseconds = 1000 / 60;
 
   const queue = new Queue({
@@ -55,6 +53,17 @@ export async function animationClipToImageSequence({ clip, source, doc }: Params
     queue.addEventListener('end', res, { once: true});
   });
   
+  return sequence;
+}
+
+export async function imageSequenceToVideo({
+  sequence,
+  doc,
+}: {
+  doc: Pick<VideoDocument, 'frameRate' | 'dimensions'>;
+  sequence: ImageSequence;
+}) {
+  const { dimensions: documentDimensions, frameRate } = doc;
   return await generateImageSequenceVideo({
     dimensions: documentDimensions,
     images: sequence,
