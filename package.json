@@ -1,14 +1,14 @@
 {
   "name": "jumpfish",
   "volta": {
-    "node": "20.9.0"
+    "node": "20.10.0"
   },
   "dependencies": {
     "uuid": "9.0.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.3.1",
-    "@astrojs/react": "3.0.6",
+    "@astrojs/react": "3.0.8",
     "@playwright/test": "^1.40.1",
     "@testing-library/dom": "9.3.3",
     "@testing-library/react": "14.1.2",
@@ -18,7 +18,7 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "@vitest/browser": "1.0.4",
-    "astro": "3.4.3",
+    "astro": "4.0.7",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "husky": "^8.0.0",
@@ -29,7 +29,7 @@
     "react": "18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "5.2.2",
-    "vite": "5.0.6",
+    "vite": "5.0.10",
     "vitest": "1.0.4",
     "vitest-dom": "0.1.1"
   },

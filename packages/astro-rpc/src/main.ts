@@ -2,7 +2,7 @@ import type { AstroIntegration } from 'astro';
 import type { PluginOption } from 'vite';
 import { readFileSync } from 'fs';
 import { resolve as resolvePath, extname, dirname, relative } from 'path';
-import glob from 'glob';
+import { sync as globSync } from 'glob';
 import { parse } from '@babel/core';
 import { traverse } from '@babel/core';
 
@@ -25,7 +25,7 @@ export function rpc(): AstroIntegration {
     hooks: {
       'astro:config:setup': ({ updateConfig, injectRoute, config }) => {
         const srcDir = config.srcDir.pathname;
-        const rpcs = glob.sync(`${srcDir}/rpc/**/*.ts`);
+        const rpcs = globSync(`${srcDir}/rpc/**/*.ts`);
 
         const RPCS = rpcs.reduce((acc, globPath) => {
           const contents = readFileSync(globPath).toString();
@@ -84,7 +84,7 @@ export function rpc(): AstroIntegration {
           ({ server: { virtualFileSystemPath }, client: { urlPath } }) => {
             injectRoute({
               pattern: urlPath,
-              entryPoint: virtualFileSystemPath,
+              entrypoint: virtualFileSystemPath,
             });
           },
         );
