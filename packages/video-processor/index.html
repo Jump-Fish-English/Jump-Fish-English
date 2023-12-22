@@ -7,10 +7,12 @@
         animationClipToImageSequence, 
         concatVideoClips,
         imageSequenceToVideo,
+        overlayImageSequence,
       } from './src/main.ts';
       window.concatVideoClips = concatVideoClips;
       window.animationClipToImageSequence = animationClipToImageSequence;
       window.imageSequenceToVideo = imageSequenceToVideo;
+      window.overlayImageSequence = overlayImageSequence;
       customElements.define('x-animation-player', AnimationPlayer);
     </script>
     

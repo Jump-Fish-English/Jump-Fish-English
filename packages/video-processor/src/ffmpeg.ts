@@ -201,10 +201,67 @@ interface GenerationParams {
       startMilliseconds: number;
       endMilliseconds: number;
     };
-    data: Blob;
+    url: string;
   }>;
   durationMilliseconds: number;
   frameRate: number;
+}
+
+interface OverlayImageSequenceParams {
+  imageSequence: ImageSequence;
+  base: VideoSource;
+  position: {
+    x: number;
+    y: number;
+  }
+}
+
+export async function overlayImageSequence({ position, base, imageSequence }: OverlayImageSequenceParams) {
+  const { x, y } = position;
+  const ffmpeg = await instance();
+  const filters = imageSequence.map(({ range }, index) => {
+    return `[${index + 1}]overlay=enable='between(t,${
+      range.startMilliseconds / 1000
+    },${range.endMilliseconds / 1000})':x=${x}:y=${y}`;
+  });
+
+  const filterStr = `[0]${filters.join('[out];[out]')}`;
+
+  const inputs: string[] = [];
+  for(const image of imageSequence) {
+    const imageFileName = `${uuidv4()}.png`;
+    await writeFile({
+      fileName: imageFileName,
+      type: 'image/png',
+      buffer: await fetch(image.url).then(async (resp) => new Uint8Array(await resp.arrayBuffer()))
+    });
+    inputs.push('-i', imageFileName);
+  }
+
+
+  const basefileName = `${uuidv4()}.mp4`;
+  const outputFileName = `${uuidv4()}.mp4`;
+  await writeFile({
+    fileName: basefileName,
+    type: 'video/mp4',
+    buffer: await fetch(base.url).then(async (resp) => {
+      return new Uint8Array(await resp.arrayBuffer());
+    })
+  })
+
+  await ffmpeg.exec([
+    '-i',
+    basefileName,
+    ...inputs,
+    '-filter_complex',
+    filterStr,
+    outputFileName,
+  ]);
+
+  return await readFile({
+    type: 'video/mp4',
+    fileName: outputFileName,
+  });
 }
 
 async function generateChunk({
@@ -226,14 +283,15 @@ async function generateChunk({
     };
     path: string;
   }> = [];
-  for (const { data, range } of images) {
+  for (const { url, range } of images) {
+    const data = await fetch(url).then((resp) => resp.arrayBuffer());
     const fileName = `${uuidv4()}.png`;
     const unscaledFileName = `unscaled-${fileName}`;
     const path = `${namespace}/${fileName}`;
     const unscalledPath = `${namespace}/${unscaledFileName}`;
     await writeFile({
       fileName: unscalledPath,
-      buffer: new Uint8Array(await data.arrayBuffer()),
+      buffer: new Uint8Array(data),
       type: 'image/png',
     });
 
@@ -385,7 +443,7 @@ export async function generateImageSequenceVideo({
         durationMilliseconds,
         images: chunk.map((item) => {
           return {
-            data: item.data,
+            url: item.url,
             range: {
               startMilliseconds: item.range.startMilliseconds - start,
               endMilliseconds: item.range.endMilliseconds - start,

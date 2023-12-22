@@ -1,6 +1,12 @@
 import { generateScreenshot } from 'animation-player';
+import { v4 as uuidv4 } from 'uuid';
 import type { AnimationSource, Clip, ImageSequence, VideoDocument, VideoSource } from './video-document';
-import { type Logger, generateImageSequenceVideo, concatVideoSources } from './ffmpeg';
+import { 
+  type Logger, 
+  generateImageSequenceVideo, 
+  concatVideoSources,
+  overlayImageSequence as ffmpegOverayImageSequence,
+} from './ffmpeg';
 import Queue from 'queue';
 
 interface Params {
@@ -21,7 +27,7 @@ export async function animationClipToImageSequence({ clip, source }: Params) {
 
   function queueGenerateScreenshot(queue: Queue, currentTime: number, nextTime: number) {
     queue.push(async () => {
-      const { data } = await generateScreenshot({
+      const { url } = await generateScreenshot({
         contents: {
           html: source.html,
           css: source.css,
@@ -29,7 +35,7 @@ export async function animationClipToImageSequence({ clip, source }: Params) {
         milliseconds: currentTime,
       });
       const def = {
-        data,
+        url,
         range: {
           startMilliseconds: parseFloat(currentTime.toFixed(3)),
           endMilliseconds: parseFloat(nextTime.toFixed(3)),
@@ -85,4 +91,38 @@ export async function concatVideoClips({ clips, sources }: { clips: Clip[], sour
     throw new Error('Unexpected null result');
   }
   return result;
+}
+
+interface OverlayImageSequenceParams {
+  base: VideoSource;
+  sequence: ImageSequence;
+  offsetMilliseconds: number;
+  position: {
+    x: number;
+    y: number;
+  }
+}
+
+export async function overlayImageSequence({ position, base, sequence, offsetMilliseconds }: OverlayImageSequenceParams): Promise<VideoSource> {
+  const result = await ffmpegOverayImageSequence({
+    position,
+    base,
+    imageSequence: sequence.map((item) => {
+      const { range: { startMilliseconds, endMilliseconds } } = item;
+      return {
+        ...item,
+        range: {
+          startMilliseconds: startMilliseconds + offsetMilliseconds,
+          endMilliseconds: endMilliseconds + offsetMilliseconds,
+        }
+      }
+    }),
+  })
+
+  return {
+    ...base,
+    id: uuidv4(),
+    title: 'Untitled',
+    url: result.url,
+  }
 }

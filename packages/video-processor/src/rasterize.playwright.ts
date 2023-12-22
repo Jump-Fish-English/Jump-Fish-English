@@ -1,5 +1,5 @@
 import { test, expect, Locator, Page, ElementHandle } from '@playwright/test';
-import { animationClipToImageSequence, concatVideoClips, imageSequenceToVideo} from './rasterize';
+import { animationClipToImageSequence, concatVideoClips, imageSequenceToVideo, overlayImageSequence } from './rasterize';
 import { VideoSource } from './video-document';
 
 declare global {
@@ -7,6 +7,7 @@ declare global {
     concatVideoClips: typeof concatVideoClips;
     animationClipToImageSequence: typeof animationClipToImageSequence;
     imageSequenceToVideo: typeof imageSequenceToVideo;
+    overlayImageSequence: typeof overlayImageSequence;
    }
 }
 
@@ -58,7 +59,6 @@ test.describe('Snapshots', () => {
           durationMilliseconds: 5000,
           thumbnail: {
             url: 'thumbnail',
-            data: new Blob(),
             originalDevicePixelRatio: 1,
             originalDimensions: {
               width: 10,
@@ -348,4 +348,354 @@ test.describe('Snapshots', () => {
       }
     });
   })
+
+  test('video with CSS animation overlay', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(async () => {
+
+    const animationContents = {
+      css: `
+        
+        .parent {
+          animation: hide-subscribe 350ms both;
+          animation-delay: 2s;
+          display: inline-block;
+        }
+
+        .subscribe {
+          font-family: -apple-system;
+          letter-spacing: 0.1rem;
+          background: red;
+          padding: 0.5rem 1rem;
+          color: #fff;
+          
+          border-radius: 20px;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          animation: show-subscribe 350ms both;
+          
+        }
+
+        @keyframes show-subscribe {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes hide-subscribe {
+          0% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+          }
+        }
+
+        .subscribe-text {
+          position: relative;
+          align-items: center;
+          justify-content: center;
+          display: flex;
+          animation: show-text 500ms both;
+          margin-right: 18px;
+        }
+
+        .subscribe-text:after {
+          content: " ";
+          display: block;
+          position: absolute;
+          left: 100%;
+          top: 50%;
+          margin-top: 5px;
+          margin-left: 0.3rem;
+          border: 8px solid transparent;
+          border-top-color: #fff;
+          transform: translateY(-50%);
+        }
+
+        @keyframes show-text {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+      `,
+      html: `
+        <div class="parent">
+          <div 
+            class="subscribe"
+          >
+            <div class="subscribe-text">Subscribe</div>
+          </div>
+      </div>
+      `,
+    };
+
+    const imageSequence = await window.animationClipToImageSequence({
+      source: {
+        type: 'animation',
+        html: animationContents.html,
+        css: animationContents.css,
+        id: 'source',
+        durationMilliseconds: 4350,
+        title: 'Untitled',
+        thumbnail: {
+          url: '',
+          originalDevicePixelRatio: 1,
+          originalDimensions: {
+            height: 100,
+            width: 100,
+          }
+        }
+      },
+      clip: {
+        id: 'clip',
+        source: 'source',
+        win: {
+          startMilliseconds: 0,
+          durationMilliseconds: 4350
+        }
+      }
+    });
+
+      const result = await window.overlayImageSequence({
+        base: {
+          type: 'video',
+          title: 'Untitled',
+          durationMilliseconds: 5000,
+          url: '/video/simple-counter.mp4',
+          id: 'video',
+          thumbnailUrl: 'thumbnailUrl',
+        },
+        position: {
+          x: 0,
+          y: 0,
+        },
+        sequence: imageSequence,
+        offsetMilliseconds: 1000,
+      });
+
+      async function renderVideFile({ url }: VideoSource) {
+        const vid = document.createElement('video');
+        vid.title = 'output-video';
+        vid.id = 'vid';
+        const durationPromise = new Promise<void>((res) => {
+          vid.addEventListener('durationchange', () => res(), {
+            once: true,
+          });
+        });
+
+        vid.src = url;
+        document.body.appendChild(vid);
+
+        await durationPromise;
+      }
+
+      await renderVideFile(result);
+
+    });
+    
+
+    await assertVideo({
+      videoLocator: page.getByTitle('output-video'),
+      durationSeconds: 5,
+      page,
+      snapshot: {
+        timestamps: [{
+          seconds: 1
+        }, {
+          seconds: 1.350
+        }, {
+          seconds: 2
+        }, {
+          seconds: 3
+        }, {
+          seconds: 3.1
+        }, {
+          seconds: 3 + .350
+        },{
+          seconds: 3.75
+        }, {
+          seconds: 4
+        }]
+      }
+    });
+  });
+
+  test('video with CSS animation overlay at x y', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(async () => {
+
+    const animationContents = {
+      css: `
+        
+        .parent {
+          animation: hide-subscribe 350ms both;
+          animation-delay: 2s;
+          display: inline-block;
+        }
+
+        .subscribe {
+          font-family: -apple-system;
+          letter-spacing: 0.1rem;
+          background: red;
+          padding: 0.5rem 1rem;
+          color: #fff;
+          
+          border-radius: 20px;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          animation: show-subscribe 350ms both;
+          
+        }
+
+        @keyframes show-subscribe {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes hide-subscribe {
+          0% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+          }
+        }
+
+        .subscribe-text {
+          position: relative;
+          align-items: center;
+          justify-content: center;
+          display: flex;
+          animation: show-text 500ms both;
+          margin-right: 18px;
+        }
+
+        .subscribe-text:after {
+          content: " ";
+          display: block;
+          position: absolute;
+          left: 100%;
+          top: 50%;
+          margin-top: 5px;
+          margin-left: 0.3rem;
+          border: 8px solid transparent;
+          border-top-color: #fff;
+          transform: translateY(-50%);
+        }
+
+        @keyframes show-text {
+          0% {
+            opacity: 0;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+      `,
+      html: `
+        <div class="parent">
+          <div 
+            class="subscribe"
+          >
+            <div class="subscribe-text">Subscribe</div>
+          </div>
+      </div>
+      `,
+    };
+
+    const imageSequence = await window.animationClipToImageSequence({
+      source: {
+        type: 'animation',
+        html: animationContents.html,
+        css: animationContents.css,
+        id: 'source',
+        durationMilliseconds: 4350,
+        title: 'Untitled',
+        thumbnail: {
+          url: '',
+          originalDevicePixelRatio: 1,
+          originalDimensions: {
+            height: 100,
+            width: 100,
+          }
+        }
+      },
+      clip: {
+        id: 'clip',
+        source: 'source',
+        win: {
+          startMilliseconds: 0,
+          durationMilliseconds: 4350
+        }
+      }
+    });
+
+      const result = await window.overlayImageSequence({
+        base: {
+          type: 'video',
+          title: 'Untitled',
+          durationMilliseconds: 5000,
+          url: '/video/simple-counter.mp4',
+          id: 'video',
+          thumbnailUrl: 'thumbnailUrl',
+        },
+        position: {
+          x: 100,
+          y: 100,
+        },
+        sequence: imageSequence,
+        offsetMilliseconds: 1000,
+      });
+
+      async function renderVideFile({ url }: VideoSource) {
+        const vid = document.createElement('video');
+        vid.title = 'output-video';
+        vid.id = 'vid';
+        const durationPromise = new Promise<void>((res) => {
+          vid.addEventListener('durationchange', () => res(), {
+            once: true,
+          });
+        });
+
+        vid.src = url;
+        document.body.appendChild(vid);
+
+        await durationPromise;
+      }
+
+      await renderVideFile(result);
+
+    });
+    
+
+    await assertVideo({
+      videoLocator: page.getByTitle('output-video'),
+      durationSeconds: 5,
+      page,
+      snapshot: {
+        timestamps: [{
+          seconds: 3
+        }]
+      }
+    });
+  });
 });

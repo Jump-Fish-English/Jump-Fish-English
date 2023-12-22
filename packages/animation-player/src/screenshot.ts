@@ -13,7 +13,6 @@ interface Options {
 }
 
 export interface AnimationScreenshot {
-  data: Blob;
   url: string;
   originalDimensions: {
     height: number;
@@ -85,7 +84,6 @@ export async function generateScreenshot(
   elm.parentElement?.removeChild(elm);
 
   return {
-    data: blob,
     url: URL.createObjectURL(blob),
     originalDimensions: {
       width: rect.width,

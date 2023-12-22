@@ -66,7 +66,6 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob(),
             },
           },
         }}
@@ -124,7 +123,6 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob(),
             },
           },
         }}
@@ -190,7 +188,6 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob(),
             },
           },
         }}
@@ -250,7 +247,6 @@ describe('Sources', () => {
                 width: 100,
                 height: 100,
               },
-              data: new Blob(),
             },
           },
         }}
@@ -291,7 +287,6 @@ describe('Sources', () => {
             width: 100,
             height: 100,
           },
-          data: new Blob(),
         },
       });
     });

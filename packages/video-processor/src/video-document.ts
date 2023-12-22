@@ -26,7 +26,7 @@ export type ImageSequence = Array<{
     startMilliseconds: number;
     endMilliseconds: number;
   };
-  data: Blob;
+  url: string;
 }>
 
 
