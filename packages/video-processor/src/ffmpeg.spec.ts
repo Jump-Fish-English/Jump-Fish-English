@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { exportFrame, writeFile } from './ffmpeg';
-import { instance } from './instance';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
 
 vi.stubGlobal('URL', {
   createObjectURL: vi.fn().mockReturnValue('mockedurl'),
@@ -12,28 +12,27 @@ vi.mock('uuid', async () => {
   };
 });
 
-vi.mock('@ffmpeg/ffmpeg', async () => {
+function mockFfmpeg() {
   const mockReadFile = {
     buffer: new Uint16Array(),
   };
-
-  const mockFfmpeg = {
+  
+  return {
     writeFile: vi.fn().mockResolvedValue(undefined),
     load: vi.fn(),
     exec: vi.fn(),
     on: vi.fn(),
     readFile: vi.fn().mockReturnValue(mockReadFile),
-  };
-  return {
-    FFmpeg: vi.fn().mockReturnValue(mockFfmpeg),
-  };
-});
+  } as unknown as FFmpeg;
+}
+
 
 describe('writeFile', () => {
   it('should write file correctly', async () => {
-    const ffmpeg = await instance();
+    const ffmpeg = mockFfmpeg();
     const buffer = new Uint8Array();
     const result = await writeFile({
+      ffmpeg,
       fileName: 'foo.mp4',
       buffer,
       type: 'video/mp4',
@@ -50,9 +49,10 @@ describe('writeFile', () => {
 
 describe('exportFrame', () => {
   it('should export frame correctly', async () => {
-    const ffmpeg = await instance();
+    const ffmpeg = mockFfmpeg();
 
     const result = await exportFrame({
+      ffmpeg,
       source: {
         fileName: 'first.mp4',
       },

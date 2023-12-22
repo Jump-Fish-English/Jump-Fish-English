@@ -6,6 +6,7 @@ import {
   concatVideoSources,
   overlayImageSequence as ffmpegOverayImageSequence,
 } from './ffmpeg';
+import { instance } from './instance';
 import Queue from 'queue';
 
 interface Params {
@@ -67,11 +68,13 @@ export async function imageSequenceToVideo({
   doc: Pick<VideoDocument, 'frameRate' | 'dimensions'>;
   sequence: ImageSequence;
 }) {
+
   const { dimensions: documentDimensions, frameRate } = doc;
   return await generateImageSequenceVideo({
     dimensions: documentDimensions,
     images: sequence,
     frameRate,
+    requestFfmpeg: instance,
   });
 }
 
@@ -83,12 +86,13 @@ export async function concatVideoClips({ clips, sources }: { clips: Clip[], sour
     );
   }
 
-  
-  const result = await concatVideoSources({ sources: videoSources });
-  if (result === null) {
-    throw new Error('Unexpected null result');
-  }
-  return result;
+  return await instance(async (ffmpeg) => {
+    const result = await concatVideoSources({ ffmpeg, sources: videoSources });
+    if (result === null) {
+      throw new Error('Unexpected null result');
+    }
+    return result;
+  });
 }
 
 interface OverlayImageSequenceParams {
@@ -102,20 +106,23 @@ interface OverlayImageSequenceParams {
 }
 
 export async function overlayImageSequence({ position, base, sequence, offsetMilliseconds }: OverlayImageSequenceParams): Promise<VideoSource> {
-  const result = await ffmpegOverayImageSequence({
-    position,
-    base,
-    imageSequence: sequence.map((item) => {
-      const { range: { startMilliseconds, endMilliseconds } } = item;
-      return {
-        ...item,
-        range: {
-          startMilliseconds: startMilliseconds + offsetMilliseconds,
-          endMilliseconds: endMilliseconds + offsetMilliseconds,
+  const result = await instance(async (ffmpeg) => {
+    return await ffmpegOverayImageSequence({
+      ffmpeg,
+      position,
+      base,
+      imageSequence: sequence.map((item) => {
+        const { range: { startMilliseconds, endMilliseconds } } = item;
+        return {
+          ...item,
+          range: {
+            startMilliseconds: startMilliseconds + offsetMilliseconds,
+            endMilliseconds: endMilliseconds + offsetMilliseconds,
+          }
         }
-      }
-    }),
-  })
+      })
+    })
+  });
 
   return {
     ...base,
