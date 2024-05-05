@@ -35,7 +35,7 @@
   },
   "scripts": {
     "prettier": "prettier . **/*.astro --write",
-    "test": "vitest run",
+    "test": "vitest run && cargo test",
     "test:watch": "vitest",
     "lint": "eslint .",
     "knip": "knip",

@@ -1,5 +1,8 @@
 {
   "workspaces": {
+    ".": {
+      "ignoreBinaries": ["cargo"]
+    },
     "packages/astro-rpc": {
       "ignoreDependencies": ["@babel/preset-typescript"],
       "astro": {
