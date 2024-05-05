@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+  "packages/rust-hello-world"
+]
+resolver = "2"
