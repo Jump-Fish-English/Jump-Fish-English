@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
-  "crates/ts-garbage-collector"
+  "crates/ts-garbage-collector",
+  "crates/ts-garbage-collector-package-generator"
 ]
 resolver = "2"
