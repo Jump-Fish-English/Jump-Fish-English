@@ -4,3 +4,6 @@
 npm run lint
 npm run types
 npm run test
+
+cargo build --bin ts-garbage-collector-package-generator
+cargo test
