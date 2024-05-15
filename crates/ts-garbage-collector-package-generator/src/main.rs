@@ -5,6 +5,7 @@ use std::fs;
 
 enum Frameworks {
   Next,
+  Astro,
 }
 
 struct FrameworkFile {
@@ -31,6 +32,16 @@ fn generate_command(gen: &FrameworkGenerator) -> OutputDefinition {
       let name = &gen.name;
       let outdir = Path::new("dist/frameworks").join("next").join(version).join(name);
       let command = format!("npx create-next-app@{} {} foo --ts --eslint --app --no-tailwind --no-src-dir --no-import-alias", version, outdir.display());
+      return OutputDefinition {
+        outdir,
+        command,
+      }
+    }
+    Frameworks::Astro => {
+      let version = &gen.version;
+      let name = &gen.name;
+      let outdir = Path::new("dist/frameworks").join("astro").join(version).join(name);
+      let command = format!("npm create astro@{} -y {} -- --no-install --no-git --yes", version, outdir.display());
       return OutputDefinition {
         outdir,
         command,
@@ -70,6 +81,30 @@ fn main() -> std::io::Result<()> {
         },
         FrameworkFile {
           path: Path::new("app").join("unused.tsx"),
+          contents: String::from("
+            // unused!
+          ")
+        }
+      ],
+    },
+    FrameworkGenerator {
+      framework: Frameworks::Astro,
+      version: String::from("4.8.0"),
+      name: String::from("vanilla"),
+      files: vec![
+        FrameworkFile {
+          path: Path::new("src").join("pages").join("page.astro"),
+          contents: String::from("
+            ---
+            import Layout from '../layouts/Layout.astro';
+            import Card from '../components/Card.astro';
+            ---
+
+            <div>Used</div>
+          ")
+        },
+        FrameworkFile {
+          path: Path::new("src").join("components").join("unused.tsx"),
           contents: String::from("
             // unused!
           ")

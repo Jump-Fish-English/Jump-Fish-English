@@ -3,7 +3,7 @@ use path_clean::clean;
 use swc_ecma_ast::Module;
 use swc_ecma_visit::{Visit, VisitWith};
 mod parse;
-mod def;
+mod frameworks;
 
 fn main() {
   
