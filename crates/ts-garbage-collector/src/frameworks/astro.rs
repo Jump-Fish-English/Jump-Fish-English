@@ -1,6 +1,8 @@
 
 use std::{error::Error, path::PathBuf};
 use std::fs::metadata;
+
+#[derive(Debug)]
 pub struct AstroDef {
   pub entries: Vec<PathBuf>,
 }
