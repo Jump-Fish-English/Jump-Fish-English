@@ -1,5 +1,5 @@
 {
-  "name": "packages-blog-rm-rf",
+  "name": "@jumpfish/blog-rm-rf",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
