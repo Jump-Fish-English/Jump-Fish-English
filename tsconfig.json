@@ -25,6 +25,9 @@
     },
     {
       "path": "packages/video-processor/tsconfig.json"
+    },
+    {
+      "path": "sites/language-imperfect/tsconfig.json"
     }
   ]
 }
