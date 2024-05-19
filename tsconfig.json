@@ -28,6 +28,9 @@
     },
     {
       "path": "sites/language-imperfect/tsconfig.json"
+    },
+    {
+      "path": "sites/turissini-family-blog/tsconfig.json"
     }
   ]
 }
