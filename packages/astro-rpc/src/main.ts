@@ -57,9 +57,11 @@ export function rpc(): AstroIntegration {
           });
 
           const relativePath = relative(srcDir, globPath);
-          const withoutExtension = relativePath.replace(extname(relativePath), '');
+          const withoutExtension = relativePath.replace(
+            extname(relativePath),
+            '',
+          );
           const next: RpcDefinition[] = exportNames.map((exportName) => {
-            
             const urlPath = `/${withoutExtension}/${exportName}`;
             return {
               client: {
@@ -123,7 +125,7 @@ export function rpc(): AstroIntegration {
             ) {
               return;
             }
-            
+
             return `virtual:client:${urlPath}`;
           },
           load(id) {
@@ -139,7 +141,7 @@ export function rpc(): AstroIntegration {
                   `Unable to resolve "${id}". No matching definition found`,
                 );
               }
-              
+
               return `
               export async function ${def.file.exportName}(data) {
                 return await fetch('${def.client.urlPath}', {
@@ -159,7 +161,7 @@ export function rpc(): AstroIntegration {
             if (serverDef === undefined) {
               return;
             }
-            
+
             return `
             import { ${serverDef.file.exportName} as executeLocal } from '${serverDef.file.path}';
             export async function POST({ params, request }) {

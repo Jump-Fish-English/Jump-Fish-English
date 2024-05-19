@@ -6,6 +6,7 @@
     "html2canvas": "1.4.1"
   },
   "scripts": {
+    "types": "tsc --build",
     "dev": "vite dev"
   }
 }

@@ -1,7 +1,7 @@
-export { 
-  overlayImageSequence, 
-  animationClipToImageSequence, 
-  concatVideoClips, 
+export {
+  overlayImageSequence,
+  animationClipToImageSequence,
+  concatVideoClips,
   imageSequenceToVideo,
 } from './rasterize';
 export {

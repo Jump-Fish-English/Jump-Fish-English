@@ -1,7 +1,7 @@
 import { millisecondsToFFMpegFormat } from './time';
 import { v4 as uuidv4 } from 'uuid';
 import { type FFmpeg } from '@ffmpeg/ffmpeg';
-import { VideoSource, ImageSequence } from './video-document';
+import { type VideoSource, type ImageSequence } from './video-document';
 
 type EncodingPresets =
   | 'ultrafast'
@@ -115,7 +115,7 @@ interface ConcatParams {
 async function concatVideoFiles({
   output: { encodingPreset },
   files,
-  ffmpeg
+  ffmpeg,
 }: ConcatParams): Promise<VideoFile> {
   const inFile: string[] = [];
   for (const file of files) {
@@ -182,10 +182,15 @@ interface OverlayImageSequenceParams {
   position: {
     x: number;
     y: number;
-  }
+  };
 }
 
-export async function overlayImageSequence({ ffmpeg, position, base, imageSequence }: OverlayImageSequenceParams) {
+export async function overlayImageSequence({
+  ffmpeg,
+  position,
+  base,
+  imageSequence,
+}: OverlayImageSequenceParams) {
   const { x, y } = position;
   const filters = imageSequence.map(({ range }, index) => {
     return `[${index + 1}]overlay=enable='between(t,${
@@ -196,17 +201,18 @@ export async function overlayImageSequence({ ffmpeg, position, base, imageSequen
   const filterStr = `[0]${filters.join('[out];[out]')}`;
 
   const inputs: string[] = [];
-  for(const image of imageSequence) {
+  for (const image of imageSequence) {
     const imageFileName = `${uuidv4()}.png`;
     await writeFile({
       ffmpeg,
       fileName: imageFileName,
       type: 'image/png',
-      buffer: await fetch(image.url).then(async (resp) => new Uint8Array(await resp.arrayBuffer()))
+      buffer: await fetch(image.url).then(
+        async (resp) => new Uint8Array(await resp.arrayBuffer()),
+      ),
     });
     inputs.push('-i', imageFileName);
   }
-
 
   const basefileName = `${uuidv4()}.mp4`;
   const outputFileName = `${uuidv4()}.mp4`;
@@ -216,8 +222,8 @@ export async function overlayImageSequence({ ffmpeg, position, base, imageSequen
     type: 'video/mp4',
     buffer: await fetch(base.url).then(async (resp) => {
       return new Uint8Array(await resp.arrayBuffer());
-    })
-  })
+    }),
+  });
 
   await ffmpeg.exec([
     '-i',
@@ -235,7 +241,17 @@ export async function overlayImageSequence({ ffmpeg, position, base, imageSequen
   });
 }
 
-async function createEmptyVideo({ durationMilliseconds, frameRate, ffmpeg, dimensions }: { durationMilliseconds: number, frameRate: number; dimensions: { height: number, width: number }, ffmpeg: FFmpeg }) {
+async function createEmptyVideo({
+  durationMilliseconds,
+  frameRate,
+  ffmpeg,
+  dimensions,
+}: {
+  durationMilliseconds: number;
+  frameRate: number;
+  dimensions: { height: number; width: number };
+  ffmpeg: FFmpeg;
+}) {
   const blankVideoFileName = `blank-${uuidv4()}.mp4`;
 
   // create empty video
@@ -301,7 +317,7 @@ async function generateChunk({
       ffmpeg,
       fileName: path,
       type: 'image/png',
-    })
+    });
 
     await ffmpeg.deleteFile(unscalledPath);
 
@@ -319,7 +335,7 @@ async function generateChunk({
     },
     base: baseVideo,
     imageSequence: rangeDefinitions,
-  })
+  });
 }
 
 function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
@@ -334,10 +350,10 @@ interface ImageSequenceVideoParams {
   dimensions: {
     width: number;
     height: number;
-  },
+  };
   images: ImageSequence;
   frameRate: number;
-  requestFfmpeg: <T>(cb: (ffmpeg: FFmpeg) => Promise<T>) => Promise<T>
+  requestFfmpeg: <T>(cb: (ffmpeg: FFmpeg) => Promise<T>) => Promise<T>;
 }
 
 export async function generateImageSequenceVideo({
@@ -395,7 +411,6 @@ export async function generateImageSequenceVideo({
     }
   }
 
-
   const file = await requestFfmpeg(async (ffmpeg) => {
     return await concatVideoFiles({
       ffmpeg,
@@ -408,7 +423,9 @@ export async function generateImageSequenceVideo({
 
   const vid = document.createElement('video');
   const durationMillisecondsPromise = new Promise<number>((res) => {
-    vid.addEventListener('durationchange', () => res(vid.duration * 1000), { once: true });
+    vid.addEventListener('durationchange', () => res(vid.duration * 1000), {
+      once: true,
+    });
   });
   vid.src = file.url;
 
@@ -430,7 +447,7 @@ interface ConcatVideoSourcesParams {
 async function writeVideoSource(ffmpeg: FFmpeg, source: VideoSource) {
   const fileName = `${uuidv4()}.mp4`;
   const blob = await fetch(source.url).then((resp) => resp.blob());
-  
+
   return await writeFile({
     ffmpeg,
     fileName,
@@ -439,9 +456,12 @@ async function writeVideoSource(ffmpeg: FFmpeg, source: VideoSource) {
   });
 }
 
-export async function concatVideoSources({ ffmpeg, sources }: ConcatVideoSourcesParams): Promise<VideoSource | null> {
+export async function concatVideoSources({
+  ffmpeg,
+  sources,
+}: ConcatVideoSourcesParams): Promise<VideoSource | null> {
   let videoFile: VideoFile | null = null;
-  for(const source of sources) {
+  for (const source of sources) {
     const file = await writeVideoSource(ffmpeg, source);
     if (videoFile === null) {
       videoFile = file;
@@ -453,12 +473,15 @@ export async function concatVideoSources({ ffmpeg, sources }: ConcatVideoSources
       output: {
         encodingPreset: 'ultrafast',
       },
-      files: [{
-        file: videoFile,
-      }, {
-        file,
-      }]
-    })
+      files: [
+        {
+          file: videoFile,
+        },
+        {
+          file,
+        },
+      ],
+    });
   }
 
   if (videoFile === null) {
@@ -467,7 +490,9 @@ export async function concatVideoSources({ ffmpeg, sources }: ConcatVideoSources
 
   const vid = document.createElement('video');
   const durationMillisecondsPromise = new Promise<number>((res) => {
-    vid.addEventListener('durationchange', () => res(vid.duration * 1000), { once: true });
+    vid.addEventListener('durationchange', () => res(vid.duration * 1000), {
+      once: true,
+    });
   });
   vid.src = videoFile.url;
 

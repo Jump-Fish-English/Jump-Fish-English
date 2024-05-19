@@ -1,8 +1,14 @@
 import { generateScreenshot } from 'animation-player';
 import { v4 as uuidv4 } from 'uuid';
-import type { AnimationSource, Clip, ImageSequence, VideoDocument, VideoSource } from './video-document';
-import {  
-  generateImageSequenceVideo, 
+import type {
+  AnimationSource,
+  Clip,
+  ImageSequence,
+  VideoDocument,
+  VideoSource,
+} from './video-document';
+import {
+  generateImageSequenceVideo,
   concatVideoSources,
   overlayImageSequence as ffmpegOverayImageSequence,
 } from './ffmpeg';
@@ -24,7 +30,11 @@ export async function animationClipToImageSequence({ clip, source }: Params) {
   let currentTime = 0;
   const sequence: ImageSequence = [];
 
-  function queueGenerateScreenshot(queue: Queue, currentTime: number, nextTime: number) {
+  function queueGenerateScreenshot(
+    queue: Queue,
+    currentTime: number,
+    nextTime: number,
+  ) {
     queue.push(async () => {
       const { url } = await generateScreenshot({
         contents: {
@@ -55,9 +65,9 @@ export async function animationClipToImageSequence({ clip, source }: Params) {
     currentTime = nextTime;
   }
   await new Promise((res) => {
-    queue.addEventListener('end', res, { once: true});
+    queue.addEventListener('end', res, { once: true });
   });
-  
+
   return sequence;
 }
 
@@ -68,7 +78,6 @@ export async function imageSequenceToVideo({
   doc: Pick<VideoDocument, 'frameRate' | 'dimensions'>;
   sequence: ImageSequence;
 }) {
-
   const { dimensions: documentDimensions, frameRate } = doc;
   return await generateImageSequenceVideo({
     dimensions: documentDimensions,
@@ -78,12 +87,16 @@ export async function imageSequenceToVideo({
   });
 }
 
-export async function concatVideoClips({ clips, sources }: { clips: Clip[], sources: Record<string, VideoSource> }) {
+export async function concatVideoClips({
+  clips,
+  sources,
+}: {
+  clips: Clip[];
+  sources: Record<string, VideoSource>;
+}) {
   const videoSources: VideoSource[] = [];
-  for(const clip of clips) {
-    videoSources.push(
-      sources[clip.source]
-    );
+  for (const clip of clips) {
+    videoSources.push(sources[clip.source]);
   }
 
   return await instance(async (ffmpeg) => {
@@ -102,26 +115,33 @@ interface OverlayImageSequenceParams {
   position: {
     x: number;
     y: number;
-  }
+  };
 }
 
-export async function overlayImageSequence({ position, base, sequence, offsetMilliseconds }: OverlayImageSequenceParams): Promise<VideoSource> {
+export async function overlayImageSequence({
+  position,
+  base,
+  sequence,
+  offsetMilliseconds,
+}: OverlayImageSequenceParams): Promise<VideoSource> {
   const result = await instance(async (ffmpeg) => {
     return await ffmpegOverayImageSequence({
       ffmpeg,
       position,
       base,
       imageSequence: sequence.map((item) => {
-        const { range: { startMilliseconds, endMilliseconds } } = item;
+        const {
+          range: { startMilliseconds, endMilliseconds },
+        } = item;
         return {
           ...item,
           range: {
             startMilliseconds: startMilliseconds + offsetMilliseconds,
             endMilliseconds: endMilliseconds + offsetMilliseconds,
-          }
-        }
-      })
-    })
+          },
+        };
+      }),
+    });
   });
 
   return {
@@ -129,5 +149,5 @@ export async function overlayImageSequence({ position, base, sequence, offsetMil
     id: uuidv4(),
     title: 'Untitled',
     url: result.url,
-  }
+  };
 }

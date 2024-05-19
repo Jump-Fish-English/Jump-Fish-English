@@ -7,7 +7,9 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deadcode": "cargo run --bin ts-garbage-collector",
+    "types": "tsc --build"
   },
   "dependencies": {
     "astro": "^4.8.5",

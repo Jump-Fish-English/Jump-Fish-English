@@ -1,13 +1,30 @@
 {
-  "compilerOptions": {
-    "noEmit": true,
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "target": "ESNext",
-    "jsx": "react-jsx",
-    "allowImportingTsExtensions": true,
-    "strict": true
-  },
-  "exclude": ["dist"]
+  "extends": "./tsconfig.base.json",
+  "exclude": ["dist"],
+  "references": [
+    {
+      "path": "packages/animation-player/tsconfig.json"
+    },
+    {
+      "path": "packages/astro-rpc/tsconfig.json"
+    },
+    {
+      "path": "packages/blog-rm-rf/tsconfig.json"
+    },
+    {
+      "path": "packages/codingclub/tsconfig.json"
+    },
+    {
+      "path": "packages/english/tsconfig.json"
+    },
+    {
+      "path": "packages/rm-rf/tsconfig.json"
+    },
+    {
+      "path": "packages/studio/tsconfig.json"
+    },
+    {
+      "path": "packages/video-processor/tsconfig.json"
+    }
+  ]
 }

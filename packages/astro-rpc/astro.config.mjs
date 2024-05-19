@@ -3,8 +3,6 @@ import { rpc as astroRpc } from './src/main';
 
 export default defineConfig({
   output: 'hybrid',
-  integrations: [
-    astroRpc()
-  ],
+  integrations: [astroRpc()],
   srcDir: 'e2e',
 });

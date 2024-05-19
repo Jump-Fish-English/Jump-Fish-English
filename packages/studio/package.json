@@ -21,6 +21,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "playwright": "playwright test",
-    "start-wasm-test-server": "vite ./src/lib"
+    "start-wasm-test-server": "vite ./src/lib",
+    "types": "tsc --build"
   }
 }

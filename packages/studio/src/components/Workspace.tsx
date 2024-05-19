@@ -147,9 +147,7 @@ export function Workspace({ onSourceSelect, sources, doc, player }: Props) {
         </Tab>
       </Tabs>
       <main className={styles.main}>
-        <button>
-          Generate
-        </button>
+        <button>Generate</button>
         {documentTimeline.length > 0 && playerElement}
         <div className={styles.scroller}>
           <ClipTimeline

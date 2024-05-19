@@ -9,6 +9,7 @@
     "@babel/preset-typescript": "7.23.3"
   },
   "scripts": {
+    "types": "tsc --build",
     "dev": "astro dev"
   }
 }

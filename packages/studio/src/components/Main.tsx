@@ -283,7 +283,7 @@ export function Main() {
       dimensions: {
         width: 1600,
         height: 900,
-      }
+      },
     }),
   );
 

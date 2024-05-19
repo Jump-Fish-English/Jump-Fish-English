@@ -1,7 +1,11 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
     "jsxImportSource": "react",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "outDir": "../../dist/.typescript/packages/codingclub",
+    "composite": true
   }
 }

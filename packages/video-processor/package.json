@@ -4,7 +4,8 @@
   "main": "src/main.ts",
   "scripts": {
     "dev": "vite dev",
-    "test": "vitest"
+    "test": "vitest",
+    "types": "tsc --build"
   },
   "dependencies": {
     "queue": "7.0.0",

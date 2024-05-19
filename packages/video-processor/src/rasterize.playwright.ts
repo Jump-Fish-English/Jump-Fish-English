@@ -1,14 +1,25 @@
-import { test, expect, Locator, Page, ElementHandle } from '@playwright/test';
-import { animationClipToImageSequence, concatVideoClips, imageSequenceToVideo, overlayImageSequence } from './rasterize';
-import { VideoSource } from './video-document';
+import {
+  test,
+  expect,
+  type Locator,
+  type Page,
+  type ElementHandle,
+} from '@playwright/test';
+import {
+  animationClipToImageSequence,
+  concatVideoClips,
+  imageSequenceToVideo,
+  overlayImageSequence,
+} from './rasterize';
+import { type VideoSource } from './video-document';
 
 declare global {
-  interface Window { 
+  interface Window {
     concatVideoClips: typeof concatVideoClips;
     animationClipToImageSequence: typeof animationClipToImageSequence;
     imageSequenceToVideo: typeof imageSequenceToVideo;
     overlayImageSequence: typeof overlayImageSequence;
-   }
+  }
 }
 
 interface AssertVideoParams {
@@ -18,33 +29,45 @@ interface AssertVideoParams {
   snapshot: {
     timestamps: Array<{
       seconds: number;
-    }>
-  }
+    }>;
+  };
 }
 
-async function assertVideo({ durationSeconds, videoLocator, page, snapshot: { timestamps } }: AssertVideoParams) {
+async function assertVideo({
+  durationSeconds,
+  videoLocator,
+  page,
+  snapshot: { timestamps },
+}: AssertVideoParams) {
   await expect(videoLocator).toHaveCount(1);
   const duration = await videoLocator.evaluate(
     (el: HTMLVideoElement) => el.duration,
   );
   expect(duration).toBeCloseTo(durationSeconds, 1);
 
-  const videoHandle = await videoLocator.elementHandle() as ElementHandle<HTMLVideoElement>;
-  
-  for(const timestamp of timestamps) {
-    await page.evaluate(async ({ video, timestamp: { seconds } }) => {
+  const videoHandle =
+    (await videoLocator.elementHandle()) as ElementHandle<HTMLVideoElement>;
 
-      const timeUpdatePromise = new Promise<void>((res) => {
-        video.addEventListener('timeupdate', () => {
-          res();
-        }, { once: true });
-      });
-      video.currentTime = seconds;
-      await timeUpdatePromise;
-    }, {
-      video: videoHandle,
-      timestamp
-    });
+  for (const timestamp of timestamps) {
+    await page.evaluate(
+      async ({ video, timestamp: { seconds } }) => {
+        const timeUpdatePromise = new Promise<void>((res) => {
+          video.addEventListener(
+            'timeupdate',
+            () => {
+              res();
+            },
+            { once: true },
+          );
+        });
+        video.currentTime = seconds;
+        await timeUpdatePromise;
+      },
+      {
+        video: videoHandle,
+        timestamp,
+      },
+    );
 
     await expect(videoLocator).toHaveScreenshot();
   }
@@ -150,9 +173,9 @@ test.describe('Snapshots', () => {
           dimensions: {
             width: 400,
             height: 300,
-          }
-        }
-      })
+          },
+        },
+      });
 
       async function renderVideFile({ url }: VideoSource) {
         const vid = document.createElement('video');
@@ -178,18 +201,24 @@ test.describe('Snapshots', () => {
       videoLocator: page.getByTitle('output-video'),
       page,
       snapshot: {
-        timestamps: [{
-          seconds: 1
-        }, {
-          seconds: 2
-        }, {
-          seconds: 3
-        }, {
-          seconds: 4
-        }, {
-          seconds: 5
-        }]
-      }
+        timestamps: [
+          {
+            seconds: 1,
+          },
+          {
+            seconds: 2,
+          },
+          {
+            seconds: 3,
+          },
+          {
+            seconds: 4,
+          },
+          {
+            seconds: 5,
+          },
+        ],
+      },
     });
   });
 
@@ -205,7 +234,7 @@ test.describe('Snapshots', () => {
             url: '/video/simple-counter.mp4',
             id: 'video',
             thumbnailUrl: 'thumbnailUrl',
-          }
+          },
         },
         clips: [
           {
@@ -236,29 +265,34 @@ test.describe('Snapshots', () => {
       }
 
       await renderVideFile(result);
-
     });
-    
 
     await assertVideo({
       videoLocator: page.getByTitle('output-video'),
       durationSeconds: 5,
       page,
       snapshot: {
-        timestamps: [{
-          seconds: 0
-        }, {
-          seconds: 1
-        }, {
-          seconds: 2
-        }, {
-          seconds: 3
-        }, {
-          seconds: 4
-        }, {
-          seconds: 5
-        }]
-      }
+        timestamps: [
+          {
+            seconds: 0,
+          },
+          {
+            seconds: 1,
+          },
+          {
+            seconds: 2,
+          },
+          {
+            seconds: 3,
+          },
+          {
+            seconds: 4,
+          },
+          {
+            seconds: 5,
+          },
+        ],
+      },
     });
   });
 
@@ -274,7 +308,7 @@ test.describe('Snapshots', () => {
             url: '/video/simple-counter.mp4',
             id: 'video',
             thumbnailUrl: 'thumbnailUrl',
-          }
+          },
         },
         clips: [
           {
@@ -313,48 +347,57 @@ test.describe('Snapshots', () => {
       }
 
       await renderVideFile(result);
-
     });
-    
 
     await assertVideo({
       videoLocator: page.getByTitle('output-video'),
       durationSeconds: 10,
       page,
       snapshot: {
-        timestamps: [{
-          seconds: 0
-        }, {
-          seconds: 1
-        }, {
-          seconds: 2
-        }, {
-          seconds: 3
-        }, {
-          seconds: 4
-        }, {
-          seconds: 5
-        }, {
-          seconds: 6
-        }, {
-          seconds: 7
-        }, {
-          seconds: 8
-        }, {
-          seconds: 9
-        }, {
-          seconds: 10
-        }]
-      }
+        timestamps: [
+          {
+            seconds: 0,
+          },
+          {
+            seconds: 1,
+          },
+          {
+            seconds: 2,
+          },
+          {
+            seconds: 3,
+          },
+          {
+            seconds: 4,
+          },
+          {
+            seconds: 5,
+          },
+          {
+            seconds: 6,
+          },
+          {
+            seconds: 7,
+          },
+          {
+            seconds: 8,
+          },
+          {
+            seconds: 9,
+          },
+          {
+            seconds: 10,
+          },
+        ],
+      },
     });
-  })
+  });
 
   test('video with CSS animation overlay', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(async () => {
-
-    const animationContents = {
-      css: `
+      const animationContents = {
+        css: `
         
         .parent {
           animation: hide-subscribe 350ms both;
@@ -429,7 +472,7 @@ test.describe('Snapshots', () => {
           }
         }
       `,
-      html: `
+        html: `
         <div class="parent">
           <div 
             class="subscribe"
@@ -438,34 +481,34 @@ test.describe('Snapshots', () => {
           </div>
       </div>
       `,
-    };
+      };
 
-    const imageSequence = await window.animationClipToImageSequence({
-      source: {
-        type: 'animation',
-        html: animationContents.html,
-        css: animationContents.css,
-        id: 'source',
-        durationMilliseconds: 4350,
-        title: 'Untitled',
-        thumbnail: {
-          url: '',
-          originalDevicePixelRatio: 1,
-          originalDimensions: {
-            height: 100,
-            width: 100,
-          }
-        }
-      },
-      clip: {
-        id: 'clip',
-        source: 'source',
-        win: {
-          startMilliseconds: 0,
-          durationMilliseconds: 4350
-        }
-      }
-    });
+      const imageSequence = await window.animationClipToImageSequence({
+        source: {
+          type: 'animation',
+          html: animationContents.html,
+          css: animationContents.css,
+          id: 'source',
+          durationMilliseconds: 4350,
+          title: 'Untitled',
+          thumbnail: {
+            url: '',
+            originalDevicePixelRatio: 1,
+            originalDimensions: {
+              height: 100,
+              width: 100,
+            },
+          },
+        },
+        clip: {
+          id: 'clip',
+          source: 'source',
+          win: {
+            startMilliseconds: 0,
+            durationMilliseconds: 4350,
+          },
+        },
+      });
 
       const result = await window.overlayImageSequence({
         base: {
@@ -501,42 +544,48 @@ test.describe('Snapshots', () => {
       }
 
       await renderVideFile(result);
-
     });
-    
 
     await assertVideo({
       videoLocator: page.getByTitle('output-video'),
       durationSeconds: 5,
       page,
       snapshot: {
-        timestamps: [{
-          seconds: 1
-        }, {
-          seconds: 1.350
-        }, {
-          seconds: 2
-        }, {
-          seconds: 3
-        }, {
-          seconds: 3.1
-        }, {
-          seconds: 3 + .350
-        },{
-          seconds: 3.75
-        }, {
-          seconds: 4
-        }]
-      }
+        timestamps: [
+          {
+            seconds: 1,
+          },
+          {
+            seconds: 1.35,
+          },
+          {
+            seconds: 2,
+          },
+          {
+            seconds: 3,
+          },
+          {
+            seconds: 3.1,
+          },
+          {
+            seconds: 3 + 0.35,
+          },
+          {
+            seconds: 3.75,
+          },
+          {
+            seconds: 4,
+          },
+        ],
+      },
     });
   });
 
   test('video with CSS animation overlay at x y', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(async () => {
-
-    const animationContents = {
-      css: `
+      const animationContents = {
+        css: `
         
         .parent {
           animation: hide-subscribe 350ms both;
@@ -611,7 +660,7 @@ test.describe('Snapshots', () => {
           }
         }
       `,
-      html: `
+        html: `
         <div class="parent">
           <div 
             class="subscribe"
@@ -620,34 +669,34 @@ test.describe('Snapshots', () => {
           </div>
       </div>
       `,
-    };
+      };
 
-    const imageSequence = await window.animationClipToImageSequence({
-      source: {
-        type: 'animation',
-        html: animationContents.html,
-        css: animationContents.css,
-        id: 'source',
-        durationMilliseconds: 4350,
-        title: 'Untitled',
-        thumbnail: {
-          url: '',
-          originalDevicePixelRatio: 1,
-          originalDimensions: {
-            height: 100,
-            width: 100,
-          }
-        }
-      },
-      clip: {
-        id: 'clip',
-        source: 'source',
-        win: {
-          startMilliseconds: 0,
-          durationMilliseconds: 4350
-        }
-      }
-    });
+      const imageSequence = await window.animationClipToImageSequence({
+        source: {
+          type: 'animation',
+          html: animationContents.html,
+          css: animationContents.css,
+          id: 'source',
+          durationMilliseconds: 4350,
+          title: 'Untitled',
+          thumbnail: {
+            url: '',
+            originalDevicePixelRatio: 1,
+            originalDimensions: {
+              height: 100,
+              width: 100,
+            },
+          },
+        },
+        clip: {
+          id: 'clip',
+          source: 'source',
+          win: {
+            startMilliseconds: 0,
+            durationMilliseconds: 4350,
+          },
+        },
+      });
 
       const result = await window.overlayImageSequence({
         base: {
@@ -683,19 +732,19 @@ test.describe('Snapshots', () => {
       }
 
       await renderVideFile(result);
-
     });
-    
 
     await assertVideo({
       videoLocator: page.getByTitle('output-video'),
       durationSeconds: 5,
       page,
       snapshot: {
-        timestamps: [{
-          seconds: 3
-        }]
-      }
+        timestamps: [
+          {
+            seconds: 3,
+          },
+        ],
+      },
     });
   });
 });

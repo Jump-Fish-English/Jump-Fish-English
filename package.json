@@ -39,7 +39,6 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "prepare": "husky install",
-    "types": "tsc",
     "playwright": "playwright test"
   },
   "workspaces": [

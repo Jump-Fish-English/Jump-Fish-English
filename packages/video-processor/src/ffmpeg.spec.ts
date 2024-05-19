@@ -16,7 +16,7 @@ function mockFfmpeg() {
   const mockReadFile = {
     buffer: new Uint16Array(),
   };
-  
+
   return {
     writeFile: vi.fn().mockResolvedValue(undefined),
     load: vi.fn(),
@@ -25,7 +25,6 @@ function mockFfmpeg() {
     readFile: vi.fn().mockReturnValue(mockReadFile),
   } as unknown as FFmpeg;
 }
-
 
 describe('writeFile', () => {
   it('should write file correctly', async () => {

@@ -6,7 +6,9 @@ const WASM_URL = `${BASE_URL}/ffmpeg-core.wasm`;
 
 let ffmpeg: FFmpeg | undefined = undefined;
 
-export async function instance<T>(cb: (ffmpeg: FFmpeg) => Promise<T> | T): Promise<T> {
+export async function instance<T>(
+  cb: (ffmpeg: FFmpeg) => Promise<T> | T,
+): Promise<T> {
   if (ffmpeg === undefined) {
     ffmpeg = new FFmpeg();
 

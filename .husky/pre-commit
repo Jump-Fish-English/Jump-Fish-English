@@ -2,8 +2,8 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npm run lint
-npm run types
+npx nx affected --target types --uncommitted
 npm run test
 
-cargo build --bin ts-garbage-collector-package-generator
+cargo run --bin ts-garbage-collector-package-generator
 cargo test
