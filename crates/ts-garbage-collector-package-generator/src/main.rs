@@ -130,7 +130,70 @@ fn main() -> std::io::Result<()> {
           ")
         },
       ],
-    }
+    },
+    FrameworkGenerator {
+      framework: Frameworks::Astro,
+      version: String::from("4.8.0"),
+      name: String::from("content-collection"),
+      files: vec![
+        FrameworkFile {
+          path: Path::new("src").join("pages").join("blog").join("[slug].astro"),
+          contents: String::from("
+            ---
+            import { getCollection } from 'astro:content';
+
+            export async function getStaticPaths() {
+              const used = await getCollection('used');
+              return used.map((entry) => ({
+                params: { slug: entry.slug },
+                props: { entry },
+              }));
+            }
+
+
+            const { entry } = Astro.props;
+
+            const { Content } = await entry.render();
+            ---
+
+            <Content />
+          ")
+        },
+        FrameworkFile {
+          path: Path::new("src").join("content").join("used").join("used-content.md"),
+          contents: String::from("
+            
+          # unused
+          ---
+            slug: used
+          ---
+        
+          ")
+        },
+        FrameworkFile {
+          path: Path::new("src").join("content").join("unused").join("unused-content.md"),
+          contents: String::from("
+            # unused
+          ")
+        },
+        FrameworkFile {
+          path: Path::new("src").join("content").join("config.ts"),
+          contents: String::from("
+            import { defineCollection } from 'astro:content';
+            
+            const collection = defineCollection({
+              type: 'content',
+            });
+            
+            export const collections = {
+              used: collection,
+            };
+          
+          ")
+        },
+        
+      ],
+    },
   ];
 
   for framework in frameworks {
