@@ -1,5 +1,5 @@
 {
-  "name": "sites-language-imperfect",
+  "name": "@jumpfish/language-imperfect",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
