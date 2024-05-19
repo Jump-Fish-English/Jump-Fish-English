@@ -1,6 +1,6 @@
-use std::{env, path::{PathBuf}};
+use std::{env, path::PathBuf};
 
-use crate::frameworks::resolve_package_framework;
+use crate::frameworks::{astro::get_unused_files, resolve_package_framework};
 mod parse;
 mod frameworks;
 
@@ -11,7 +11,14 @@ fn main() {
     Ok(framework) => {
       match framework {
         frameworks::Framework::Astro(astro) => {
-          dbg!(astro);
+          match get_unused_files(&astro) {
+            Ok(unused_files) => {
+              dbg!(unused_files);
+            },
+            Err(err) => {
+              dbg!(err);
+            }
+          }
         },
         frameworks::Framework::NextJs(_) => {
           println!("NEXTJS");

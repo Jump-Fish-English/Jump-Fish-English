@@ -10,6 +10,7 @@ use crate::parse::{parse_ts_file,get_import_sources};
 pub struct AstroDef {
   pub root: PathBuf,
   pub entries: Vec<PathBuf>,
+  pub out_dir: PathBuf,
 }
 
 fn is_astro(package_path: &PathBuf) -> bool {
@@ -49,22 +50,20 @@ pub fn get_definition(package_path: &PathBuf) -> Result<Option<AstroDef>, Box<dy
     return Ok(None);
   }
 
-
+  let cleaned = clean(package_path);
   let system_files = vec![
-    package_path.join("README.md"),
-    package_path.join("astro.config.mjs"),
-    package_path.join(".gitignore"),
-    package_path.join("tsconfig.json"),
-    package_path.join("package.json"),
-    package_path.join("src").join("env.d.ts")
+    cleaned.join("README.md"),
+    cleaned.join("astro.config.mjs"),
+    cleaned.join(".gitignore"),
+    cleaned.join("tsconfig.json"),
+    cleaned.join("package.json"),
+    cleaned.join("src").join("env.d.ts")
   ];
 
-  let mut entries = find_astro_page_files(&package_path.join("src").join("pages"))?;
+  let mut entries = find_astro_page_files(&cleaned.join("src").join("pages"))?;
   
   for file in system_files {
-    entries.push(
-      clean(file)
-    );
+    entries.push(file);
   };
 
   return Ok(
@@ -72,6 +71,7 @@ pub fn get_definition(package_path: &PathBuf) -> Result<Option<AstroDef>, Box<dy
       AstroDef {
         root: clean(PathBuf::from(package_path)),
         entries,
+        out_dir: package_path.join("dist")
       }
     )
   );
@@ -101,12 +101,19 @@ pub fn mark_file_as_used(path: &PathBuf, unused_source_files: &mut HashMap<Strin
 
 fn process_file(path_buf: PathBuf, unused_source_files: &mut HashMap<String, PathBuf>) -> Result<(), Box<dyn Error>> {
   mark_file_as_used(&path_buf, unused_source_files);
-  let contents = read_to_string(&path_buf)?;
-  if let Some(import_statements) = extract_import_paths(&path_buf, contents) {
-    for statement_path in import_statements {
-      mark_file_as_used(&statement_path, unused_source_files);
+  match read_to_string(&path_buf) {
+    Ok(contents) => {
+      if let Some(import_statements) = extract_import_paths(&path_buf, contents) {
+        for statement_path in import_statements {
+          process_file(statement_path, unused_source_files)?;
+        }
+      }
+    },
+    Err(_) => {
+      // maybe no utf-8?
     }
   }
+  
 
   Ok(())
 }
@@ -125,7 +132,14 @@ pub fn get_unused_files(def: &AstroDef) -> Result<Vec<PathBuf>, Box<dyn Error>> 
     // There is a file in there, favicon.svg that is referenced
     // in layouts/Layout.astro. Will need to parse the HTML to find
     // those references.
-    if unwrapped.is_dir() || unwrapped.to_string_lossy().contains(".vscode") || unwrapped.to_string_lossy().contains("public") {
+    if 
+      unwrapped.is_dir() || 
+      unwrapped.to_string_lossy().contains(".vscode") || 
+      unwrapped.to_string_lossy().contains("public") || 
+      unwrapped.to_string_lossy().contains("node_modules") || 
+      unwrapped.to_string_lossy().contains(".astro") ||
+      unwrapped.to_string_lossy().contains(&def.out_dir.to_string_lossy().to_string())
+    {
       continue;
     }
     let key = unwrapped.to_string_lossy().to_string();
@@ -160,7 +174,8 @@ mod astro {
           Some(
             AstroDef {
               root: _,
-              entries: _ 
+              entries: _,
+              out_dir: _,
             }
           )
         )

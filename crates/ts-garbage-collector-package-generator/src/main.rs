@@ -98,6 +98,9 @@ fn main() -> std::io::Result<()> {
             ---
             import Layout from '../layouts/Layout.astro';
             import Card from '../components/Card.astro';
+            import ComponentWithImage from '../components/contains-image.astro';
+            import { getCollection } from 'astro:content';
+            import { foo } from 'some-other-package';
             ---
 
             <div>Used</div>
@@ -108,7 +111,24 @@ fn main() -> std::io::Result<()> {
           contents: String::from("
             // unused!
           ")
-        }
+        },
+        FrameworkFile {
+          path: Path::new("src").join("components").join("contains-image.astro"),
+          contents: String::from("
+            ---
+            import image from './image.png';
+            ---
+
+            <div>Used</div>
+          ")
+        },
+        FrameworkFile {
+          path: Path::new("src").join("components").join("image.png"),
+          contents: String::from("
+            // dummy image file
+            // this is referenced and should not show up on \"unused images\" reports.
+          ")
+        },
       ],
     }
   ];

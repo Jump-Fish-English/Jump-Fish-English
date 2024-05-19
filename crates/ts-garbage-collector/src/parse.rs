@@ -46,6 +46,9 @@ pub fn get_import_sources(filename: &Path, module: Module) -> Vec<PathBuf> {
   impl Visit for ImportSources {
     fn visit_import_decl(&mut self,n: &swc_ecma_ast::ImportDecl) {
       let import_source = n.src.value.to_string();
+      if import_source.starts_with(".") == false {
+        return;
+      }
       let path_buff = Path::new(&self.filename).parent().unwrap().join(import_source);
       self.import_sources.push(clean(path_buff));
     }
@@ -70,5 +73,12 @@ mod get_import_sources_tests {
       let parsed = parse_ts_file(&String::from("import { foo } from './somewhere';"));
       let result = get_import_sources(Path::new("/path/to/test.ts"), parsed);
       assert_eq!(result, vec![Path::new("/path/to/somewhere").join("")]);
+    }
+
+    #[test]
+    fn test_get_import_sources_skip_npm_package() {
+      let parsed = parse_ts_file(&String::from("import { foo } from 'some-npm-package';"));
+      let result = get_import_sources(Path::new("/path/to/test.ts"), parsed);
+      assert_eq!(result.len(), 0);
     }
 }
