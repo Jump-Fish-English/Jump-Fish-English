@@ -2,9 +2,31 @@
   "name": "@jumpfish/rm-rf",
   "type": "module",
   "version": "0.0.1",
-  "main": "dist/main.js",
+  "bin": "dist/ts-garbage-collector",
   "scripts": {
+    "crate:build": "cargo build --bin ts-garbage-collector --release",
+    "cp-binary": "rm -rf dist && mkdir dist && cp ../../target/release/ts-garbage-collector dist/ts-garbage-collector",
     "build": "tsc --build",
-    "types": "tsc --build"
+    "types": "tsc --build",
+    "local": "dist/ts-garbage-collector"
+  },
+  "nx": {
+    "targets": {
+      "local": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "build": {
+        "dependsOn": [
+          "cp-binary"
+        ]
+      },
+      "cp-binary": {
+        "dependsOn": [
+          "crate:build"
+        ]
+      }
+    }
   }
 }
