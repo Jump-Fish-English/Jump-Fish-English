@@ -1,5 +1,5 @@
 ---
-title: Backpacking Shi Shi Beach in Olympic National Park
+title: Shi Shi Beach, Olympic National Park
 image: 
   src: https://cvws.icloud-content.com/S/AVD6dkDc46dzNvdaKAbIQFEq_v4z/IMG_2366.JPG?o=Arth9khlK279xKrm-uxQuf5eG0D9HEjHi_Klg-38m9Dq&v=1&z=https%3A%2F%2Fp42-content.icloud.com%3A443&x=1&a=CAogrHNlioHv3RE6i-ToSeRsSNf3t0pnbstQ7e86dlgCo0ESZRCU7Pag-TEYlIOKpvkxIgEAUgQq_v4zaiVn-4fn15_L4m_JYazw5QEREbtbhHUeAE96oip22RGkRHbql9WIciVystNuRc4eolDtLGhILD7FqXj9oEvLCV6Gw7FSVf1Igwcp3GOQ&e=1716187726&r=3e7d4232-4612-4e16-9264-a7bdc49886ad-3&s=zjJbObn7nMVfAfcotfW_e1kHoOA
   width: 2485

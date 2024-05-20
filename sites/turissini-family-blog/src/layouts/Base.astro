@@ -2,9 +2,10 @@
 
 interface Props {
   title: string;
+  hideHeader?: boolean;
 }
 
-const { title: pageTitle } = Astro.props;
+const { hideHeader, title: pageTitle } = Astro.props;
 ---
 
 <html lang="en">
@@ -46,11 +47,13 @@ const { title: pageTitle } = Astro.props;
     </style>
 	</head>
 	<body>
-    <header>
-      <nav>
-        <a href="/">Turissini Family Blog</a>
-      </nav>
-    </header>
+    {hideHeader !== true && (
+      <header>
+        <nav>
+          <a href="/">Turissini Family Blog</a>
+        </nav>
+      </header>
+    )}
     <slot />
 	</body>
 </html>
