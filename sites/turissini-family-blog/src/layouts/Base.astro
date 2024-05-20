@@ -1,0 +1,56 @@
+---
+
+interface Props {
+  title: string;
+}
+
+const { title: pageTitle } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{pageTitle} - Turissini Family Blog</title>
+    <link rel="stylesheet" type="text/css" href="/reset.css" />
+    <style is:global>
+      body {
+        line-height: 1.5;
+        font-size: 18px;
+        color: #3d4144;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol';
+      }
+
+      a {
+        color: #13738F;
+        text-decoration: none;
+      }
+    </style>
+    <style>
+      header {
+        border-bottom: 1px solid #f2f3f3;
+        margin-bottom: 2rem;
+      }
+
+      nav {
+        padding: 1rem 0.5rem;
+
+        a {
+          color: inherit;
+        }
+      }
+    </style>
+	</head>
+	<body>
+    <header>
+      <nav>
+        <a href="/">Turissini Family Blog</a>
+      </nav>
+    </header>
+    <slot />
+	</body>
+</html>
