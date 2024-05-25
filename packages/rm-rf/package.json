@@ -1,5 +1,5 @@
 {
-  "name": "@jumpfish/rm-rf",
+  "name": "remove-unused",
   "type": "module",
   "version": "0.0.1",
   "bin": "dist/ts-garbage-collector",
