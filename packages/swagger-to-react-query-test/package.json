@@ -1,0 +1,17 @@
+{
+  "name": "@jumpfish/swagger-to-react-query-test",
+  "version": "0.1.0",
+  "scripts": {
+    "build:rust": "cargo run --bin swagger-to-react-query -- -c ./generator.config.json",
+    "test": "vitest run"
+  },
+  "nx": {
+    "targets": {
+      "test": {
+        "dependsOn": [
+          "build:rust"
+        ]
+      }
+    }
+  }
+}
