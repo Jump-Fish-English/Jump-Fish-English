@@ -10,6 +10,7 @@ struct Args {
 
 #[derive(Debug)]
 struct Config {
+  dir: PathBuf,
   config_path: PathBuf,
 }
 
@@ -17,8 +18,10 @@ fn main() {
   match env::current_dir() {
     Ok(current_dir) => {
       let args = Args::parse();
+      let config_path = &current_dir.join(args.config);
       let config = Config {
-        config_path: current_dir.join(args.config),
+        dir: current_dir,
+        config_path: config_path.to_path_buf(),
       };
       read_config(config.config_path);
     },
