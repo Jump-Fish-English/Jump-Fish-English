@@ -1,1 +1,5 @@
-{}
+{
+  "output": {
+    "schemas": "dist/types/{name}.ts"
+  }
+}

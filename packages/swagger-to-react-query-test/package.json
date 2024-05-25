@@ -2,7 +2,7 @@
   "name": "@jumpfish/swagger-to-react-query-test",
   "version": "0.1.0",
   "scripts": {
-    "build:rust": "cargo run --bin swagger-to-react-query -- -c ./generator.config.json",
+    "build:rust": "cargo run --bin swagger-to-react-query -- -c ./generator.config.json --schema Instance -f swagger-files/validator.yaml",
     "test": "vitest run"
   },
   "nx": {
