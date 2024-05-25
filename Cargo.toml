@@ -2,6 +2,7 @@
 
 members = [
   "crates/ts-garbage-collector",
-  "crates/ts-garbage-collector-package-generator"
+  "crates/ts-garbage-collector-package-generator",
+  "crates/swagger-to-react-query"
 ]
 resolver = "2"
