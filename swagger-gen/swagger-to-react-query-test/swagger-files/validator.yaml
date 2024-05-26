@@ -4,161 +4,167 @@ info:
   description: Parses and validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition
   version: 2.1.5
 servers:
-- url: /validator/
+  - url: /validator/
 paths:
   /:
     get:
       tags:
-      - Validator
-      summary: Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
+        - Validator
+      summary:
+        Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
         a valid/invalid badge
       description: |
         Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition provided via `url` parameter
         returning a valid/invalid badge
       operationId: validateByUrl
       parameters:
-      - $ref: '#/components/parameters/url'
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/url'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/validationBadge'
     post:
       tags:
-      - Validator
-      summary: Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
+        - Validator
+      summary:
+        Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
         a valid/invalid badge
       description: |
         Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition provided in request body
         returning a valid/invalid badge
       operationId: validateByContent
       parameters:
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
       requestBody:
         $ref: '#/components/requestBodies/specification'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/validationBadge'
   /debug:
     get:
       tags:
-      - Validator
-      summary: Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
+        - Validator
+      summary:
+        Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
         a validation response
       description: |
         Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition provided via `url` parameter
         returning a validation response containing any found validation errors
       operationId: reviewByUrl
       parameters:
-      - $ref: '#/components/parameters/url'
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/url'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/validationResponse'
     post:
       tags:
-      - Validator
-      summary: Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
+        - Validator
+      summary:
+        Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition returning
         a validation response
       description: |
         Validates a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition provided via request body
         returning a validation response containing any found validation errors
       operationId: reviewByContent
       parameters:
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
       requestBody:
         $ref: '#/components/requestBodies/specification'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/validationResponse'
   /parse:
     get:
       tags:
-      - Validator
-      summary: Resolves / Dereferences a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition
+        - Validator
+      summary:
+        Resolves / Dereferences a Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition
         returning the resolved file
       operationId: parseByUrl
       parameters:
-      - $ref: '#/components/parameters/url'
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/flatten'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
-      - $ref: '#/components/parameters/returnFullParseResult'
+        - $ref: '#/components/parameters/url'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/flatten'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/returnFullParseResult'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/parseResponse'
     post:
       tags:
-      - Validator
-      summary: Resolves / Dereferences Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition
+        - Validator
+      summary:
+        Resolves / Dereferences Swagger/OpenAPI 2.0 or an OpenAPI 3.x definition
         returning the resolved file
       operationId: parseByContent
       parameters:
-      - $ref: '#/components/parameters/resolve'
-      - $ref: '#/components/parameters/resolveFully'
-      - $ref: '#/components/parameters/flatten'
-      - $ref: '#/components/parameters/validateInternalRefs'
-      - $ref: '#/components/parameters/validateExternalRefs'
-      - $ref: '#/components/parameters/resolveRequestBody'
-      - $ref: '#/components/parameters/resolveCombinators'
-      - $ref: '#/components/parameters/allowEmptyStrings'
-      - $ref: '#/components/parameters/legacyYamlDeserialization'
-      - $ref: '#/components/parameters/inferSchemaType'
-      - $ref: '#/components/parameters/jsonSchemaValidation'
-      - $ref: '#/components/parameters/legacyJsonSchemaValidation'
-      - $ref: '#/components/parameters/returnFullParseResult'
+        - $ref: '#/components/parameters/resolve'
+        - $ref: '#/components/parameters/resolveFully'
+        - $ref: '#/components/parameters/flatten'
+        - $ref: '#/components/parameters/validateInternalRefs'
+        - $ref: '#/components/parameters/validateExternalRefs'
+        - $ref: '#/components/parameters/resolveRequestBody'
+        - $ref: '#/components/parameters/resolveCombinators'
+        - $ref: '#/components/parameters/allowEmptyStrings'
+        - $ref: '#/components/parameters/legacyYamlDeserialization'
+        - $ref: '#/components/parameters/inferSchemaType'
+        - $ref: '#/components/parameters/jsonSchemaValidation'
+        - $ref: '#/components/parameters/legacyJsonSchemaValidation'
+        - $ref: '#/components/parameters/returnFullParseResult'
       requestBody:
         $ref: '#/components/requestBodies/specification'
       responses:
-        "200":
+        '200':
           $ref: '#/components/responses/parseResponse'
 components:
   schemas:
@@ -293,7 +299,8 @@ components:
     resolveRequestBody:
       name: resolveRequestBody
       in: query
-      description: bundle requestBody inline during resolving also with resolveFully
+      description:
+        bundle requestBody inline during resolving also with resolveFully
         set to false
       required: false
       schema:
@@ -301,7 +308,8 @@ components:
     resolveCombinators:
       name: resolveCombinators
       in: query
-      description: "customizes behaviour related to `allOf/anyOf/oneOf` with resolveFully\
+      description:
+        "customizes behaviour related to `allOf/anyOf/oneOf` with resolveFully\
         \ set to true. \nSee https://github.com/swagger-api/swagger-parser/blob/master/README.md#options'\n"
       required: false
       schema:
@@ -323,7 +331,7 @@ components:
     inferSchemaType:
       name: inferSchemaType
       in: query
-      description: "infer schema type for item, default and schemas with additionalProperties"
+      description: 'infer schema type for item, default and schemas with additionalProperties'
       required: false
       schema:
         type: boolean
@@ -344,7 +352,8 @@ components:
     returnFullParseResult:
       name: returnFullParseResult
       in: query
-      description: if set to true returns the full parse result including validation
+      description:
+        if set to true returns the full parse result including validation
         messages
       required: false
       schema:

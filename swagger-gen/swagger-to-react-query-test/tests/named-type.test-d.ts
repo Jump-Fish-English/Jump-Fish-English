@@ -3,8 +3,8 @@ import { type Instance } from '../dist/types/Instance';
 
 describe('Instance', () => {
   it('should output expected interfact', () => {
-   expectTypeOf({
-    pointer: 'string',
-   }).toEqualTypeOf<Instance>();
+    expectTypeOf({
+      pointer: 'string',
+    }).toEqualTypeOf<Instance>();
   });
-})
+});

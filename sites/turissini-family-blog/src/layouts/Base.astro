@@ -1,5 +1,4 @@
 ---
-
 interface Props {
   title: string;
   hideHeader?: boolean;
@@ -9,12 +8,12 @@ const { hideHeader, title: pageTitle } = Astro.props;
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{pageTitle} - Turissini Family Blog</title>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle} - Turissini Family Blog</title>
     <link rel="stylesheet" type="text/css" href="/reset.css" />
     <style is:global>
       body {
@@ -27,7 +26,7 @@ const { hideHeader, title: pageTitle } = Astro.props;
       }
 
       a {
-        color: #13738F;
+        color: #13738f;
         text-decoration: none;
       }
     </style>
@@ -45,15 +44,17 @@ const { hideHeader, title: pageTitle } = Astro.props;
         }
       }
     </style>
-	</head>
-	<body>
-    {hideHeader !== true && (
-      <header>
-        <nav>
-          <a href="/">Turissini Family Blog</a>
-        </nav>
-      </header>
-    )}
+  </head>
+  <body>
+    {
+      hideHeader !== true && (
+        <header>
+          <nav>
+            <a href="/">Turissini Family Blog</a>
+          </nav>
+        </header>
+      )
+    }
     <slot />
-	</body>
+  </body>
 </html>
