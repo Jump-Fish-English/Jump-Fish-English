@@ -1,7 +1,10 @@
 use clap::Parser;
+use generate::generate_named_schema_interface;
 use std::{collections::HashMap, env, error::Error, fs::{read_to_string, create_dir_all, write}, path::PathBuf};
 use serde::{Deserialize, Serialize};
 use oas3::spec::{ObjectOrReference, Schema};
+mod generate;
+mod diff_paths;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -15,8 +18,6 @@ struct Args {
     #[arg(long)]
     schema: Option<String>,
 }
-
-const SCHEMA_NAME_DIRECTIVE: &str = "{name}";
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -36,6 +37,7 @@ struct InputState {
   dir: PathBuf,
   doc: SwaggerDocument,
   configuration: ConfigurationFile,
+  generation_options: GenerationOptions,
 }
 
 #[derive(Debug)]
@@ -76,10 +78,9 @@ struct GenerationOptions {
 fn main() {
   let args = Args::parse();
   let input_state_result = parse_input_state(&args);
-  let generation_options = parse_generation_options(&args);
   match input_state_result {
     Ok(input_state) => {
-      let fs = generate(generation_options, input_state);
+      let fs = generate(input_state);
       match write_generated_files(fs) {
         Ok(_) => {},
         Err(err) => {
@@ -103,12 +104,6 @@ fn write_generated_files(fs: InMemoryFileSystem) -> Result<(), Box<dyn Error>> {
   return Ok(());
 }
 
-fn parse_generation_options(args: &Args) -> GenerationOptions {
-  return GenerationOptions {
-    schema: args.schema.to_owned()
-  }
-}
-
 fn parse_input_state(args: &Args) -> Result<InputState, Box<dyn Error>> {
   let current_dir = env::current_dir()?;
   let config_path = &current_dir.join(&args.config);
@@ -116,6 +111,7 @@ fn parse_input_state(args: &Args) -> Result<InputState, Box<dyn Error>> {
   let contents = std::fs::read_to_string(source_file_path)?;
   let doc = create_swagger_document_def(contents)?;
   return create_input_state(
+    args,
     doc,
     current_dir, 
     config_path.to_path_buf()
@@ -158,34 +154,28 @@ fn parse_config_file(config_path: &PathBuf) -> Result<ConfigurationFile, Box<dyn
   );
 }
 
-fn create_input_state(doc: SwaggerDocument, dir: PathBuf, config_path: PathBuf) -> Result<InputState, Box<dyn Error>> {
+fn create_input_state(args: &Args, doc: SwaggerDocument, dir: PathBuf, config_path: PathBuf) -> Result<InputState, Box<dyn Error>> {
   return Ok(
     InputState {
       dir,
       doc,
-      configuration: parse_config_file(&config_path)?
+      configuration: parse_config_file(&config_path)?,
+      generation_options: GenerationOptions {
+        schema: args.schema.to_owned()
+      }
     }
   )
 }
 
-fn named_schema_output_path(schema_name: &String, state: &InputState) -> PathBuf {
-  return PathBuf::from(
-    state.dir.join(&state.configuration.output.schemas).to_string_lossy().replace(SCHEMA_NAME_DIRECTIVE, &schema_name)
-  );
-}
-
-fn generate(options: GenerationOptions, state: InputState) -> InMemoryFileSystem {
+fn generate(state: InputState) -> InMemoryFileSystem {
   let doc = &state.doc;
   let mut files: Vec<InMemoryFile> = Vec::new();
   
-  match &options.schema {
+  match &state.generation_options.schema {
     Some(schema_name) => {
-      files.push(
-        InMemoryFile {
-          path: named_schema_output_path(&schema_name, &state),
-          contents: String::from(""),
-        }
-      )
+      if let Some(schema) = doc.components.schemas.get(schema_name) {
+        generate_named_schema_interface(schema, &state, &mut files);
+      }
     },
     None => {},
   }
@@ -205,10 +195,10 @@ mod write_files {
     #[test]
     fn test_generate() {
       let result = generate(
-        GenerationOptions {
-          schema: Some(String::from("Test"))
-        },
         InputState {
+          generation_options: GenerationOptions {
+            schema: Some(String::from("Test"))
+          },
           dir: PathBuf::new().join("/path"),
           doc: create_swagger_document_def(String::from(
             r#"
