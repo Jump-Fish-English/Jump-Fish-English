@@ -6,8 +6,7 @@
   object-fit: contain;
   margin-bottom: 2rem;
 }
-
-
+/* */
 .hidden {
   composes: video;
   display: none;
