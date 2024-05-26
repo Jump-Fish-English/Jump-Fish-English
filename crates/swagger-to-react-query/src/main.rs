@@ -1,7 +1,7 @@
 use clap::Parser;
-use std::{collections::HashMap, env, error::Error, fs::{read_to_string, write}, path::PathBuf};
+use std::{collections::HashMap, env, error::Error, fs::{read_to_string, create_dir_all, write}, path::PathBuf};
 use serde::{Deserialize, Serialize};
-use oas3::spec::{Schema,ObjectOrReference};
+use oas3::spec::{ObjectOrReference, Schema};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -80,7 +80,12 @@ fn main() {
   match input_state_result {
     Ok(input_state) => {
       let fs = generate(generation_options, input_state);
-      let _ = write_generated_files(fs);
+      match write_generated_files(fs) {
+        Ok(_) => {},
+        Err(err) => {
+          dbg!(err);
+        }
+      }
     }, 
     Err(err) => {
       dbg!(err);
@@ -90,6 +95,9 @@ fn main() {
 
 fn write_generated_files(fs: InMemoryFileSystem) -> Result<(), Box<dyn Error>> {
   for virtual_file in fs.files {
+    let mut dir = PathBuf::from(&virtual_file.path);
+    dir.pop();
+    create_dir_all(dir)?;
     write(&virtual_file.path, &virtual_file.contents)?;
   }
   return Ok(());
