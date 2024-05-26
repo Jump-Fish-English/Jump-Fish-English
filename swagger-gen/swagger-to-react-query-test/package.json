@@ -2,8 +2,7 @@
   "name": "@jumpfish/swagger-to-react-query-test",
   "version": "0.1.0",
   "scripts": {
-    "build:rust": "cargo run --bin swagger-to-react-query -- -c ./generator.config.json --schema SchemaValidationError -f swagger-files/validator.yaml",
-    "test": "vitest run"
+    "build:rust": "cargo run --bin swagger-to-react-query -- -c ./generator.config.json --schema SchemaValidationError -f swagger-files/validator.yaml"
   },
   "nx": {
     "targets": {

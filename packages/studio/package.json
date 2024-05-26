@@ -19,9 +19,6 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "playwright": "playwright test",
-    "start-wasm-test-server": "vite ./src/lib",
-    "types": "tsc --build"
+    "astro": "astro"
   }
 }

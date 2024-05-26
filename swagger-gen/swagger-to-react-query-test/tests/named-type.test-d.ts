@@ -1,5 +1,5 @@
 import { describe, it, expectTypeOf } from 'vitest';
-import { type Instance } from '../dist/types/Instance';
+import { type Instance } from '../generated/types/Instance';
 
 describe('Instance', () => {
   it('should output expected interfact', () => {

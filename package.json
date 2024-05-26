@@ -18,6 +18,9 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "@vitest/browser": "1.6.0",
+    "@nx/vite": "19.1.0",
+    "@nx/playwright": "19.1.0",
+    "@monodon/rust": "1.4.0",
     "astro": "4.8.5",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
@@ -35,7 +38,6 @@
   },
   "scripts": {
     "prettier": "prettier . **/*.astro --write",
-    "test": "vitest run && cargo test",
     "test:watch": "vitest",
     "lint": "eslint .",
     "prepare": "husky install",

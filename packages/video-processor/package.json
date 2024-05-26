@@ -4,7 +4,6 @@
   "main": "src/main.ts",
   "scripts": {
     "dev": "vite dev",
-    "test": "vitest",
     "types": "tsc --build"
   },
   "dependencies": {

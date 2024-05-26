@@ -1,5 +1,5 @@
 {
   "output": {
-    "schemas": "dist/types/{name}.ts"
+    "schemas": "generated/types/{name}.ts"
   }
 }
