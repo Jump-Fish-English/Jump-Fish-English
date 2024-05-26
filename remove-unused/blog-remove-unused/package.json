@@ -1,5 +1,5 @@
 {
-  "name": "@jumpfish/blog-rm-rf",
+  "name": "@jumpfish/blog-remove-unused",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
