@@ -9,7 +9,7 @@
       "path": "packages/astro-rpc/tsconfig.json"
     },
     {
-      "path": "packages/blog-rm-rf/tsconfig.json"
+      "path": "remove-unused/blog-rm-rf/tsconfig.json"
     },
     {
       "path": "packages/codingclub/tsconfig.json"
@@ -18,7 +18,7 @@
       "path": "packages/english/tsconfig.json"
     },
     {
-      "path": "packages/rm-rf/tsconfig.json"
+      "path": "remove-unused/rm-rf/tsconfig.json"
     },
     {
       "path": "packages/studio/tsconfig.json"
@@ -33,7 +33,7 @@
       "path": "sites/turissini-family-blog/tsconfig.json"
     },
     {
-      "path": "packages/swagger-to-react-query-test/tsconfig.json"
+      "path": "swagger-gen/swagger-to-react-query-test/tsconfig.json"
     }
   ]
 }

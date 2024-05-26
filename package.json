@@ -43,6 +43,8 @@
   },
   "workspaces": [
     "sites/**",
-    "packages/**"
+    "packages/**",
+    "swagger-gen/**",
+    "remove-unused/**"
   ]
 }
