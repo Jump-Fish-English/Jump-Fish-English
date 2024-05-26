@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{collections::HashMap, env, error::Error, fs, path::PathBuf};
+use std::{collections::HashMap, env, error::Error, fs::{read_to_string, write}, path::PathBuf};
 use serde::{Deserialize, Serialize};
 use oas3::spec::{Schema,ObjectOrReference};
 
@@ -74,37 +74,44 @@ struct GenerationOptions {
 
 
 fn main() {
-  match env::current_dir() {
-    Ok(current_dir) => {
-      let args = Args::parse();
-      let config_path = &current_dir.join(args.config);
-      let source_file_path = &current_dir.join(args.file);
-      let contents = std::fs::read_to_string(source_file_path);
-      match contents {
-          Ok(string) => {
-            match create_swagger_document_def(string) {
-              Ok(doc) => {
-                let generation_options = create_generation_options(
-                  doc,
-                  current_dir, 
-                  config_path.to_path_buf()
-                );
-              }
-              Err(err) => {
-                dbg!(err);
-              }
-              
-            }
-          },
-          Err(_) => {
-
-          }
-      }
-    },
+  let args = Args::parse();
+  let input_state_result = parse_input_state(&args);
+  let generation_options = parse_generation_options(&args);
+  match input_state_result {
+    Ok(input_state) => {
+      let fs = generate(generation_options, input_state);
+      let _ = write_generated_files(fs);
+    }, 
     Err(err) => {
       dbg!(err);
     }
+  };
+}
+
+fn write_generated_files(fs: InMemoryFileSystem) -> Result<(), Box<dyn Error>> {
+  for virtual_file in fs.files {
+    write(&virtual_file.path, &virtual_file.contents)?;
   }
+  return Ok(());
+}
+
+fn parse_generation_options(args: &Args) -> GenerationOptions {
+  return GenerationOptions {
+    schema: args.schema.to_owned()
+  }
+}
+
+fn parse_input_state(args: &Args) -> Result<InputState, Box<dyn Error>> {
+  let current_dir = env::current_dir()?;
+  let config_path = &current_dir.join(&args.config);
+  let source_file_path = &current_dir.join(&args.file);
+  let contents = std::fs::read_to_string(source_file_path)?;
+  let doc = create_swagger_document_def(contents)?;
+  return create_input_state(
+    doc,
+    current_dir, 
+    config_path.to_path_buf()
+  );
 }
 
 fn create_swagger_document_def(contents: String) -> Result<SwaggerDocument, Box<dyn Error>> {
@@ -136,14 +143,14 @@ fn create_swagger_document_def(contents: String) -> Result<SwaggerDocument, Box<
 }
 
 fn parse_config_file(config_path: &PathBuf) -> Result<ConfigurationFile, Box<dyn Error>> {
-  let contents = fs::read_to_string(config_path)?;
+  let contents = read_to_string(config_path)?;
   let parsed: ConfigurationFile = serde_json::from_str(contents.as_str())?;
   return Ok(
     parsed
   );
 }
 
-fn create_generation_options(doc: SwaggerDocument, dir: PathBuf, config_path: PathBuf) -> Result<InputState, Box<dyn Error>> {
+fn create_input_state(doc: SwaggerDocument, dir: PathBuf, config_path: PathBuf) -> Result<InputState, Box<dyn Error>> {
   return Ok(
     InputState {
       dir,
@@ -159,7 +166,7 @@ fn named_schema_output_path(schema_name: &String, state: &InputState) -> PathBuf
   );
 }
 
-fn generate(options: &GenerationOptions, state: &InputState) -> Result<InMemoryFileSystem, Box<dyn Error>> {
+fn generate(options: GenerationOptions, state: InputState) -> InMemoryFileSystem {
   let doc = &state.doc;
   let mut files: Vec<InMemoryFile> = Vec::new();
   
@@ -179,7 +186,7 @@ fn generate(options: &GenerationOptions, state: &InputState) -> Result<InMemoryF
     files,
   };
 
-  return Ok(fs);
+  return fs;
 }
 
 
@@ -190,10 +197,10 @@ mod write_files {
     #[test]
     fn test_generate() {
       let result = generate(
-        &GenerationOptions {
+        GenerationOptions {
           schema: Some(String::from("Test"))
         },
-        &InputState {
+        InputState {
           dir: PathBuf::new().join("/path"),
           doc: create_swagger_document_def(String::from(
             r#"
@@ -220,7 +227,7 @@ mod write_files {
         }
       );
 
-      let files = result.unwrap().files;
+      let files = result.files;
 
       assert_eq!(
         files.len(),
