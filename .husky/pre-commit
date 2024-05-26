@@ -2,4 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npm run lint
-npx nx affected --target test,types,format:write,playwright --uncommitted
+npx nx format:write --uncommitted
+npx nx affected --target test,types,playwright --uncommitted

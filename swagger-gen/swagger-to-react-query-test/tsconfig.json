@@ -5,9 +5,12 @@
     "composite": true
   },
   "include": [],
-  "references": [{
-    "path": "tsconfig.artifacts.json"
-  }, {
-    "path": "tsconfig.test.json"
-  }]
+  "references": [
+    {
+      "path": "tsconfig.artifacts.json"
+    },
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
 }

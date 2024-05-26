@@ -6,8 +6,6 @@ export default defineConfig({
     typecheck: {
       enabled: true,
     },
-    include: [
-      'tests/**/*.vitest.ts'
-    ]
-  }
-})
+    include: ['tests/**/*.vitest.ts'],
+  },
+});
